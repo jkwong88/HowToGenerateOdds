@@ -55,9 +55,9 @@ function buildFinalMatrixTable(expected) {
 // Correct Score table is split into 3 smaller tables by Home score so no
 // single table needs 26 columns.
 const SCORE_TABLE_GROUPS = [
-  { title: "Home 0 - 1", homeValues: [0, 1], includeAOS: false },
-  { title: "Home 2 - 3", homeValues: [2, 3], includeAOS: false },
-  { title: "Home 4 & AOS", homeValues: [4], includeAOS: true },
+  { homeValues: [0, 1], includeAOS: false },
+  { homeValues: [2, 3], includeAOS: false },
+  { homeValues: [4], includeAOS: true },
 ];
 
 function buildScoreTable(stats) {
@@ -75,7 +75,6 @@ function buildScoreTable(stats) {
     const wrapper = document.createElement("div");
     wrapper.className = "score-group table-scroll";
     wrapper.innerHTML = `
-      <h3>${group.title}</h3>
       <table>
         <thead>
           <tr id="score-header-${index}"><th>Score</th></tr>
