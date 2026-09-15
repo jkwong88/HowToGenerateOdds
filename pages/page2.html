@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exercise 2 - Final Score Probability Matrix</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="page">
+  <h1>Exercise 2: Final Score Probability Matrix</h1>
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Given: Probability Table (from Part 3)</h2>
+      <table id="given-table">
+        <thead>
+          <tr id="given-header"><th>Goals</th></tr>
+        </thead>
+        <tbody>
+          <tr id="given-home-row"><td class="row-label">Home</td></tr>
+          <tr id="given-away-row"><td class="row-label">Away</td></tr>
+          <tr id="given-total-row"><td class="row-label">Total</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel" id="matrix-section">
+      <h2>Final Score Probability Table</h2>
+      <table id="matrix-table">
+        <thead>
+          <tr id="matrix-header"><th>Home &#92; Away</th></tr>
+        </thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+      <div class="controls">
+        <button id="check-matrix">Check</button>
+        <button id="fill-matrix">Fill Answers</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="reset-btn">Reset All</button>
+    <button id="toggle-formula-btn">Formula Hover: On</button>
+    <div class="page-nav" id="page-nav"></div>
+  </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/exercise-common.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/page2.js"></script>
+</body>
+</html>
