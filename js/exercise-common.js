@@ -52,6 +52,33 @@ function markInput(input, expected, tolerance = DEFAULT_TOLERANCE, decimals = 1)
   return isCorrect;
 }
 
+// Highlights the source cell(s) a formula reads from, e.g. hovering a matrix
+// cell's formula highlights the given-table cells it multiplies together.
+// Targets are matched via data-cell, which may tag more than one element
+// (e.g. every historical row where Home == 0), so all of them light up.
+function setRefHighlight(refs, on) {
+  refs.split(",").forEach((ref) => {
+    const key = ref.trim();
+    if (!key) return;
+    document.querySelectorAll(`[data-cell="${key}"]`).forEach((el) => {
+      el.classList.toggle("ref-highlight", on);
+    });
+  });
+}
+
+function attachRefHighlight(input) {
+  const refs = input.dataset.refs;
+  if (!refs) return;
+  const cell = input.closest("td");
+
+  cell.addEventListener("mouseenter", () => {
+    if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) {
+      setRefHighlight(refs, true);
+    }
+  });
+  cell.addEventListener("mouseleave", () => setRefHighlight(refs, false));
+}
+
 function lockSection(sectionId) {
   const section = document.getElementById(sectionId);
   section.classList.add("locked");

@@ -5,15 +5,15 @@ function buildGivenTable(expected) {
   });
 
   const rows = [
-    { id: "given-home-row", map: expected.probHome },
-    { id: "given-away-row", map: expected.probAway },
-    { id: "given-total-row", map: expected.probTotal },
+    { key: "home", id: "given-home-row", map: expected.probHome },
+    { key: "away", id: "given-away-row", map: expected.probAway },
+    { key: "total", id: "given-total-row", map: expected.probTotal },
   ];
 
-  rows.forEach(({ id, map }) => {
+  rows.forEach(({ key, id, map }) => {
     const row = document.getElementById(id);
     GOAL_VALUES.forEach((v) => {
-      row.innerHTML += `<td class="given-value">${map[v].toFixed(1)}</td>`;
+      row.innerHTML += `<td class="given-value" data-cell="given-${key}:${v}">${map[v].toFixed(1)}</td>`;
     });
   });
 }
@@ -34,7 +34,7 @@ function buildMatrixTable() {
     let cells = `<td class="row-label">${r}</td>`;
     GOAL_VALUES.forEach((c) => {
       const disabledAttr = isEdgeCell(r, c) ? " disabled" : "";
-      cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home=${r}) &times; P(Away=${c})"${disabledAttr}></td>`;
+      cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home=${r}) &times; P(Away=${c})" data-refs="given-home:${r},given-away:${c}"${disabledAttr}></td>`;
     });
     row.innerHTML = cells;
     body.appendChild(row);
@@ -112,6 +112,7 @@ buildMatrixTable();
 document.querySelectorAll("input.answer").forEach((input) => {
   syncEmptyTooltip(input);
   input.addEventListener("input", () => syncEmptyTooltip(input));
+  attachRefHighlight(input);
 });
 
 hideEdgeCells();

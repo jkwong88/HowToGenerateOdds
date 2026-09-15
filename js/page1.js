@@ -2,11 +2,12 @@ function buildHistoryTable() {
   const body = document.getElementById("history-body");
   MATCH_HISTORY.forEach((match) => {
     const row = document.createElement("tr");
+    const total = match.home + match.away;
     row.innerHTML = `
       <td class="row-label">${match.no}</td>
-      <td>${match.home}</td>
-      <td>${match.away}</td>
-      <td><input class="answer" type="number" step="0.1" id="total-${match.no}" data-formula="Home + Away"></td>
+      <td data-cell="hist-home:${match.home}">${match.home}</td>
+      <td data-cell="hist-away:${match.away}">${match.away}</td>
+      <td data-cell="hist-total:${total}"><input class="answer" type="number" step="0.1" id="total-${match.no}" data-formula="Home + Away"></td>
     `;
     body.appendChild(row);
   });
@@ -36,8 +37,8 @@ function buildFrequencyTables() {
     const probRow = document.getElementById(prob);
     const label = rowLabels[key];
     GOAL_VALUES.forEach((v) => {
-      countRow.innerHTML += `<td><input class="answer" type="number" step="1" id="count-${key}-${v}" data-formula="COUNTIF(${label}, ${v})"></td>`;
-      probRow.innerHTML += `<td><input class="answer" type="number" step="0.1" id="prob-${key}-${v}" data-formula="Count(${label} = ${v}) / 10"></td>`;
+      countRow.innerHTML += `<td data-cell="count-${key}:${v}"><input class="answer" type="number" step="1" id="count-${key}-${v}" data-formula="COUNTIF(${label}, ${v})" data-refs="hist-${key}:${v}"></td>`;
+      probRow.innerHTML += `<td><input class="answer" type="number" step="0.1" id="prob-${key}-${v}" data-formula="Count(${label} = ${v}) / 10" data-refs="count-${key}:${v}"></td>`;
     });
   });
 }
@@ -131,6 +132,7 @@ const expected = computeGoalStats();
 document.querySelectorAll("input.answer").forEach((input) => {
   syncEmptyTooltip(input);
   input.addEventListener("input", () => syncEmptyTooltip(input));
+  attachRefHighlight(input);
 });
 
 lockSection("part2");
