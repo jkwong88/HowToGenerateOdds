@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exercise 1 - Historical Match Data</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="page">
+  <h1>Exercise 1: Historical Match Data</h1>
+
+  <div class="layout">
+    <div class="panel left-panel part-section" id="part1">
+      <h2>Part 1: Last 10 Matches</h2>
+      <table id="history-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Home</th>
+            <th>Away</th>
+            <th>Total Score</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+        <tfoot>
+          <tr class="average-row">
+            <td class="row-label">Average</td>
+            <td><input class="answer" type="number" step="0.1" id="avg-home"></td>
+            <td><input class="answer" type="number" step="0.1" id="avg-away"></td>
+            <td><input class="answer" type="number" step="0.1" id="avg-total"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="controls">
+        <button id="check-part1">Check</button>
+        <button id="fill-part1">Fill Answers</button>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="panel top-section part-section locked" id="part2">
+        <div class="lock-notice">Complete Part 1 first to unlock.</div>
+        <h2>Part 2: Goal Count Frequency</h2>
+        <table id="count-table">
+          <thead>
+            <tr id="count-header"><th>Goals</th></tr>
+          </thead>
+          <tbody>
+            <tr id="count-home-row"><td class="row-label">Home</td></tr>
+            <tr id="count-away-row"><td class="row-label">Away</td></tr>
+            <tr id="count-total-row"><td class="row-label">Total</td></tr>
+          </tbody>
+        </table>
+        <div class="controls">
+          <button id="check-part2">Check</button>
+          <button id="fill-part2">Fill Answers</button>
+        </div>
+      </div>
+
+      <div class="panel bottom-section part-section locked" id="part3">
+        <div class="lock-notice">Complete Part 2 first to unlock.</div>
+        <h2>Part 3: Probability Table</h2>
+        <table id="prob-table">
+          <thead>
+            <tr id="prob-header"><th>Goals</th></tr>
+          </thead>
+          <tbody>
+            <tr id="prob-home-row"><td class="row-label">Home</td></tr>
+            <tr id="prob-away-row"><td class="row-label">Away</td></tr>
+            <tr id="prob-total-row"><td class="row-label">Total</td></tr>
+          </tbody>
+        </table>
+        <div class="controls">
+          <button id="check-part3">Check</button>
+          <button id="fill-part3">Fill Answers</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="reset-btn">Reset All</button>
+    <button id="toggle-formula-btn">Formula Hover: On</button>
+    <div class="page-nav" id="page-nav"></div>
+  </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/exercise-common.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/page1.js"></script>
+</body>
+</html>
