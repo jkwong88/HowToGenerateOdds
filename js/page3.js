@@ -1,9 +1,7 @@
-const CORRECT_SCORE_RANGE = [0, 1, 2, 3, 4];
-
 function buildCorrectScoreEntries() {
   const entries = [];
-  CORRECT_SCORE_RANGE.forEach((home) => {
-    CORRECT_SCORE_RANGE.forEach((away) => {
+  MATRIX_GOAL_VALUES.forEach((home) => {
+    MATRIX_GOAL_VALUES.forEach((away) => {
       entries.push({ key: `${home}-${away}`, label: `${home}:${away}`, home, away, isAOS: false });
     });
   });
@@ -42,15 +40,15 @@ function computeScoreStats(expected) {
 
 function buildFinalMatrixTable(expected) {
   const header = document.getElementById("final-matrix-header");
-  GOAL_VALUES.forEach((v) => {
+  MATRIX_GOAL_VALUES.forEach((v) => {
     header.innerHTML += `<th>${v}</th>`;
   });
 
   const body = document.getElementById("final-matrix-body");
-  GOAL_VALUES.forEach((home) => {
+  MATRIX_GOAL_VALUES.forEach((home) => {
     const row = document.createElement("tr");
     let cells = `<td class="row-label">${home}</td>`;
-    GOAL_VALUES.forEach((away) => {
+    MATRIX_GOAL_VALUES.forEach((away) => {
       cells += `<td class="given-value" data-cell="final-matrix:${home}-${away}">${matrixExpected(expected, home, away).toFixed(2)}</td>`;
     });
     row.innerHTML = cells;

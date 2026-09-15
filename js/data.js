@@ -14,6 +14,11 @@ const MATCH_HISTORY = [
 
 const GOAL_VALUES = [0, 1, 2, 3, 4, 5, 6];
 
+// Individual team goals never reach 5 or 6 in this dataset (unlike combined
+// match totals, which do), so the Home x Away matrix tables only need this
+// narrower range.
+const MATRIX_GOAL_VALUES = [0, 1, 2, 3, 4];
+
 function countByValue(goals, value) {
   return goals.filter((g) => g === value).length;
 }

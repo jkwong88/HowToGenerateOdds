@@ -24,15 +24,15 @@ function isEdgeCell(r, c) {
 
 function buildMatrixTable() {
   const header = document.getElementById("matrix-header");
-  GOAL_VALUES.forEach((v) => {
+  MATRIX_GOAL_VALUES.forEach((v) => {
     header.innerHTML += `<th>${v}</th>`;
   });
 
   const body = document.getElementById("matrix-body");
-  GOAL_VALUES.forEach((r) => {
+  MATRIX_GOAL_VALUES.forEach((r) => {
     const row = document.createElement("tr");
     let cells = `<td class="row-label">${r}</td>`;
-    GOAL_VALUES.forEach((c) => {
+    MATRIX_GOAL_VALUES.forEach((c) => {
       const disabledAttr = isEdgeCell(r, c) ? " disabled" : "";
       cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home=${r}) &times; P(Away=${c})" data-refs="given-home:${r},given-away:${c}"${disabledAttr}></td>`;
     });
@@ -45,8 +45,8 @@ function buildMatrixTable() {
 // of the exercise, so those cells stay hidden and disabled until the user
 // solves the 3x3 core (Home <= 2, Away <= 2) or gives up via Fill Answers.
 function hideEdgeCells() {
-  GOAL_VALUES.forEach((r) => {
-    GOAL_VALUES.forEach((c) => {
+  MATRIX_GOAL_VALUES.forEach((r) => {
+    MATRIX_GOAL_VALUES.forEach((c) => {
       if (!isEdgeCell(r, c)) return;
       const input = document.getElementById(`matrix-${r}-${c}`);
       input.value = "";
@@ -58,8 +58,8 @@ function hideEdgeCells() {
 }
 
 function revealEdgeCells(expected) {
-  GOAL_VALUES.forEach((r) => {
-    GOAL_VALUES.forEach((c) => {
+  MATRIX_GOAL_VALUES.forEach((r) => {
+    MATRIX_GOAL_VALUES.forEach((c) => {
       if (!isEdgeCell(r, c)) return;
       const input = document.getElementById(`matrix-${r}-${c}`);
       input.value = matrixExpected(expected, r, c).toFixed(2);
@@ -71,8 +71,8 @@ function revealEdgeCells(expected) {
 
 function checkCoreCells(expected) {
   const results = [];
-  GOAL_VALUES.forEach((r) => {
-    GOAL_VALUES.forEach((c) => {
+  MATRIX_GOAL_VALUES.forEach((r) => {
+    MATRIX_GOAL_VALUES.forEach((c) => {
       if (isEdgeCell(r, c)) return;
       const input = document.getElementById(`matrix-${r}-${c}`);
       results.push(markInput(input, matrixExpected(expected, r, c), 0.005, 2));
@@ -88,8 +88,8 @@ function checkMatrix(expected) {
 }
 
 function fillMatrix(expected) {
-  GOAL_VALUES.forEach((r) => {
-    GOAL_VALUES.forEach((c) => {
+  MATRIX_GOAL_VALUES.forEach((r) => {
+    MATRIX_GOAL_VALUES.forEach((c) => {
       if (isEdgeCell(r, c)) return;
       document.getElementById(`matrix-${r}-${c}`).value = matrixExpected(expected, r, c).toFixed(2);
     });
