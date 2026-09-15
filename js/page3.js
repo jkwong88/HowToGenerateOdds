@@ -52,22 +52,54 @@ function buildFinalMatrixTable(expected) {
   });
 }
 
+// Correct Score table is split into 3 smaller tables by Home score so no
+// single table needs 26 columns.
+const SCORE_TABLE_GROUPS = [
+  { title: "Home 0 - 1", homeValues: [0, 1], includeAOS: false },
+  { title: "Home 2 - 3", homeValues: [2, 3], includeAOS: false },
+  { title: "Home 4 & AOS", homeValues: [4], includeAOS: true },
+];
+
 function buildScoreTable(stats) {
-  const header = document.getElementById("score-header");
-  const probRow = document.getElementById("score-prob-row");
-  const oddsRow = document.getElementById("score-odds-row");
+  const container = document.getElementById("score-tables");
 
-  stats.entries.forEach((entry) => {
-    header.innerHTML += `<th>${entry.label}</th>`;
+  SCORE_TABLE_GROUPS.forEach((group, index) => {
+    const groupEntries = stats.entries.filter((entry) =>
+      entry.isAOS ? group.includeAOS : group.homeValues.includes(entry.home)
+    );
 
-    const probFormula = entry.isAOS
-      ? "1 &minus; SUM(all other probabilities)"
-      : `Matrix(Home=${entry.home}, Away=${entry.away})`;
-    probRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}"></td>`;
+    const wrapper = document.createElement("div");
+    wrapper.className = "score-group table-scroll";
+    wrapper.innerHTML = `
+      <h3>${group.title}</h3>
+      <table>
+        <thead>
+          <tr id="score-header-${index}"><th>Score</th></tr>
+        </thead>
+        <tbody>
+          <tr id="score-prob-row-${index}"><td class="row-label">Probability</td></tr>
+          <tr id="score-odds-row-${index}"><td class="row-label">Euro Odds</td></tr>
+        </tbody>
+      </table>
+    `;
+    container.appendChild(wrapper);
 
-    const oddsUndefined = isUndefinedOdds(stats.probByKey[entry.key]);
-    const oddsAttrs = oddsUndefined ? ' disabled placeholder="N/A"' : "";
-    oddsRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-odds-${entry.key}" data-formula="1 / Probability"${oddsAttrs}></td>`;
+    const header = wrapper.querySelector(`#score-header-${index}`);
+    const probRow = wrapper.querySelector(`#score-prob-row-${index}`);
+    const oddsRow = wrapper.querySelector(`#score-odds-row-${index}`);
+
+    groupEntries.forEach((entry) => {
+      header.innerHTML += `<th>${entry.label}</th>`;
+
+      const probFormula = entry.isAOS
+        ? "1 &minus; SUM(all other probabilities)"
+        : `Matrix(Home=${entry.home}, Away=${entry.away})`;
+      probRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}"></td>`;
+
+      const oddsUndefined = isUndefinedOdds(stats.probByKey[entry.key]);
+      const oddsAttrs = oddsUndefined ? ' disabled placeholder="N/A"' : "";
+      oddsRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-odds-${entry.key}" data-formula="1 / Probability"${oddsAttrs}></td>`;
+    });
   });
 }
 

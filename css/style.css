@@ -23,6 +23,12 @@ h2 {
   margin: 0 0 8px;
 }
 
+h3 {
+  font-size: 13px;
+  margin: 0 0 6px;
+  color: #444;
+}
+
 .layout {
   display: flex;
   gap: 24px;
@@ -49,6 +55,12 @@ h2 {
 .table-scroll {
   overflow-x: auto;
   max-width: 100%;
+}
+
+#score-tables {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .left-panel {
