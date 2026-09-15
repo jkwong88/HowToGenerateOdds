@@ -65,3 +65,8 @@ function computeGoalStats() {
     probTotal,
   };
 }
+
+// Joint probability of an exact scoreline, assuming Home/Away goals are independent.
+function matrixExpected(expected, home, away) {
+  return expected.probHome[home] * expected.probAway[away];
+}

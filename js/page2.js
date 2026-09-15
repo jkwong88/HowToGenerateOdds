@@ -41,10 +41,6 @@ function buildMatrixTable() {
   });
 }
 
-function matrixExpected(expected, r, c) {
-  return expected.probHome[r] * expected.probAway[c];
-}
-
 // Goals 3+ carry little probability mass in this dataset and aren't the point
 // of the exercise, so those cells stay hidden and disabled until the user
 // solves the 3x3 core (Home <= 2, Away <= 2) or gives up via Fill Answers.

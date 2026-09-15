@@ -17,12 +17,14 @@ The reference spreadsheet [Football Probability_Jiankun.xlsx](Football%20Probabi
 index.html              landing page listing exercises
 pages/page1.html         exercise 1 source (links css/js by relative path)
 pages/page2.html         exercise 2 source
+pages/page3.html         exercise 3 source
 css/style.css            shared styles
-js/data.js               shared fixed dataset + computeGoalStats() (counts/averages/probabilities)
+js/data.js               shared fixed dataset + computeGoalStats()/matrixExpected() (counts/averages/probabilities/joint scoreline probability)
 js/exercise-common.js    shared exercise mechanics: formula-hover tooltips, answer checking, section locking
 js/nav.js                shared prev/next page arrows, driven by PAGE_ORDER
 js/page1.js              page1-specific table building and wiring
 js/page2.js              page2-specific table building and wiring
+js/page3.js              page3-specific table building and wiring
 scripts/build.js         bundler: inlines css/js into dist/*.html for sharing
 dist/                    generated, self-contained HTML files (git-ignore or regenerate as needed)
 ```
