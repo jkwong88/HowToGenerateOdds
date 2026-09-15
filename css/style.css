@@ -118,6 +118,66 @@ td.given-value {
   outline-offset: -2px;
 }
 
+.oe-cell {
+  width: 100%;
+  min-width: 48px;
+  padding: 6px 4px;
+  border: 1px solid #b6b6c2;
+  border-radius: 3px;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.oe-cell:hover:not(:disabled) {
+  border-color: #2c3e6b;
+}
+
+.oe-cell:disabled {
+  cursor: default;
+}
+
+.oe-cell.marked-odd {
+  background: #e8590c;
+  border-color: #b34700;
+  color: #fff;
+}
+
+.oe-cell.marked-even {
+  background: #7048e8;
+  border-color: #5f3dc4;
+  color: #fff;
+}
+
+.oe-cell.marked-odd.dim-text {
+  color: #e8590c;
+}
+
+.oe-cell.marked-even.dim-text {
+  color: #7048e8;
+}
+
+td.cell-correct {
+  background: #d9f2d9;
+}
+
+td.cell-wrong {
+  background: #ffa8a8;
+}
+
+.step-note {
+  font-size: 13px;
+  margin: 12px 0 8px;
+  color: #adb5bd;
+}
+
+.step-note.active {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
 input.answer {
   width: 48px;
   text-align: center;
@@ -199,8 +259,14 @@ button:hover {
   position: relative;
 }
 
+span.part-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .part-section.locked table,
-.part-section.locked .controls button {
+.part-section.locked button {
   opacity: 0.35;
   pointer-events: none;
 }

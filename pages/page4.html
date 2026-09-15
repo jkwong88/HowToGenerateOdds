@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exercise 4 - Odd / Even Market</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="page">
+  <h1>Exercise 4: Odd / Even Market</h1>
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Final Score Probability Table</h2>
+      <table id="oe-matrix-table">
+        <thead>
+          <tr id="oe-matrix-header"><th>Home &#92; Away</th></tr>
+        </thead>
+        <tbody id="oe-matrix-body"></tbody>
+      </table>
+
+      <p class="step-note" id="step-note-1">Step 1: click every cell where Home + Away is <strong>odd</strong>, then Odds Complete.</p>
+      <p class="step-note" id="step-note-2">Step 2: click every remaining cell (Home + Away is <strong>even</strong>), then Even Complete.</p>
+
+      <div class="controls">
+        <span class="part-section" id="oe-step-1">
+          <button id="check-odd">Odds Complete</button>
+        </span>
+        <span class="part-section locked" id="oe-step-2">
+          <button id="check-even">Even Complete</button>
+        </span>
+        <span class="part-section locked" id="oe-step-3">
+          <button id="check-oe">Check</button>
+        </span>
+        <button id="reset-oe">Reset</button>
+        <button id="fill-oe">Fill Answers</button>
+      </div>
+    </div>
+
+    <div class="panel part-section locked" id="odds-section">
+      <div class="lock-notice">Complete all three steps above first to unlock.</div>
+      <h2>Odd / Even True Odds <span class="formula-note">Euro = 1 / Probability; HK = Euro &minus; 1; Malay = HK if HK &le; 1, else &minus;1 / HK</span></h2>
+      <table id="odds-table">
+        <thead>
+          <tr>
+            <th>BetTeam</th>
+            <th>True Probability</th>
+            <th>Euro Odds</th>
+            <th>HK Odds</th>
+            <th>Malay Odds</th>
+          </tr>
+        </thead>
+        <tbody id="odds-table-body"></tbody>
+      </table>
+      <div class="controls">
+        <button id="check-odds-table">Check</button>
+        <button id="fill-odds-table">Fill Answers</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="reset-btn">Reset All</button>
+    <button id="toggle-formula-btn">Formula Hover: On</button>
+    <div class="page-nav" id="page-nav"></div>
+  </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/exercise-common.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/page4.js"></script>
+</body>
+</html>
