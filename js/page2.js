@@ -18,6 +18,10 @@ function buildGivenTable(expected) {
   });
 }
 
+function isEdgeCell(r, c) {
+  return r >= 3 || c >= 3;
+}
+
 function buildMatrixTable() {
   const header = document.getElementById("matrix-header");
   GOAL_VALUES.forEach((v) => {
@@ -29,7 +33,8 @@ function buildMatrixTable() {
     const row = document.createElement("tr");
     let cells = `<td class="row-label">${r}</td>`;
     GOAL_VALUES.forEach((c) => {
-      cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home=${r}) &times; P(Away=${c})"></td>`;
+      const disabledAttr = isEdgeCell(r, c) ? " disabled" : "";
+      cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home=${r}) &times; P(Away=${c})"${disabledAttr}></td>`;
     });
     row.innerHTML = cells;
     body.appendChild(row);
@@ -40,10 +45,39 @@ function matrixExpected(expected, r, c) {
   return expected.probHome[r] * expected.probAway[c];
 }
 
-function checkMatrix(expected) {
+// Goals 3+ carry little probability mass in this dataset and aren't the point
+// of the exercise, so those cells stay hidden and disabled until the user
+// solves the 3x3 core (Home <= 2, Away <= 2) or gives up via Fill Answers.
+function hideEdgeCells() {
+  GOAL_VALUES.forEach((r) => {
+    GOAL_VALUES.forEach((c) => {
+      if (!isEdgeCell(r, c)) return;
+      const input = document.getElementById(`matrix-${r}-${c}`);
+      input.value = "";
+      input.classList.remove("correct", "incorrect");
+      setCellTooltip(input, "");
+      input.disabled = true;
+    });
+  });
+}
+
+function revealEdgeCells(expected) {
+  GOAL_VALUES.forEach((r) => {
+    GOAL_VALUES.forEach((c) => {
+      if (!isEdgeCell(r, c)) return;
+      const input = document.getElementById(`matrix-${r}-${c}`);
+      input.value = matrixExpected(expected, r, c).toFixed(2);
+      markInput(input, matrixExpected(expected, r, c), 0.005, 2);
+      input.disabled = true;
+    });
+  });
+}
+
+function checkCoreCells(expected) {
   const results = [];
   GOAL_VALUES.forEach((r) => {
     GOAL_VALUES.forEach((c) => {
+      if (isEdgeCell(r, c)) return;
       const input = document.getElementById(`matrix-${r}-${c}`);
       results.push(markInput(input, matrixExpected(expected, r, c), 0.005, 2));
     });
@@ -51,9 +85,16 @@ function checkMatrix(expected) {
   return results.every(Boolean);
 }
 
+function checkMatrix(expected) {
+  const passed = checkCoreCells(expected);
+  if (passed) revealEdgeCells(expected);
+  return passed;
+}
+
 function fillMatrix(expected) {
   GOAL_VALUES.forEach((r) => {
     GOAL_VALUES.forEach((c) => {
+      if (isEdgeCell(r, c)) return;
       document.getElementById(`matrix-${r}-${c}`).value = matrixExpected(expected, r, c).toFixed(2);
     });
   });
@@ -65,6 +106,7 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
+  hideEdgeCells();
 }
 
 const expected = computeGoalStats();
@@ -75,6 +117,8 @@ document.querySelectorAll("input.answer").forEach((input) => {
   syncEmptyTooltip(input);
   input.addEventListener("input", () => syncEmptyTooltip(input));
 });
+
+hideEdgeCells();
 
 document.getElementById("check-matrix").addEventListener("click", () => checkMatrix(expected));
 document.getElementById("fill-matrix").addEventListener("click", () => fillMatrix(expected));

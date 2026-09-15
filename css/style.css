@@ -108,6 +108,16 @@ input.answer.correct {
   border-color: #4caf50;
 }
 
+input.answer:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+input.answer:disabled:not(.correct):not(.incorrect) {
+  background: #f0f0f3;
+  border-color: #d8d8de;
+}
+
 input.answer.incorrect {
   background: #fbdada;
   border-color: #e05353;
