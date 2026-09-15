@@ -45,7 +45,7 @@ function buildFinalMatrixTable(expected) {
     const row = document.createElement("tr");
     let cells = `<td class="row-label">${home}</td>`;
     GOAL_VALUES.forEach((away) => {
-      cells += `<td class="given-value">${matrixExpected(expected, home, away).toFixed(2)}</td>`;
+      cells += `<td class="given-value" data-cell="final-matrix:${home}-${away}">${matrixExpected(expected, home, away).toFixed(2)}</td>`;
     });
     row.innerHTML = cells;
     body.appendChild(row);
@@ -62,6 +62,10 @@ const SCORE_TABLE_GROUPS = [
 
 function buildScoreTable(stats) {
   const container = document.getElementById("score-tables");
+  const nonAosRefs = stats.entries
+    .filter((entry) => !entry.isAOS)
+    .map((entry) => `score-prob:${entry.key}`)
+    .join(",");
 
   SCORE_TABLE_GROUPS.forEach((group, index) => {
     const groupEntries = stats.entries.filter((entry) =>
@@ -94,10 +98,11 @@ function buildScoreTable(stats) {
       const probFormula = entry.isAOS
         ? "1 &minus; SUM(all other probabilities)"
         : `Matrix(Home=${entry.home}, Away=${entry.away})`;
-      probRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}"></td>`;
+      const probRefs = entry.isAOS ? nonAosRefs : `final-matrix:${entry.key}`;
+      probRow.innerHTML += `<td data-cell="score-prob:${entry.key}"><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}" data-refs="${probRefs}"></td>`;
 
       const oddsUndefined = isUndefinedOdds(stats.probByKey[entry.key]);
-      const oddsAttrs = oddsUndefined ? ' disabled placeholder="N/A"' : "";
+      const oddsAttrs = oddsUndefined ? ' disabled placeholder="N/A"' : ` data-refs="score-prob:${entry.key}"`;
       oddsRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-odds-${entry.key}" data-formula="1 / Probability"${oddsAttrs}></td>`;
     });
   });
@@ -145,6 +150,7 @@ buildScoreTable(scoreStats);
 document.querySelectorAll("input.answer").forEach((input) => {
   syncEmptyTooltip(input);
   input.addEventListener("input", () => syncEmptyTooltip(input));
+  attachRefHighlight(input);
 });
 
 document.getElementById("check-score").addEventListener("click", () => checkScoreTable(scoreStats));
