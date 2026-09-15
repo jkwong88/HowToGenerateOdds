@@ -3,7 +3,7 @@ const MATCH_HISTORY = [
   { no: 1, home: 1, away: 2 },
   { no: 2, home: 4, away: 1 },
   { no: 3, home: 1, away: 2 },
-  { no: 4, home: 1, away: 1 },
+  { no: 4, home: 1, away: 3 },
   { no: 5, home: 2, away: 4 },
   { no: 6, home: 0, away: 1 },
   { no: 7, home: 2, away: 0 },
