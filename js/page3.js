@@ -17,6 +17,12 @@ function isUndefinedOdds(prob) {
   return Math.abs(prob) < 0.005;
 }
 
+// Away == 0 is the exercise's core: those cells start editable, everything
+// else (Away 1-4, AOS) starts hidden and disabled until the core is solved.
+function isCoreEntry(entry) {
+  return !entry.isAOS && entry.away === 0;
+}
+
 function computeScoreStats(expected) {
   const entries = buildCorrectScoreEntries();
   const probByKey = {};
@@ -94,23 +100,75 @@ function buildScoreTable(stats) {
     groupEntries.forEach((entry) => {
       header.innerHTML += `<th>${entry.label}</th>`;
 
+      const isCore = isCoreEntry(entry);
+
       const probFormula = entry.isAOS
         ? "1 &minus; SUM(all other probabilities)"
         : `Matrix(Home=${entry.home}, Away=${entry.away})`;
       const probRefs = entry.isAOS ? nonAosRefs : `final-matrix:${entry.key}`;
-      probRow.innerHTML += `<td data-cell="score-prob:${entry.key}"><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}" data-refs="${probRefs}"></td>`;
+      const probAttrs = isCore ? ` data-refs="${probRefs}"` : " disabled";
+      probRow.innerHTML += `<td data-cell="score-prob:${entry.key}"><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}"${probAttrs}></td>`;
 
       const oddsUndefined = isUndefinedOdds(stats.probByKey[entry.key]);
-      const oddsAttrs = oddsUndefined ? ' disabled placeholder="N/A"' : ` data-refs="score-prob:${entry.key}"`;
+      let oddsAttrs;
+      if (!isCore) {
+        oddsAttrs = " disabled";
+      } else if (oddsUndefined) {
+        oddsAttrs = ' disabled placeholder="N/A"';
+      } else {
+        oddsAttrs = ` data-refs="score-prob:${entry.key}"`;
+      }
       oddsRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-odds-${entry.key}" data-formula="1 / Probability"${oddsAttrs}></td>`;
     });
   });
 }
 
-function checkScoreTable(stats) {
+function hideEntry(entry) {
+  [`score-prob-${entry.key}`, `score-odds-${entry.key}`].forEach((id) => {
+    const input = document.getElementById(id);
+    input.value = "";
+    input.classList.remove("correct", "incorrect");
+    setCellTooltip(input, "");
+    input.disabled = true;
+  });
+}
+
+function hideNonCoreEntries(stats) {
+  stats.entries.forEach((entry) => {
+    if (!isCoreEntry(entry)) hideEntry(entry);
+  });
+}
+
+function revealEntry(stats, entry) {
+  const prob = stats.probByKey[entry.key];
+  const probInput = document.getElementById(`score-prob-${entry.key}`);
+  probInput.value = prob.toFixed(2);
+  markInput(probInput, prob, 0.005, 2);
+  probInput.disabled = true;
+
+  const oddsInput = document.getElementById(`score-odds-${entry.key}`);
+  if (isUndefinedOdds(prob)) {
+    oddsInput.value = "";
+    oddsInput.placeholder = "N/A";
+    setCellTooltip(oddsInput, "");
+  } else {
+    oddsInput.value = (1 / prob).toFixed(2);
+    markInput(oddsInput, 1 / prob, 0.005, 2);
+  }
+  oddsInput.disabled = true;
+}
+
+function revealNonCoreEntries(stats) {
+  stats.entries.forEach((entry) => {
+    if (!isCoreEntry(entry)) revealEntry(stats, entry);
+  });
+}
+
+function checkCoreEntries(stats) {
   const results = [];
 
   stats.entries.forEach((entry) => {
+    if (!isCoreEntry(entry)) return;
     const prob = stats.probByKey[entry.key];
     results.push(markInput(document.getElementById(`score-prob-${entry.key}`), prob, 0.005, 2));
 
@@ -122,8 +180,15 @@ function checkScoreTable(stats) {
   return results.every(Boolean);
 }
 
+function checkScoreTable(stats) {
+  const passed = checkCoreEntries(stats);
+  if (passed) revealNonCoreEntries(stats);
+  return passed;
+}
+
 function fillScoreTable(stats) {
   stats.entries.forEach((entry) => {
+    if (!isCoreEntry(entry)) return;
     const prob = stats.probByKey[entry.key];
     document.getElementById(`score-prob-${entry.key}`).value = prob.toFixed(2);
     if (!isUndefinedOdds(prob)) {
@@ -138,6 +203,7 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
+  hideNonCoreEntries(scoreStats);
 }
 
 const expected = computeGoalStats();
@@ -151,6 +217,8 @@ document.querySelectorAll("input.answer").forEach((input) => {
   input.addEventListener("input", () => syncEmptyTooltip(input));
   attachRefHighlight(input);
 });
+
+hideNonCoreEntries(scoreStats);
 
 document.getElementById("check-score").addEventListener("click", () => checkScoreTable(scoreStats));
 document.getElementById("fill-score").addEventListener("click", () => fillScoreTable(scoreStats));
