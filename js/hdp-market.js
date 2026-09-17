@@ -18,11 +18,12 @@ function classifyHDP(home, away) {
 function updateStepUI() {
   const point = pointForClassify(hdpLine);
   const hasMiddle = hasMiddleCategory(point);
-  const middleLabel = hasMiddle ? getMiddleLabel(point, "Push") : "";
+  const actionLabel = hasMiddle ? getMiddleActionLabel(point, "Push") : "";
+  const middleLabel = hasMiddle ? getMiddleLabel(point, "Push", BET_TEAM_LABELS) : "";
   const pivot = pivotForDisplay(point);
 
   document.getElementById("hdp-step-2").style.display = hasMiddle ? "" : "none";
-  document.getElementById("complete-middle").textContent = middleLabel;
+  document.getElementById("complete-middle").textContent = actionLabel;
 
   const note1 = document.getElementById("step-note-1");
   const note2 = document.getElementById("step-note-2");
@@ -32,7 +33,7 @@ function updateStepUI() {
 
   if (hasMiddle) {
     note2.style.display = "";
-    note2.innerHTML = `Step 2: click every cell where Home &minus; Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${middleLabel}.`;
+    note2.innerHTML = `Step 2: click every cell where Home &minus; Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${actionLabel}.`;
     note3.innerHTML = `Step 3: click every remaining cell (Home &minus; Away is <strong>over ${pivot}</strong>), then click Home Covers.`;
   } else {
     note2.style.display = "none";
@@ -105,7 +106,7 @@ function buildTrueProbTable() {
   const point = pointForClassify(hdpLine);
   const categories = getCategories(point);
   const pivot = pivotForDisplay(point);
-  const labels = { under: "Away Covers", middle: getMiddleLabel(point, "Push"), over: "Home Covers" };
+  const labels = { under: "Away Covers", middle: getMiddleLabel(point, "Push", BET_TEAM_LABELS), over: "Home Covers" };
 
   const header = document.getElementById("true-prob-header");
   header.innerHTML = "<th></th>";
@@ -132,7 +133,7 @@ function buildOddsTable() {
   const body = document.getElementById("odds-table-body");
   body.innerHTML = "";
   const weight = middleWeight(point);
-  const middleLabel = hasMiddleCategory(point) ? getMiddleLabel(point, "Push") : "";
+  const middleLabel = hasMiddleCategory(point) ? getMiddleLabel(point, "Push", BET_TEAM_LABELS) : "";
   const primaryKey = primaryBetTeamKey(point);
 
   BET_TEAM_KEYS.forEach((key) => {

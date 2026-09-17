@@ -181,15 +181,30 @@ function pivotForDisplay(point) {
   return hasMiddleCategory(point) ? Math.round(point) : point;
 }
 
-// The middle category's label: an integer point pushes (caller supplies the
-// word - "Draw" for Over/Under, "Push" for HDP); a quarter point is a
-// genuine half win/half lose instead, framed from whichever side sits above
-// its pivot (the same "above/below pivot" rule as primaryBetTeamKey).
-function getMiddleLabel(point, integerLabel) {
+// The short, single-word name for the middle category's paint button and
+// "click X" instruction: an integer point pushes (caller supplies the word
+// - "Draw" for Over/Under, "Push" for HDP), which is symmetric enough for
+// one word. A quarter point's pivot settles the two sides *oppositely*
+// (see getMiddleLabel below), so there's no single correct word for a
+// button whose only job is "paint these cells" - "Middle" names the
+// category itself rather than picking a side.
+function getMiddleActionLabel(point, integerLabel) {
+  return getPointType(point) === "integer" ? integerLabel : "Middle";
+}
+
+// The full, disambiguated description of the middle category, for display
+// (table header, formula text) rather than the button above: at a quarter
+// point, the two bettable sides settle the pivot *oppositely* (whichever
+// sits above its pivot - the same rule as primaryBetTeamKey - is Half Lose,
+// the other is Half Win), so both have to be named, not just one.
+function getMiddleLabel(point, integerLabel, sideLabels) {
   const type = getPointType(point);
   if (type === "integer") return integerLabel;
   const pivot = Math.round(point);
-  return point > pivot ? "Half Lose" : "Half Win";
+  const overIsHalfLose = point > pivot;
+  const overWord = overIsHalfLose ? "Half Lose" : "Half Win";
+  const underWord = overIsHalfLose ? "Half Win" : "Half Lose";
+  return `${sideLabels.over}: ${overWord} / ${sideLabels.under}: ${underWord}`;
 }
 
 // The dropdown/sweep shows the standard Asian Handicap line applied to Home

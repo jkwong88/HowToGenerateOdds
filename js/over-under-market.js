@@ -12,11 +12,12 @@ function classifyOU(home, away) {
 
 function updateStepUI() {
   const hasMiddle = hasMiddleCategory(ouPoint);
-  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Draw") : "";
+  const actionLabel = hasMiddle ? getMiddleActionLabel(ouPoint, "Draw") : "";
+  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Draw", BET_TEAM_LABELS) : "";
   const pivot = pivotForDisplay(ouPoint);
 
   document.getElementById("ou-step-2").style.display = hasMiddle ? "" : "none";
-  document.getElementById("complete-middle").textContent = middleLabel;
+  document.getElementById("complete-middle").textContent = actionLabel;
 
   const note1 = document.getElementById("step-note-1");
   const note2 = document.getElementById("step-note-2");
@@ -26,7 +27,7 @@ function updateStepUI() {
 
   if (hasMiddle) {
     note2.style.display = "";
-    note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${middleLabel}.`;
+    note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${actionLabel}.`;
     note3.innerHTML = `Step 3: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then click Over.`;
   } else {
     note2.style.display = "none";
@@ -96,7 +97,7 @@ function betTeamProb(key) {
 function buildTrueProbTable() {
   const categories = getCategories(ouPoint);
   const pivot = pivotForDisplay(ouPoint);
-  const labels = { under: "Under", middle: getMiddleLabel(ouPoint, "Draw"), over: "Over" };
+  const labels = { under: "Under", middle: getMiddleLabel(ouPoint, "Draw", BET_TEAM_LABELS), over: "Over" };
 
   const header = document.getElementById("true-prob-header");
   header.innerHTML = "<th></th>";
@@ -122,7 +123,7 @@ function buildOddsTable() {
   const body = document.getElementById("odds-table-body");
   body.innerHTML = "";
   const weight = middleWeight(ouPoint);
-  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint, "Draw") : "";
+  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint, "Draw", BET_TEAM_LABELS) : "";
   const primaryKey = primaryBetTeamKey(ouPoint);
 
   BET_TEAM_KEYS.forEach((key) => {
