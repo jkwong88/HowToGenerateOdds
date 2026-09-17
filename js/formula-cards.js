@@ -41,13 +41,18 @@ const FORMULA_CARDS = {
 };
 
 function renderFormulaCard() {
-  const list = document.getElementById("formula-card-list");
-  if (!list) return;
+  const root = document.getElementById("formula-card-root");
+  if (!root) return;
 
   const formulas = FORMULA_CARDS[currentPageFile()] || [];
-  list.innerHTML = formulas
+  const items = formulas
     .map(({ label, formula }) => `<div class="formula-item"><dt>${label}</dt><dd>${formula}</dd></div>`)
     .join("");
+
+  root.innerHTML = `
+    <h2>Formulas</h2>
+    <dl id="formula-card-list">${items}</dl>
+  `;
 }
 
 renderFormulaCard();

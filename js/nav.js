@@ -1,55 +1,62 @@
-// Shared page order for the prev/next navigation arrows and the exercise
-// index. Add new exercise pages here (in order) as they are created.
-const PAGE_ORDER = [
-  "introduction.html",
-  "historical-match-data.html",
-  "final-score-probability-matrix.html",
-  "correct-score-odds.html",
-  "odd-even-market.html",
-  "over-under-market.html",
-  "opening-over-under-market.html",
-  "adding-a-spread.html",
+// Shared page manifest driving the exercise index, prev/next navigation,
+// and the page footer (Reset All only shows for "exercise" pages). Add new
+// pages here (in order) as they are created.
+const PAGES = [
+  { file: "introduction.html", title: "Introduction", type: "explanation" },
+  { file: "historical-match-data.html", title: "Exercise 1: Historical Match Data", type: "exercise" },
+  { file: "final-score-probability-matrix.html", title: "Exercise 2: Final Score Probability Matrix", type: "exercise" },
+  { file: "correct-score-odds.html", title: "Exercise 3: Correct Score & Odds", type: "exercise" },
+  { file: "odd-even-market.html", title: "Exercise 4: Odd / Even Market", type: "exercise" },
+  { file: "over-under-market.html", title: "Exercise 5: Over / Under Market", type: "exercise" },
+  { file: "opening-over-under-market.html", title: "Exercise 6: Opening the Over / Under Market", type: "exercise" },
+  { file: "adding-a-spread.html", title: "Exercise 7: Adding a Spread", type: "exercise" },
 ];
-
-const PAGE_TITLES = {
-  "introduction.html": "Introduction",
-  "historical-match-data.html": "Exercise 1: Historical Match Data",
-  "final-score-probability-matrix.html": "Exercise 2: Final Score Probability Matrix",
-  "correct-score-odds.html": "Exercise 3: Correct Score & Odds",
-  "odd-even-market.html": "Exercise 4: Odd / Even Market",
-  "over-under-market.html": "Exercise 5: Over / Under Market",
-  "opening-over-under-market.html": "Exercise 6: Opening the Over / Under Market",
-  "adding-a-spread.html": "Exercise 7: Adding a Spread",
-};
 
 function currentPageFile() {
   return window.location.pathname.split("/").pop();
 }
 
-function renderExerciseIndex() {
-  const list = document.getElementById("exercise-index-list");
-  if (!list) return;
-
-  const current = currentPageFile();
-  list.innerHTML = PAGE_ORDER.map((file) => {
-    const isCurrent = file === current;
-    return `<li><a href="${file}" class="${isCurrent ? "current" : ""}">${PAGE_TITLES[file]}</a></li>`;
-  }).join("");
+function currentPageIndex() {
+  return PAGES.findIndex((page) => page.file === currentPageFile());
 }
 
-function renderPageNav() {
-  const nav = document.getElementById("page-nav");
-  if (!nav) return;
+function renderExerciseIndex() {
+  const root = document.getElementById("exercise-index-root");
+  if (!root) return;
 
-  const index = PAGE_ORDER.indexOf(currentPageFile());
-  const prevFile = index > 0 ? PAGE_ORDER[index - 1] : null;
-  const nextFile = index >= 0 && index < PAGE_ORDER.length - 1 ? PAGE_ORDER[index + 1] : null;
+  const current = currentPageFile();
+  const items = PAGES.map((page) => {
+    const isCurrent = page.file === current;
+    return `<li><a href="${page.file}" class="${isCurrent ? "current" : ""}">${page.title}</a></li>`;
+  }).join("");
 
-  nav.innerHTML = `
-    <a class="page-nav-btn${prevFile ? "" : " disabled"}" href="${prevFile || "#"}" aria-label="Previous page">&#8592;</a>
-    <a class="page-nav-btn${nextFile ? "" : " disabled"}" href="${nextFile || "#"}" aria-label="Next page">&#8594;</a>
+  root.innerHTML = `
+    <button id="hint-toggle-btn">Hint: On</button>
+    <nav>
+      <ul id="exercise-index-list">${items}</ul>
+    </nav>
   `;
 }
 
-renderPageNav();
+function renderPageFooter() {
+  const root = document.getElementById("page-footer-root");
+  if (!root) return;
+
+  const index = currentPageIndex();
+  const page = PAGES[index];
+  const prevFile = index > 0 ? PAGES[index - 1].file : null;
+  const nextFile = index >= 0 && index < PAGES.length - 1 ? PAGES[index + 1].file : null;
+
+  const resetButton = page && page.type === "exercise" ? '<button id="reset-btn">Reset All</button>' : "";
+
+  root.innerHTML = `
+    ${resetButton}
+    <div class="page-nav" id="page-nav">
+      <a class="page-nav-btn${prevFile ? "" : " disabled"}" href="${prevFile || "#"}" aria-label="Previous page">&#8592;</a>
+      <a class="page-nav-btn${nextFile ? "" : " disabled"}" href="${nextFile || "#"}" aria-label="Next page">&#8594;</a>
+    </div>
+  `;
+}
+
+renderPageFooter();
 renderExerciseIndex();

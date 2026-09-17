@@ -25,7 +25,7 @@ pages/adding-a-spread.html                   exercise 7 source
 css/style.css                                shared styles
 js/data.js                                   shared fixed dataset + all shared probability/odds math (see below)
 js/exercise-common.js                        shared exercise mechanics (see below)
-js/nav.js                                    shared prev/next page arrows, driven by PAGE_ORDER
+js/nav.js                                    renders the exercise index, page footer (Reset All + prev/next arrows) and page manifest (PAGES)
 js/historical-match-data.js                  exercise 1-specific table building and wiring
 js/final-score-probability-matrix.js         exercise 2-specific table building and wiring
 js/correct-score-odds.js                     exercise 3-specific table building and wiring

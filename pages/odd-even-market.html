@@ -7,12 +7,7 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="exercise-index">
-      <button id="hint-toggle-btn">Hint: On</button>
-      <nav>
-        <ul id="exercise-index-list"></ul>
-      </nav>
-    </aside>
+    <aside class="exercise-index" id="exercise-index-root"></aside>
 
     <main class="exercise-content">
   <h1>Exercise 4: Odd / Even Market</h1>
@@ -67,22 +62,16 @@
     </div>
   </div>
 
-  <div class="controls">
-    <button id="reset-btn">Reset All</button>
-    <div class="page-nav" id="page-nav"></div>
-  </div>
+  <div class="controls" id="page-footer-root"></div>
     </main>
 
-    <aside class="formula-card">
-      <h2>Formulas</h2>
-      <dl id="formula-card-list"></dl>
-    </aside>
+    <aside class="formula-card" id="formula-card-root"></aside>
   </div>
 
   <script src="../js/data.js"></script>
-  <script src="../js/exercise-common.js"></script>
   <script src="../js/nav.js"></script>
   <script src="../js/formula-cards.js"></script>
+  <script src="../js/exercise-common.js"></script>
   <script src="../js/odd-even-market.js"></script>
 </body>
 </html>

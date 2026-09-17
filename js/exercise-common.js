@@ -117,5 +117,8 @@ function unlockSection(sectionId) {
 }
 
 updateHintButtonLabel();
-const hintToggleBtn = document.getElementById("hint-toggle-btn");
-if (hintToggleBtn) hintToggleBtn.addEventListener("click", toggleHint);
+// Delegated so this works regardless of script order relative to nav.js,
+// which creates #hint-toggle-btn at runtime.
+document.addEventListener("click", (event) => {
+  if (event.target.id === "hint-toggle-btn") toggleHint();
+});
