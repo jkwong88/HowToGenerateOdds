@@ -8,6 +8,8 @@ const ROOT_DIR = path.join(__dirname, "..");
 const PAGES_DIR = path.join(ROOT_DIR, "pages");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
 
+const IMAGE_MIME_TYPES = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".svg": "image/svg+xml" };
+
 function inlineAssets(htmlPath) {
   const dir = path.dirname(htmlPath);
   let html = fs.readFileSync(htmlPath, "utf8");
