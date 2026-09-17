@@ -8,14 +8,14 @@ const SPREAD_CONFIGS = {
   ou: {
     ...MARKET_AXIS_CONFIGS.ou,
     value: 2.75,
-    title: "Main Market (Point 2.75) \\ Spread 0.10",
+    title: "Main Market (Point 2.75)",
   },
   hdp: {
     ...MARKET_AXIS_CONFIGS.hdp,
     // The fairest Handicap line for this dataset (see the sweep in 4.1) -
     // same role as Over/Under's 2.75, just on the Home - Away axis.
     value: -0.25,
-    title: "Main Market (Home -0.25) \\ Spread 0.10",
+    title: "Main Market (Home -0.25)",
   },
 };
 
