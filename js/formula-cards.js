@@ -28,9 +28,9 @@ const FORMULA_CARDS = {
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
   "opening-over-under-market.html": [
-    { label: "BetTeam Probability", formula: "Same as Exercise 5, swept over points 0.25 – 4.00" },
+    { label: "BetTeam Probability", formula: "Same as 3.6 Over / Under, swept over points 0.25 – 4.00" },
     { label: "Main Market", formula: "Point(s) where P(Over) is closest to 0.50" },
-    { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as Exercise 5" },
+    { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.6 Over / Under" },
   ],
   "adding-a-spread.html": [
     { label: "Spread Malay Odds", formula: "Fair Malay − Spread / 2 (per side)" },

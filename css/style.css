@@ -60,6 +60,22 @@ body {
   font-weight: 600;
 }
 
+.exercise-index nav a.index-section-title,
+.exercise-index nav a.index-top-level {
+  font-weight: 600;
+  color: #4a4a55;
+}
+
+.exercise-index nav a.index-section-title.current,
+.exercise-index nav a.index-top-level.current {
+  color: #fff;
+}
+
+.exercise-index nav li.index-section > ul {
+  margin: 0;
+  padding-left: 12px;
+}
+
 /* Fixed width so the middle column never shifts between exercises.
    min-width: 0 overrides the flex-item default of min-width: auto, which
    would otherwise let a wide table push this column past 900px regardless
