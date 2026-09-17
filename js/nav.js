@@ -35,7 +35,7 @@ const PAGE_SECTIONS = [
     heading: "Opening Market",
     type: "explanation",
     pages: [
-      { number: "4.1", file: "opening-over-under-market.html", title: "Opening the Over / Under Market", type: "exercise" },
+      { number: "4.1", file: "opening-over-under-market.html", title: "Opening the Market", type: "exercise" },
       { number: "4.2", file: "adding-a-spread.html", title: "Adding a Spread", type: "exercise" },
     ],
   },
