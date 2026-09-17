@@ -138,4 +138,3 @@ document.querySelectorAll("input.answer").forEach((input) => {
 document.getElementById("check-spread").addEventListener("click", () => checkSpread(spreadOdds));
 document.getElementById("fill-spread").addEventListener("click", () => fillSpread(spreadOdds));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

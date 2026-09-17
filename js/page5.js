@@ -410,4 +410,3 @@ document.getElementById("fill-ou").addEventListener("click", fillAllCells);
 document.getElementById("check-odds-table").addEventListener("click", checkOddsTable);
 document.getElementById("fill-odds-table").addEventListener("click", fillOddsTable);
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

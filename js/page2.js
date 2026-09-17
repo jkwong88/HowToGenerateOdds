@@ -120,4 +120,3 @@ hideEdgeCells();
 document.getElementById("check-matrix").addEventListener("click", () => checkMatrix(expected));
 document.getElementById("fill-matrix").addEventListener("click", () => fillMatrix(expected));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

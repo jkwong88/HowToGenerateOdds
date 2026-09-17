@@ -1,5 +1,5 @@
-// Shared page order for the prev/next navigation arrows. Add new exercise
-// pages here (in order) as they are created.
+// Shared page order for the prev/next navigation arrows and the exercise
+// index. Add new exercise pages here (in order) as they are created.
 const PAGE_ORDER = [
   "page1.html",
   "page2.html",
@@ -10,8 +10,29 @@ const PAGE_ORDER = [
   "page7.html",
 ];
 
+const PAGE_TITLES = {
+  "page1.html": "Exercise 1: Historical Match Data",
+  "page2.html": "Exercise 2: Final Score Probability Matrix",
+  "page3.html": "Exercise 3: Correct Score & Odds",
+  "page4.html": "Exercise 4: Odd / Even Market",
+  "page5.html": "Exercise 5: Over / Under Market",
+  "page6.html": "Exercise 6: Opening the Over / Under Market",
+  "page7.html": "Exercise 7: Adding a Spread",
+};
+
 function currentPageFile() {
   return window.location.pathname.split("/").pop();
+}
+
+function renderExerciseIndex() {
+  const list = document.getElementById("exercise-index-list");
+  if (!list) return;
+
+  const current = currentPageFile();
+  list.innerHTML = PAGE_ORDER.map((file) => {
+    const isCurrent = file === current;
+    return `<li><a href="${file}" class="${isCurrent ? "current" : ""}">${PAGE_TITLES[file]}</a></li>`;
+  }).join("");
 }
 
 function renderPageNav() {
@@ -29,3 +50,4 @@ function renderPageNav() {
 }
 
 renderPageNav();
+renderExerciseIndex();

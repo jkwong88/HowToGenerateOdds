@@ -1,7 +1,17 @@
-// Shared exercise mechanics (tooltips, formula-hover toggle, answer checking,
+// Shared exercise mechanics (tooltips, hint toggle, answer checking,
 // section locking) reused by every exercise page.
 const DEFAULT_TOLERANCE = 0.05;
-let formulaHoverOn = true;
+const HINT_STORAGE_KEY = "hintOn";
+
+function readStoredHint() {
+  try {
+    return localStorage.getItem(HINT_STORAGE_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
+
+let hintOn = readStoredHint();
 
 function setCellTooltip(input, text) {
   const cell = input.closest("td");
@@ -16,20 +26,31 @@ function setCellTooltip(input, text) {
 
 function syncEmptyTooltip(input) {
   input.classList.remove("correct", "incorrect");
-  setCellTooltip(input, input.value.trim() === "" && formulaHoverOn ? input.dataset.formula : "");
+  setCellTooltip(input, input.value.trim() === "" && hintOn ? input.dataset.formula : "");
 }
 
 function refreshFormulaTooltips() {
   document.querySelectorAll("input.answer").forEach((input) => {
     if (input.value.trim() === "") {
-      setCellTooltip(input, formulaHoverOn ? input.dataset.formula : "");
+      setCellTooltip(input, hintOn ? input.dataset.formula : "");
     }
   });
 }
 
-function toggleFormulaHover() {
-  formulaHoverOn = !formulaHoverOn;
-  document.getElementById("toggle-formula-btn").textContent = `Formula Hover: ${formulaHoverOn ? "On" : "Off"}`;
+function updateHintButtonLabel() {
+  const btn = document.getElementById("hint-toggle-btn");
+  if (btn) btn.textContent = `Hint: ${hintOn ? "On" : "Off"}`;
+}
+
+function toggleHint() {
+  hintOn = !hintOn;
+  try {
+    localStorage.setItem(HINT_STORAGE_KEY, String(hintOn));
+  } catch {
+    // Storage may be unavailable (e.g. private browsing); the toggle still
+    // works for the current page, it just won't persist across navigation.
+  }
+  updateHintButtonLabel();
   refreshFormulaTooltips();
 }
 
@@ -42,7 +63,7 @@ function markInput(input, expected, tolerance = DEFAULT_TOLERANCE, decimals = 1)
   input.classList.add(isCorrect ? "correct" : "incorrect");
 
   if (isEmpty) {
-    setCellTooltip(input, formulaHoverOn ? input.dataset.formula : "");
+    setCellTooltip(input, hintOn ? input.dataset.formula : "");
   } else if (isCorrect) {
     setCellTooltip(input, "");
   } else {
@@ -94,3 +115,7 @@ function unlockSection(sectionId) {
     el.disabled = false;
   });
 }
+
+updateHintButtonLabel();
+const hintToggleBtn = document.getElementById("hint-toggle-btn");
+if (hintToggleBtn) hintToggleBtn.addEventListener("click", toggleHint);

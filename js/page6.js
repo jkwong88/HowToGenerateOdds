@@ -125,4 +125,3 @@ document.getElementById("fill-market").addEventListener("click", () =>
   fillMarket(findMainMarketPoints(sweepRows, marketCount))
 );
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

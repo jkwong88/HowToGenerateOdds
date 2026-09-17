@@ -145,4 +145,3 @@ document.getElementById("fill-part1").addEventListener("click", () => fillPart1(
 document.getElementById("fill-part2").addEventListener("click", () => fillPart2(expected));
 document.getElementById("fill-part3").addEventListener("click", () => fillPart3(expected));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

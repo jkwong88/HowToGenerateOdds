@@ -215,4 +215,3 @@ hideNonCoreEntries(scoreStats);
 document.getElementById("check-score").addEventListener("click", () => checkScoreTable(scoreStats));
 document.getElementById("fill-score").addEventListener("click", () => fillScoreTable(scoreStats));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

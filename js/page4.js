@@ -261,4 +261,3 @@ document.getElementById("fill-oe").addEventListener("click", fillAllCells);
 document.getElementById("check-odds-table").addEventListener("click", () => checkOddsTable(oeStats));
 document.getElementById("fill-odds-table").addEventListener("click", () => fillOddsTable(oeStats));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
-document.getElementById("toggle-formula-btn").addEventListener("click", toggleFormulaHover);

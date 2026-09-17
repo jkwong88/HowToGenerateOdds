@@ -6,7 +6,15 @@
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <div class="page">
+  <div class="app-shell">
+    <aside class="exercise-index">
+      <button id="hint-toggle-btn">Hint: On</button>
+      <nav>
+        <ul id="exercise-index-list"></ul>
+      </nav>
+    </aside>
+
+    <main class="exercise-content">
   <h1>Exercise 4: Odd / Even Market</h1>
 
   <div class="stack">
@@ -61,14 +69,20 @@
 
   <div class="controls">
     <button id="reset-btn">Reset All</button>
-    <button id="toggle-formula-btn">Formula Hover: On</button>
     <div class="page-nav" id="page-nav"></div>
   </div>
+    </main>
+
+    <aside class="formula-card">
+      <h2>Formulas</h2>
+      <dl id="formula-card-list"></dl>
+    </aside>
   </div>
 
   <script src="../js/data.js"></script>
   <script src="../js/exercise-common.js"></script>
   <script src="../js/nav.js"></script>
+  <script src="../js/formula-cards.js"></script>
   <script src="../js/page4.js"></script>
 </body>
 </html>
