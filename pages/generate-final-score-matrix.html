@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2. How To Generate Final Score Probability Matrix</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="exercise-index" id="exercise-index-root"></aside>
+
+    <main class="exercise-content">
+  <h1>2. How To Generate Final Score Probability Matrix</h1>
+  <p>Every market in this project is priced off one thing: a Home &times; Away scoreline probability matrix. This section builds that matrix from scratch, from nothing more than a 10-match history.</p>
+
+  <div class="panel">
+    <h2>2.1 Exercise 1 &mdash; Historical Match Data</h2>
+    <p>Start from the raw match history. Turn each match's Home/Away goals into a Total Score, then average across all 10 matches. From there, count how often each goal value (0-6) occurred for Home, Away, and Total, and convert those counts into probabilities (count / 10).</p>
+  </div>
+
+  <div class="panel">
+    <h2>2.2 Exercise 2 &mdash; Final Score Probability Matrix</h2>
+    <p>Take the Home and Away goal probabilities from 2.1 as given, and combine them into a joint scoreline matrix: <code>P(Home = h, Away = a) = P(Home = h) &times; P(Away = a)</code> for every combination of h and a. This matrix is the "given" table every market in section 3 is priced from.</p>
+    <p>Multiplying the two probabilities together only works because Home and Away goals are treated as independent &mdash; for independent events, the probability of both happening is the product of their individual probabilities. Home and Away goals are scored by two different teams, so this project treats them as independent rather than modeling any interaction between the two sides.</p>
+  </div>
+
+  <div class="controls" id="page-footer-root"></div>
+    </main>
+
+    <aside class="formula-card" id="formula-card-root"></aside>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/formula-cards.js"></script>
+  <script src="../js/exercise-common.js"></script>
+</body>
+</html>

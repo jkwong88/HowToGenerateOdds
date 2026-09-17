@@ -26,3 +26,7 @@ _Avoid_: exercise (ambiguous with the numbered exercise concept itself)
 **Explanation Page**:
 A read-only page presenting teaching content, with no gradable inputs and no Reset All control (e.g. Introduction). May or may not have a page-specific script.
 _Avoid_: static page, content page
+
+**Covers** (HDP):
+Whether a side wins its Handicap bet at a given line — "Home Covers" / "Away Covers" — as opposed to Over/Under's "Under"/"Over", since HDP's axis (Home − Away) is signed and asymmetric rather than a plain total.
+_Avoid_: wins, beats the spread

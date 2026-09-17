@@ -1,43 +1,50 @@
 const CATEGORY_CLASS = { under: "marked-under", middle: "marked-middle", over: "marked-over" };
 const BET_TEAM_KEYS = ["under", "over"];
-const BET_TEAM_LABELS = { under: "Under", over: "Over" };
+const BET_TEAM_LABELS = { under: "Away Covers", over: "Home Covers" };
 
-let ouPoint = 2.5;
-let ouPhaseIndex = 0;
-let ouStats = null;
+let hdpLine = 0;
+let hdpPhaseIndex = 0;
+let hdpStats = null;
 
-function classifyOU(home, away) {
-  return classifyTotal(home + away, ouPoint);
+// data.js's hdpLineToPoint negates the standard Asian Handicap sign into the
+// point classifyTotal/etc. compare Home - Away against - see its comment for
+// the full derivation.
+const pointForClassify = hdpLineToPoint;
+
+function classifyHDP(home, away) {
+  return classifyTotal(home - away, pointForClassify(hdpLine));
 }
 
 function updateStepUI() {
-  const hasMiddle = hasMiddleCategory(ouPoint);
-  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Draw") : "";
-  const pivot = pivotForDisplay(ouPoint);
+  const point = pointForClassify(hdpLine);
+  const hasMiddle = hasMiddleCategory(point);
+  const middleLabel = hasMiddle ? getMiddleLabel(point, "Push") : "";
+  const pivot = pivotForDisplay(point);
 
-  document.getElementById("ou-step-2").style.display = hasMiddle ? "" : "none";
+  document.getElementById("hdp-step-2").style.display = hasMiddle ? "" : "none";
   document.getElementById("complete-middle").textContent = middleLabel;
 
   const note1 = document.getElementById("step-note-1");
   const note2 = document.getElementById("step-note-2");
   const note3 = document.getElementById("step-note-3");
 
-  note1.innerHTML = `Step 1: click every cell where Home + Away is <strong>under ${pivot}</strong>, then click Under.`;
+  note1.innerHTML = `Step 1: click every cell where Home &minus; Away is <strong>under ${pivot}</strong>, then click Away Covers.`;
 
   if (hasMiddle) {
     note2.style.display = "";
-    note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${middleLabel}.`;
-    note3.innerHTML = `Step 3: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then click Over.`;
+    note2.innerHTML = `Step 2: click every cell where Home &minus; Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${middleLabel}.`;
+    note3.innerHTML = `Step 3: click every remaining cell (Home &minus; Away is <strong>over ${pivot}</strong>), then click Home Covers.`;
   } else {
     note2.style.display = "none";
-    note3.innerHTML = `Step 2: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then click Over.`;
+    note3.innerHTML = `Step 2: click every remaining cell (Home &minus; Away is <strong>over ${pivot}</strong>), then click Home Covers.`;
   }
 }
 
 function updateStepHighlight() {
-  const hasMiddle = hasMiddleCategory(ouPoint);
-  const step2Locked = document.getElementById("ou-step-2").classList.contains("locked");
-  const step3Locked = document.getElementById("ou-step-3").classList.contains("locked");
+  const point = pointForClassify(hdpLine);
+  const hasMiddle = hasMiddleCategory(point);
+  const step2Locked = document.getElementById("hdp-step-2").classList.contains("locked");
+  const step3Locked = document.getElementById("hdp-step-3").classList.contains("locked");
   const oddsLocked = document.getElementById("odds-section").classList.contains("locked");
 
   if (hasMiddle) {
@@ -51,45 +58,47 @@ function updateStepHighlight() {
   }
 }
 
-// "Under" and the middle step just move to the next step - neither checks
-// anything. If there's no middle category, "Under" jumps straight to step 3.
-function completeUnder() {
-  ouPhaseIndex = 1;
-  if (hasMiddleCategory(ouPoint)) {
-    unlockSection("ou-step-2");
+// "Away Covers" and the middle step just move to the next step - neither
+// checks anything. If there's no middle category, "Away Covers" jumps
+// straight to step 3.
+function completeAway() {
+  hdpPhaseIndex = 1;
+  if (hasMiddleCategory(pointForClassify(hdpLine))) {
+    unlockSection("hdp-step-2");
   } else {
-    unlockSection("ou-step-3");
+    unlockSection("hdp-step-3");
   }
   updateStepHighlight();
 }
 
 function completeMiddle() {
-  ouPhaseIndex = 2;
-  unlockSection("ou-step-3");
+  hdpPhaseIndex = 2;
+  unlockSection("hdp-step-3");
   updateStepHighlight();
 }
 
-// "Over" is the only place the whole grid actually gets verified.
+// "Home Covers" is the only place the whole grid actually gets verified.
 function checkAllCells() {
-  const allCorrect = matrix.checkAll(classifyOU);
+  const allCorrect = matrix.checkAll(classifyHDP);
   if (allCorrect) unlockSection("odds-section");
   updateStepHighlight();
   return allCorrect;
 }
 
 function fillAllCells() {
-  matrix.fillAll(classifyOU);
+  matrix.fillAll(classifyHDP);
   checkAllCells();
 }
 
 function betTeamProb(key) {
-  return betTeamProbabilityFromStats(ouStats, ouPoint, key);
+  return betTeamProbabilityFromStats(hdpStats, pointForClassify(hdpLine), key);
 }
 
 function buildTrueProbTable() {
-  const categories = getCategories(ouPoint);
-  const pivot = pivotForDisplay(ouPoint);
-  const labels = { under: "Under", middle: getMiddleLabel(ouPoint, "Draw"), over: "Over" };
+  const point = pointForClassify(hdpLine);
+  const categories = getCategories(point);
+  const pivot = pivotForDisplay(point);
+  const labels = { under: "Away Covers", middle: getMiddleLabel(point, "Push"), over: "Home Covers" };
 
   const header = document.getElementById("true-prob-header");
   header.innerHTML = "<th></th>";
@@ -102,21 +111,22 @@ function buildTrueProbTable() {
   categories.forEach((cat) => {
     const formula =
       cat === "under"
-        ? `SUM(cells where Home+Away &lt; ${pivot})`
+        ? `SUM(cells where Home&minus;Away &lt; ${pivot})`
         : cat === "over"
-        ? `SUM(cells where Home+Away &gt; ${pivot})`
-        : `SUM(cells where Home+Away = ${pivot})`;
+        ? `SUM(cells where Home&minus;Away &gt; ${pivot})`
+        : `SUM(cells where Home&minus;Away = ${pivot})`;
     rowHtml += `<td data-cell="tp-${cat}-cell"><input class="answer" type="number" step="0.01" id="tp-${cat}" data-formula="${formula}"></td>`;
   });
   row.innerHTML = rowHtml;
 }
 
 function buildOddsTable() {
+  const point = pointForClassify(hdpLine);
   const body = document.getElementById("odds-table-body");
   body.innerHTML = "";
-  const weight = middleWeight(ouPoint);
-  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint, "Draw") : "";
-  const primaryKey = primaryBetTeamKey(ouPoint);
+  const weight = middleWeight(point);
+  const middleLabel = hasMiddleCategory(point) ? getMiddleLabel(point, "Push") : "";
+  const primaryKey = primaryBetTeamKey(point);
 
   BET_TEAM_KEYS.forEach((key) => {
     const label = BET_TEAM_LABELS[key];
@@ -153,10 +163,11 @@ function buildOddsTable() {
 }
 
 function checkOddsTable() {
+  const point = pointForClassify(hdpLine);
   const results = [];
 
-  getCategories(ouPoint).forEach((cat) => {
-    results.push(markInput(document.getElementById(`tp-${cat}`), ouStats[cat].prob, 0.005, 2));
+  getCategories(point).forEach((cat) => {
+    results.push(markInput(document.getElementById(`tp-${cat}`), hdpStats[cat].prob, 0.005, 2));
   });
 
   BET_TEAM_KEYS.forEach((key) => {
@@ -177,8 +188,9 @@ function checkOddsTable() {
 }
 
 function fillOddsTable() {
-  getCategories(ouPoint).forEach((cat) => {
-    document.getElementById(`tp-${cat}`).value = ouStats[cat].prob.toFixed(2);
+  const point = pointForClassify(hdpLine);
+  getCategories(point).forEach((cat) => {
+    document.getElementById(`tp-${cat}`).value = hdpStats[cat].prob.toFixed(2);
   });
 
   BET_TEAM_KEYS.forEach((key) => {
@@ -206,13 +218,14 @@ function wireAnswerInputs(container) {
 }
 
 function rebuildOddsSection(expected) {
-  ouStats = matrix.computeStats(classifyOU, getCategories(ouPoint));
+  const point = pointForClassify(hdpLine);
+  hdpStats = matrix.computeStats(classifyHDP, getCategories(point));
   buildTrueProbTable();
   buildOddsTable();
 
   wireAnswerInputs(document.getElementById("true-prob-table"));
   wireAnswerInputs(document.getElementById("odds-table"));
-  getCategories(ouPoint).forEach((cat) => attachDimComplement(`tp-${cat}`, cat, () => ouStats, () => getCategories(ouPoint)));
+  getCategories(point).forEach((cat) => attachDimComplement(`tp-${cat}`, cat, () => hdpStats, () => getCategories(point)));
 }
 
 function resetAll() {
@@ -222,38 +235,38 @@ function resetAll() {
   });
   matrix.reset();
 
-  ouPhaseIndex = 0;
-  lockSection("ou-step-2");
-  lockSection("ou-step-3");
+  hdpPhaseIndex = 0;
+  lockSection("hdp-step-2");
+  lockSection("hdp-step-3");
   lockSection("odds-section");
   updateStepUI();
   updateStepHighlight();
 }
 
-function onPointChange(event) {
-  ouPoint = parseFloat(event.target.value);
+function onLineChange(event) {
+  hdpLine = parseFloat(event.target.value);
   rebuildOddsSection(expected);
   resetAll();
 }
 
 const expected = computeGoalStats();
-const matrix = createMatrixClassifier({ idPrefix: "ou", expected, categoryClass: CATEGORY_CLASS });
+const matrix = createMatrixClassifier({ idPrefix: "hdp", expected, categoryClass: CATEGORY_CLASS });
 
-matrix.wireClicks(() => CATEGORY_CLASS[getCategories(ouPoint)[ouPhaseIndex]]);
+matrix.wireClicks(() => CATEGORY_CLASS[getCategories(pointForClassify(hdpLine))[hdpPhaseIndex]]);
 rebuildOddsSection(expected);
 
-lockSection("ou-step-2");
-lockSection("ou-step-3");
+lockSection("hdp-step-2");
+lockSection("hdp-step-3");
 lockSection("odds-section");
 updateStepUI();
 updateStepHighlight();
 
-document.getElementById("ou-point-select").addEventListener("change", onPointChange);
-document.getElementById("complete-under").addEventListener("click", completeUnder);
+document.getElementById("hdp-line-select").addEventListener("change", onLineChange);
+document.getElementById("complete-away").addEventListener("click", completeAway);
 document.getElementById("complete-middle").addEventListener("click", completeMiddle);
-document.getElementById("complete-over").addEventListener("click", checkAllCells);
-document.getElementById("reset-ou").addEventListener("click", resetAll);
-document.getElementById("fill-ou").addEventListener("click", fillAllCells);
+document.getElementById("complete-home").addEventListener("click", checkAllCells);
+document.getElementById("reset-hdp").addEventListener("click", resetAll);
+document.getElementById("fill-hdp").addEventListener("click", fillAllCells);
 document.getElementById("check-odds-table").addEventListener("click", checkOddsTable);
 document.getElementById("fill-odds-table").addEventListener("click", fillOddsTable);
 document.getElementById("reset-btn").addEventListener("click", resetAll);

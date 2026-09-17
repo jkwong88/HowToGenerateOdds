@@ -27,10 +27,28 @@ const FORMULA_CARDS = {
     { label: "HK Odds", formula: "Euro − 1" },
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
+  "1x2-double-chance-market.html": [
+    { label: "1X2 Probability", formula: "Σ P(scoreline) where Home > / = / < Away" },
+    { label: "Double Chance Probability", formula: "P(1X2 outcome A) + P(1X2 outcome B)" },
+    { label: "Euro Odds", formula: "1 / Probability" },
+    { label: "HK Odds", formula: "Euro − 1" },
+    { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
+  ],
+  "total-goal-market.html": [
+    { label: "Bucket Probability", formula: "Σ P(scoreline) where Home + Away falls in the bucket" },
+    { label: "Euro Odds", formula: "1 / Probability" },
+    { label: "HK Odds", formula: "Euro − 1" },
+    { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
+  ],
+  "hdp-market.html": [
+    { label: "Category Probability", formula: "Σ P(scoreline) in Away Covers / Push / Home Covers, classified by Home − Away" },
+    { label: "BetTeam Probability", formula: "Same as 3.5 Over / Under, applied to Home − Away instead of Home + Away" },
+    { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
+  ],
   "opening-over-under-market.html": [
-    { label: "BetTeam Probability", formula: "Same as Exercise 5, swept over points 0.25 – 4.00" },
-    { label: "Main Market", formula: "Point(s) where P(Over) is closest to 0.50" },
-    { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as Exercise 5" },
+    { label: "BetTeam Probability", formula: "Same as 3.5 Over / Under or 3.6 HDP, swept over the selected market's range" },
+    { label: "Main Market", formula: "Point(s)/Line(s) where the two BetTeam probabilities are closest to 0.50" },
+    { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
   ],
   "adding-a-spread.html": [
     { label: "Spread Malay Odds", formula: "Fair Malay − Spread / 2 (per side)" },

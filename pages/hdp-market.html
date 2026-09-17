@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>3.5 Over / Under - Market</title>
+<title>3.6 HDP - Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -11,24 +11,29 @@
 
     <main class="exercise-content">
   <h1>
-    3.5 Over / Under
-    <label for="ou-point-select" class="point-label">Point:</label>
-    <select id="ou-point-select" class="point-select">
-      <option value="2">2</option>
-      <option value="2.25">2.25</option>
-      <option value="2.5" selected>2.5</option>
-      <option value="2.75">2.75</option>
+    3.6 HDP
+    <label for="hdp-line-select" class="point-label">Line:</label>
+    <select id="hdp-line-select" class="point-select">
+      <option value="-1">Home -1</option>
+      <option value="-0.75">Home -0.75</option>
+      <option value="-0.5">Home -0.5</option>
+      <option value="-0.25">Home -0.25</option>
+      <option value="0" selected>Home 0</option>
+      <option value="0.25">Home +0.25</option>
+      <option value="0.5">Home +0.5</option>
+      <option value="0.75">Home +0.75</option>
+      <option value="1">Home +1</option>
     </select>
   </h1>
 
   <div class="stack">
     <div class="panel">
       <h2>Final Score Probability Table</h2>
-      <table id="ou-matrix-table">
+      <table id="hdp-matrix-table">
         <thead>
-          <tr id="ou-matrix-header"><th>Home &#92; Away</th></tr>
+          <tr id="hdp-matrix-header"><th>Home &#92; Away</th></tr>
         </thead>
-        <tbody id="ou-matrix-body"></tbody>
+        <tbody id="hdp-matrix-body"></tbody>
       </table>
 
       <p class="step-note" id="step-note-1"></p>
@@ -36,23 +41,23 @@
       <p class="step-note" id="step-note-3"></p>
 
       <div class="controls">
-        <span class="part-section" id="ou-step-1">
-          <button id="complete-under">Under</button>
+        <span class="part-section" id="hdp-step-1">
+          <button id="complete-away">Away Covers</button>
         </span>
-        <span class="part-section locked" id="ou-step-2">
-          <button id="complete-middle">Draw</button>
+        <span class="part-section locked" id="hdp-step-2">
+          <button id="complete-middle">Push</button>
         </span>
-        <span class="part-section locked" id="ou-step-3">
-          <button id="complete-over">Over</button>
+        <span class="part-section locked" id="hdp-step-3">
+          <button id="complete-home">Home Covers</button>
         </span>
-        <button id="reset-ou">Reset</button>
-        <button id="fill-ou">Show Answers</button>
+        <button id="reset-hdp">Reset</button>
+        <button id="fill-hdp">Show Answers</button>
       </div>
     </div>
 
     <div class="panel part-section locked" id="odds-section">
       <div class="lock-notice">Complete all steps above first to unlock.</div>
-      <h2>Over / Under True Odds</h2>
+      <h2>HDP True Odds</h2>
 
       <table id="true-prob-table">
         <thead>
@@ -92,6 +97,6 @@
   <script src="../js/nav.js"></script>
   <script src="../js/formula-cards.js"></script>
   <script src="../js/exercise-common.js"></script>
-  <script src="../js/over-under-market.js"></script>
+  <script src="../js/hdp-market.js"></script>
 </body>
 </html>

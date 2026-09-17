@@ -60,6 +60,22 @@ body {
   font-weight: 600;
 }
 
+.exercise-index nav a.index-section-title,
+.exercise-index nav a.index-top-level {
+  font-weight: 600;
+  color: #4a4a55;
+}
+
+.exercise-index nav a.index-section-title.current,
+.exercise-index nav a.index-top-level.current {
+  color: #fff;
+}
+
+.exercise-index nav li.index-section > ul {
+  margin: 0;
+  padding-left: 12px;
+}
+
 /* Fixed width so the middle column never shifts between exercises.
    min-width: 0 overrides the flex-item default of min-width: auto, which
    would otherwise let a wide table push this column past 900px regardless
@@ -158,6 +174,7 @@ h2 {
 
 .exercise-content .panel {
   box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
 }
 
@@ -171,10 +188,49 @@ h2 {
   max-width: 100%;
 }
 
+.formula-chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 8px 0 0;
+}
+
+.formula-chain-card {
+  flex: 1 1 160px;
+  background: #fff;
+  border: 1px solid #d8d8de;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.formula-chain-card h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+.formula-chain-card p {
+  margin: 0;
+  color: #444;
+  font-size: 13px;
+}
+
+.panel img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #d8d8de;
+  border-radius: 4px;
+}
+
 #score-tables {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* .exercise-content .panel's width: 100% would otherwise force this to fill
+   the .layout row on its own line, wrapping .right-panel underneath it. */
+.exercise-content .panel.left-panel {
+  width: auto;
 }
 
 .left-panel {

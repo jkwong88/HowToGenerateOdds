@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>3.3 1X2 & Double Chance</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="exercise-index" id="exercise-index-root"></aside>
+
+    <main class="exercise-content">
+  <h1>3.3 1X2 &amp; Double Chance</h1>
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Part 1: 1X2</h2>
+      <table id="wl-matrix-table">
+        <thead>
+          <tr id="wl-matrix-header"><th>Home &#92; Away</th></tr>
+        </thead>
+        <tbody id="wl-matrix-body"></tbody>
+      </table>
+
+      <p class="step-note" id="step-note-1">Step 1: click every cell where Home &gt; Away, then click Home.</p>
+      <p class="step-note" id="step-note-2">Step 2: click every cell where Home = Away, then click Draw.</p>
+      <p class="step-note" id="step-note-3">Step 3: click every remaining cell (Home &lt; Away), then click Away.</p>
+
+      <div class="controls">
+        <span class="part-section" id="wl-step-1">
+          <button id="complete-home">Home</button>
+        </span>
+        <span class="part-section locked" id="wl-step-2">
+          <button id="complete-draw">Draw</button>
+        </span>
+        <span class="part-section locked" id="wl-step-3">
+          <button id="complete-away">Away</button>
+        </span>
+        <button id="reset-wl">Reset</button>
+        <button id="fill-wl">Show Answers</button>
+      </div>
+    </div>
+
+    <div class="panel part-section locked" id="odds-section">
+      <div class="lock-notice">Complete all three steps above first to unlock.</div>
+      <h2>1X2 True Odds</h2>
+      <table id="odds-table">
+        <thead>
+          <tr>
+            <th>BetTeam</th>
+            <th>True Probability</th>
+            <th>Euro Odds</th>
+            <th>HK Odds</th>
+            <th>Malay Odds</th>
+          </tr>
+        </thead>
+        <tbody id="odds-table-body"></tbody>
+      </table>
+      <div class="controls">
+        <button id="check-odds-table">Check</button>
+        <button id="fill-odds-table">Show Answers</button>
+      </div>
+    </div>
+
+    <div class="panel part-section locked" id="part2">
+      <div class="lock-notice">Complete Part 1's True Odds table first to unlock.</div>
+      <h2>Part 2: Double Chance</h2>
+      <p class="step-note active">Fill in the Probability column by adding the two 1X2 probabilities each Double Chance bet covers, then work out Euro, HK and Malay from there.</p>
+      <table id="dc-table">
+        <thead>
+          <tr>
+            <th>BetTeam</th>
+            <th>Probability</th>
+            <th>Euro Odds</th>
+            <th>HK Odds</th>
+            <th>Malay Odds</th>
+          </tr>
+        </thead>
+        <tbody id="dc-table-body"></tbody>
+      </table>
+      <div class="controls">
+        <button id="check-dc">Check</button>
+        <button id="fill-dc">Show Answers</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" id="page-footer-root"></div>
+    </main>
+
+    <aside class="formula-card" id="formula-card-root"></aside>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/formula-cards.js"></script>
+  <script src="../js/exercise-common.js"></script>
+  <script src="../js/1x2-double-chance-market.js"></script>
+</body>
+</html>

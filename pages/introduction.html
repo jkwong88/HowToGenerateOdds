@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Introduction - How To Open Odds</title>
+<title>1. Introduction - How To Open Odds</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -10,19 +10,22 @@
     <aside class="exercise-index" id="exercise-index-root"></aside>
 
     <main class="exercise-content">
-  <h1>How To Open Odds</h1>
-  <p>Seven self-checking exercises that walk through how a sportsbook derives its football odds from raw match data, one step at a time.</p>
+  <h1>1. Introduction</h1>
+  <p>A set of self-checking exercises that walk through how a sportsbook turns raw match data into the odds board a bettor actually sees, one market at a time.</p>
 
   <div class="panel">
-    <h2>What you'll learn</h2>
+    <h2>What we're aiming to build</h2>
+    <p>This is a real odds board. By the end, you'll know how every one of these numbers is derived from nothing more than a match history table.</p>
+    <img src="../bookie_example.png" alt="Example sportsbook odds board showing HDP, OU, 1X2, OE, Total Goal, Double Chance, and Correct Score markets for a single match">
+  </div>
+
+  <div class="panel">
+    <h2>How the exercises are organized</h2>
     <ul>
-      <li>How raw match history turns into goal-count frequencies and probabilities</li>
-      <li>How to build a joint Home &times; Away scoreline probability matrix</li>
-      <li>How a Correct Score board converts probabilities into Euro, HK, and Malay odds</li>
-      <li>How an Odd / Even market is priced from that same scoreline grid</li>
-      <li>How an Over / Under market is classified and priced, including the push and half-win/half-lose cases at quarter points</li>
-      <li>How a bookmaker sweeps every point to find where to actually open an Over / Under market</li>
-      <li>How a spread shifts a fair price into what's actually quoted</li>
+      <li><strong>2. How To Generate Final Score Probability Matrix</strong> &mdash; from a 10-match history to a Home &times; Away scoreline probability matrix, the foundation every market below is priced from.</li>
+      <li><strong>3. Odds For Different Market Type</strong> &mdash; pricing every market off that same matrix (True Probability &rarr; Euro &rarr; HK &rarr; Malay).</li>
+      <li><strong>4. Opening Market</strong> &mdash; how a bookmaker actually sets the line it quotes.</li>
+      <li><strong>5. Relationship between Poisson and Probability</strong> &mdash; the historical-frequency approach from section 2, compared against a Poisson model.</li>
     </ul>
   </div>
 

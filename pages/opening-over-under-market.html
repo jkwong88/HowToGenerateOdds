@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Exercise 6 - Opening the Over / Under Market</title>
+<title>4.1 Opening the Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -11,7 +11,12 @@
 
     <main class="exercise-content">
   <h1>
-    Exercise 6: Opening the Over / Under Market
+    4.1 Opening the Market
+    <label for="market-type-select" class="point-label">Market:</label>
+    <select id="market-type-select" class="point-select">
+      <option value="ou" selected>Over / Under</option>
+      <option value="hdp">Handicap</option>
+    </select>
     <label for="market-count-select" class="point-label">Markets:</label>
     <select id="market-count-select" class="point-select">
       <option value="1" selected>1 market</option>
@@ -22,19 +27,19 @@
 
   <div class="stack">
     <div class="panel">
-      <h2>Over / Under Table (Point 0.25 - 4)</h2>
+      <h2 id="sweep-title">Over / Under Table (Point 0.25 - 4)</h2>
       <div class="table-scroll">
         <table id="ou-sweep-table">
           <thead>
             <tr>
               <th rowspan="2">Select</th>
-              <th rowspan="2">Point</th>
+              <th rowspan="2" id="sweep-point-header">Point</th>
               <th colspan="2">True Probability</th>
               <th colspan="2">Euro Odds</th>
               <th colspan="2">HK Odds</th>
               <th colspan="2">Malay Odds</th>
             </tr>
-            <tr>
+            <tr id="sweep-label-row">
               <th>Over</th>
               <th>Under</th>
               <th>Over</th>

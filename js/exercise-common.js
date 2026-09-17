@@ -116,6 +116,220 @@ function unlockSection(sectionId) {
   });
 }
 
+// Builds a Home x Away click-to-paint matrix and returns helpers to
+// wire/check/fill/reset it - shared by every exercise that classifies
+// scorelines into categories (Odd/Even, 1X2, Total Goal, Over/Under, HDP).
+// `idPrefix` namespaces this matrix's cell ids/data-cell refs so more than
+// one can exist on a page; `categoryClass` maps a category key (as returned
+// by the `classify` passed to checkAll/fillAll/computeStats) to a CSS class.
+function createMatrixClassifier({ idPrefix, expected, categoryClass }) {
+  const cells = {};
+
+  const header = document.getElementById(`${idPrefix}-matrix-header`);
+  header.innerHTML += MATRIX_GOAL_VALUES.map((v) => `<th>${v}</th>`).join("");
+
+  const body = document.getElementById(`${idPrefix}-matrix-body`);
+  MATRIX_GOAL_VALUES.forEach((home) => {
+    const row = document.createElement("tr");
+    const rowCells = MATRIX_GOAL_VALUES.map((away) => {
+      const value = matrixExpected(expected, home, away).toFixed(2);
+      return `<td><button type="button" class="oe-cell" id="${idPrefix}-cell-${home}-${away}" data-cell="${idPrefix}-cell:${home}-${away}">${value}</button></td>`;
+    }).join("");
+    row.innerHTML = `<td class="row-label">${home}</td>${rowCells}`;
+    body.appendChild(row);
+  });
+
+  MATRIX_GOAL_VALUES.forEach((home) => {
+    MATRIX_GOAL_VALUES.forEach((away) => {
+      cells[`${home}-${away}`] = document.getElementById(`${idPrefix}-cell-${home}-${away}`);
+    });
+  });
+
+  // Clicking always paints with the current phase's color; if the cell
+  // already carries a different phase's color, the click replaces it
+  // instead of stacking. `getCurrentClass` is read live on every click, so
+  // it can reflect a page's current phase and/or point/line selection.
+  function wireClicks(getCurrentClass) {
+    MATRIX_GOAL_VALUES.forEach((home) => {
+      MATRIX_GOAL_VALUES.forEach((away) => {
+        const btn = cells[`${home}-${away}`];
+        btn.addEventListener("click", () => {
+          if (btn.disabled) return;
+          btn.closest("td").classList.remove("cell-correct", "cell-wrong");
+          const targetClass = getCurrentClass();
+          if (btn.classList.contains(targetClass)) {
+            btn.classList.remove(targetClass);
+          } else {
+            Object.values(categoryClass).forEach((c) => btn.classList.remove(c));
+            btn.classList.add(targetClass);
+          }
+        });
+      });
+    });
+  }
+
+  function checkAll(classify) {
+    let allCorrect = true;
+
+    MATRIX_GOAL_VALUES.forEach((home) => {
+      MATRIX_GOAL_VALUES.forEach((away) => {
+        const btn = cells[`${home}-${away}`];
+        const cell = btn.closest("td");
+        const correctClass = categoryClass[classify(home, away)];
+        const isCorrect = btn.classList.contains(correctClass);
+        cell.classList.toggle("cell-correct", isCorrect);
+        cell.classList.toggle("cell-wrong", !isCorrect);
+        if (!isCorrect) allCorrect = false;
+      });
+    });
+
+    if (allCorrect) {
+      MATRIX_GOAL_VALUES.forEach((home) => {
+        MATRIX_GOAL_VALUES.forEach((away) => {
+          cells[`${home}-${away}`].disabled = true;
+        });
+      });
+    }
+
+    return allCorrect;
+  }
+
+  function fillAll(classify) {
+    MATRIX_GOAL_VALUES.forEach((home) => {
+      MATRIX_GOAL_VALUES.forEach((away) => {
+        const btn = cells[`${home}-${away}`];
+        Object.values(categoryClass).forEach((c) => btn.classList.remove(c));
+        btn.classList.add(categoryClass[classify(home, away)]);
+      });
+    });
+  }
+
+  function reset() {
+    MATRIX_GOAL_VALUES.forEach((home) => {
+      MATRIX_GOAL_VALUES.forEach((away) => {
+        const btn = cells[`${home}-${away}`];
+        Object.values(categoryClass).forEach((c) => btn.classList.remove(c));
+        btn.closest("td").classList.remove("cell-correct", "cell-wrong");
+        btn.disabled = false;
+      });
+    });
+  }
+
+  // Sums matrixExpected probability per category (via `classify`), and
+  // records which cell ids feed each one, for attachDimComplement / formula
+  // cross-highlighting.
+  function computeStats(classify, categories) {
+    const stats = {};
+    categories.forEach((cat) => {
+      stats[cat] = { prob: 0, refs: [] };
+    });
+
+    MATRIX_GOAL_VALUES.forEach((home) => {
+      MATRIX_GOAL_VALUES.forEach((away) => {
+        const cat = classify(home, away);
+        stats[cat].prob += matrixExpected(expected, home, away);
+        stats[cat].refs.push(`${idPrefix}-cell:${home}-${away}`);
+      });
+    });
+
+    categories.forEach((cat) => {
+      stats[cat].refs = stats[cat].refs.join(",");
+    });
+    return stats;
+  }
+
+  return { wireClicks, checkAll, fillAll, reset, computeStats };
+}
+
+// While hovering a probability formula cell for category `key`, fade the
+// *other* categories' matrix cells into their own background so only the
+// cells actually being summed stay legible. `getStats`/`getCategories` are
+// called live (not just once), so this keeps working after a stats rebuild
+// (e.g. a dropdown/point change).
+function attachDimComplement(inputId, key, getStats, getCategories) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const cell = input.closest("td");
+
+  function setDim(on) {
+    const stats = getStats();
+    getCategories()
+      .filter((k) => k !== key)
+      .forEach((k) => {
+        if (!stats[k]) return;
+        stats[k].refs.split(",").forEach((ref) => {
+          const trimmed = ref.trim();
+          if (!trimmed) return;
+          document.querySelectorAll(`[data-cell="${trimmed}"]`).forEach((el) => {
+            el.classList.toggle("dim-text", on);
+          });
+        });
+      });
+  }
+
+  cell.addEventListener("mouseenter", () => {
+    if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) setDim(true);
+  });
+  cell.addEventListener("mouseleave", () => setDim(false));
+}
+
+// Builds/checks/fills a straightforward Probability -> Euro -> HK -> Malay
+// odds table with one row per category and no push/half-win exclusion -
+// shared by Odd/Even, 1X2, and Total Goal. Over/Under and HDP need the
+// push-aware True-Probability + BetTeam table instead, so they build their
+// own (see over-under-market.js/hdp-market.js).
+function buildSimpleOddsTable({ bodyId, categories, labels, formulaFor }) {
+  const body = document.getElementById(bodyId);
+  categories.forEach((key) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="row-label">${labels[key]}</td>
+      <td data-cell="prob-${key}-cell"><input class="answer" type="number" step="0.01" id="prob-${key}" data-formula="${formulaFor(key)}"></td>
+      <td data-cell="euro-${key}-cell"><input class="answer" type="number" step="0.01" id="euro-${key}" data-formula="1 / Probability" data-refs="prob-${key}-cell"></td>
+      <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
+      <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+function checkSimpleOddsTable(categories, stats) {
+  const results = [];
+
+  categories.forEach((key) => {
+    const prob = stats[key].prob;
+    results.push(markInput(document.getElementById(`prob-${key}`), prob, 0.005, 2));
+
+    if (!isUndefinedOdds(prob)) {
+      const euro = toEuro(prob);
+      const hk = toHK(euro);
+      const malay = toMalay(hk);
+      results.push(markInput(document.getElementById(`euro-${key}`), euro, 0.005, 2));
+      results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
+      results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
+    }
+  });
+
+  return results.every(Boolean);
+}
+
+function fillSimpleOddsTable(categories, stats) {
+  categories.forEach((key) => {
+    const prob = stats[key].prob;
+    document.getElementById(`prob-${key}`).value = prob.toFixed(2);
+
+    if (!isUndefinedOdds(prob)) {
+      const euro = toEuro(prob);
+      const hk = toHK(euro);
+      const malay = toMalay(hk);
+      document.getElementById(`euro-${key}`).value = euro.toFixed(2);
+      document.getElementById(`hk-${key}`).value = hk.toFixed(2);
+      document.getElementById(`malay-${key}`).value = malay.toFixed(2);
+    }
+  });
+  checkSimpleOddsTable(categories, stats);
+}
+
 updateHintButtonLabel();
 // Delegated so this works regardless of script order relative to nav.js,
 // which creates #hint-toggle-btn at runtime.
