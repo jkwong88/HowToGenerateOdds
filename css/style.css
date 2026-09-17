@@ -227,6 +227,12 @@ h2 {
   gap: 16px;
 }
 
+/* .exercise-content .panel's width: 100% would otherwise force this to fill
+   the .layout row on its own line, wrapping .right-panel underneath it. */
+.exercise-content .panel.left-panel {
+  width: auto;
+}
+
 .left-panel {
   flex: 0 0 auto;
 }
