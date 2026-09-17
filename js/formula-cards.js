@@ -3,8 +3,8 @@
 // a fixed teaching reference, not the terse strings used for those popups.
 const FORMULA_CARDS = {
   "historical-match-data.html": [
-    { label: "Goal Count", formula: "COUNTIF(Home or Away, value)" },
-    { label: "Goal Probability", formula: "Count(value) / N (N = 10 matches)" },
+    { label: "Goal Count", formula: "Count(Home/Away = Goal Value)" },
+    { label: "Goal Probability", formula: "Goal Count ÷ 10 Matches" },
   ],
   "final-score-probability-matrix.html": [
     { label: "Joint Score Probability", formula: "P(Home = h, Away = a) = P(Home = h) × P(Away = a)" },

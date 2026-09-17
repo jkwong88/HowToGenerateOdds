@@ -30,8 +30,8 @@ function buildFrequencyTables() {
     const probRow = document.getElementById(prob);
     const label = rowLabels[key];
     GOAL_VALUES.forEach((v) => {
-      countRow.innerHTML += `<td data-cell="count-${key}:${v}"><input class="answer" type="number" step="1" id="count-${key}-${v}" data-formula="COUNTIF(${label}, ${v})" data-refs="hist-${key}:${v}"></td>`;
-      probRow.innerHTML += `<td><input class="answer" type="number" step="0.1" id="prob-${key}-${v}" data-formula="Count(${label} = ${v}) / 10" data-refs="count-${key}:${v}"></td>`;
+      countRow.innerHTML += `<td data-cell="count-${key}:${v}"><input class="answer" type="number" step="1" id="count-${key}-${v}" data-formula="Count(${label} = ${v})" data-refs="hist-${key}:${v}"></td>`;
+      probRow.innerHTML += `<td><input class="answer" type="number" step="0.1" id="prob-${key}-${v}" data-formula="Goal Count &divide; 10 Matches" data-refs="count-${key}:${v}"></td>`;
     });
   });
 }
