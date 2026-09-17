@@ -30,7 +30,7 @@ pages/hdp-market.html                        3.6 source
 pages/opening-market.html                    4. overview
 pages/opening-over-under-market.html         4.1 source (Over/Under and Handicap, toggled)
 pages/adding-a-spread.html                   4.2 source (Over/Under and Handicap, toggled)
-pages/poisson-distribution.html              5. source (placeholder, no content yet)
+pages/poisson-distribution.html              5. source
 css/style.css                                shared styles
 js/data.js                                   shared fixed dataset + all shared probability/odds math (see below)
 js/exercise-common.js                        shared exercise mechanics (see below)
@@ -45,6 +45,7 @@ js/over-under-market.js                      3.5-specific table building and wir
 js/hdp-market.js                             3.6-specific table building and wiring
 js/opening-over-under-market.js              4.1-specific table building and wiring (Over/Under + Handicap)
 js/adding-a-spread.js                        4.2-specific table building and wiring (Over/Under + Handicap)
+js/poisson-distribution.js                   5-specific dynamic tables/values (Poisson PMF, λ, comparison chart)
 scripts/build.js                             bundler: inlines css/js/images into dist/*.html for sharing
 scripts/build-single-file.js                 bundles every page into one dist/how-to-open-odds-single-file.html
 dist/                                        generated, self-contained HTML files (git-ignore or regenerate as needed)
@@ -52,7 +53,7 @@ dist/                                        generated, self-contained HTML file
 
 ## The exercises
 
-All pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so the numbers stay consistent end to end. Section 5 (Poisson) remains a placeholder — wired into navigation but not yet implemented; every other page is either a working exercise or written overview content.
+All pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so the numbers stay consistent end to end.
 
 - **2. How To Generate Final Score Probability Matrix** ([pages/generate-final-score-matrix.html](pages/generate-final-score-matrix.html)) — why the matrix matters, and what 2.1/2.2 each build toward it.
   - **2.1** ([pages/historical-match-data.html](pages/historical-match-data.html)) — three gated parts, each unlocked by passing a Check on the previous one: Part 1 shows the raw 10-match history (Home/Away goals) as given data; Part 2 is a COUNTIF-style Home/Away goal-count frequency table (0-6 goals); Part 3 converts those counts into probabilities (count / 10).
@@ -67,7 +68,7 @@ All pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so 
 - **4. Opening Market** ([pages/opening-market.html](pages/opening-market.html)) — explains what "opening" a market means (choosing a specific line from everything section 3 makes possible) and how it gets priced once quoted.
   - **4.1 Opening the Market** ([pages/opening-over-under-market.html](pages/opening-over-under-market.html)) — a Market dropdown toggles between Over/Under (sweeping points 0.5–4) and Handicap (sweeping lines -2 to 2, both in quarter-point steps), reusing the same sweep-and-pick-the-fairest-market mechanic either way (see [ADR 0003](docs/adr/0003-extend-opening-market-with-market-type-toggle.md)). The exercise: pick the 1, 2, or 3 point(s)/line(s) (a "Markets" dropdown) whose two BetTeam probabilities are closest to 50/50 — the bookmaker's natural opening line(s).
   - **4.2 Adding a Spread** ([pages/adding-a-spread.html](pages/adding-a-spread.html)) — same Market toggle as 4.1; takes a fixed main market (Over/Under point 2.75, or Handicap line -0.25 — the fairest line for this dataset) and asks the user to fill in a second row: a 0.10 spread applied to the fair Malay odds (half off each side), from which HK, Euro, and the resulting (now merely *implied*, margin-inclusive) Probability are derived. The spread only ever shifts the price, never the line.
-- **5. Relationship between Poisson and Probability** ([pages/poisson-distribution.html](pages/poisson-distribution.html)) — placeholder.
+- **5. Relationship between Poisson and Probability** ([pages/poisson-distribution.html](pages/poisson-distribution.html)) — recaps the historical/empirical method from section 2, shows its small-sample limitation (e.g. 0% for a goal count that just never happened in 10 matches), introduces the Poisson PMF `P(X=k) = e^-λ × λ^k / k!` with λ = expected goals, compares historical vs Poisson probabilities for Home goals side by side, and shows that Poisson only changes how the Home/Away goal probabilities are estimated — the matrix/market/odds pipeline from sections 2&ndash;4 is unchanged. All numbers are computed live from `MATCH_HISTORY`, not hardcoded.
 
 ## Shared probability/odds math (`js/data.js`)
 

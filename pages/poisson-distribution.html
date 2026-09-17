@@ -11,9 +11,171 @@
 
     <main class="exercise-content">
   <h1>5. Relationship between Poisson and Probability</h1>
+  <p>Probability tells us how likely an outcome is. Poisson is one method used to estimate goal probabilities from an expected scoring rate. It does not replace the score-matrix and odds calculations from sections 2&ndash;4 &mdash; it only changes how the Home/Away goal probabilities that feed into them are produced.</p>
 
-  <div class="panel">
-    <p>Coming soon.</p>
+  <div class="stack">
+    <div class="panel">
+      <h2>5.1 What We've Been Doing So Far</h2>
+      <p>Sections 2&ndash;4 all start from the same rule, applied to the same 10-match history:</p>
+      <p><code>Probability of scoring x goals = Count of x goals / Number of matches</code></p>
+      <p>Home scored exactly 1 goal in <span id="ex-home-count"></span> out of 10 matches, so <code>P(Home = 1) = <span id="ex-home-count-2"></span> / 10 = <span id="ex-home-prob"></span></code>. This is called <strong>Historical / Empirical Probability</strong> &mdash; it's exactly what 2.1's Part 2/3 already built.</p>
+    </div>
+
+    <div class="panel">
+      <h2>5.2 The Limitation of Historical Probability</h2>
+      <table id="limitation-table">
+        <thead>
+          <tr><th>Home Goals</th><th>Count</th><th>Historical Probability</th></tr>
+        </thead>
+        <tbody id="limitation-table-body"></tbody>
+      </table>
+      <p><strong>Does 0% mean scoring 5 goals is impossible?</strong> No &mdash; it only means that result didn't occur in this small, 10-match sample.</p>
+      <div class="takeaway"><p>Historical probability only knows what has already been observed.</p></div>
+      <p>With only 10 matches, that can mean:</p>
+      <ul>
+        <li>zero probability for outcomes that simply haven't happened yet</li>
+        <li>irregular, noisy-looking distributions</li>
+        <li>exaggerated probabilities built from very few observations</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>5.3 Introducing Poisson</h2>
+      <p>The Poisson distribution converts an expected average number of goals into probabilities for scoring 0, 1, 2, 3, 4&hellip; goals.</p>
+
+      <p><strong>Historical method</strong></p>
+      <div class="flow">
+        <div class="flow-step">Historical Matches</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Count each goal result</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Goal Probability</div>
+      </div>
+
+      <p><strong>Poisson method</strong></p>
+      <div class="flow">
+        <div class="flow-step">Expected Goals &lambda;</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Poisson Distribution</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Goal Probability</div>
+      </div>
+
+      <p>Historical probability asks: <em>&ldquo;How often did this happen?&rdquo;</em> Poisson asks: <em>&ldquo;Given the expected scoring rate, how likely is each possible number of goals?&rdquo;</em></p>
+    </div>
+
+    <div class="panel">
+      <h2>5.4 &lambda; &mdash; Expected Goals</h2>
+      <p>From the same 10 matches: Home scored <span id="lambda-home-total"></span> goals total, so <code>&lambda; Home = <span id="lambda-home-total-2"></span> / 10 = <span id="lambda-home"></span></code>. Away scored <span id="lambda-away-total"></span> goals total, so <code>&lambda; Away = <span id="lambda-away-total-2"></span> / 10 = <span id="lambda-away"></span></code>.</p>
+      <p>&lambda; represents the expected average number of goals. Poisson then converts it into a full formula:</p>
+      <p><code>P(X = k) = e<sup>&minus;&lambda;</sup> &times; &lambda;<sup>k</sup> / k!</code></p>
+      <ul>
+        <li><code>P(X = k)</code> &mdash; probability of exactly k goals</li>
+        <li><code>k</code> &mdash; number of goals</li>
+        <li><code>&lambda;</code> &mdash; expected goals</li>
+        <li><code>e</code> &mdash; a mathematical constant (&asymp; 2.71828)</li>
+        <li><code>k!</code> &mdash; factorial (k &times; (k&minus;1) &times; &hellip; &times; 1)</li>
+      </ul>
+      <p>This course doesn't derive or prove that formula &mdash; it's about opening odds, not probability theory.</p>
+    </div>
+
+    <div class="panel">
+      <h2>5.5 Historical vs Poisson Comparison</h2>
+      <p>Using &lambda; Home = <span id="comparison-lambda"></span>, the Poisson probabilities line up against the historical ones like this:</p>
+      <table id="comparison-table">
+        <thead>
+          <tr><th>Goals</th><th>Historical</th><th>Poisson (&lambda; = <span id="comparison-lambda-2"></span>)</th></tr>
+        </thead>
+        <tbody id="comparison-table-body"></tbody>
+      </table>
+      <p>Look at 5 goals: historically it was never observed, so its probability is 0%. Poisson, working from the expected rate alone, still assigns it roughly <span id="comparison-p5"></span>.</p>
+      <div class="takeaway"><p>Poisson can assign a small probability to outcomes that were not observed in the historical sample.</p></div>
+    </div>
+
+    <div class="panel">
+      <h2>5.6 Connecting Poisson Back to the Final Score Matrix</h2>
+      <p>Poisson changes how we estimate Home and Away goal probabilities. The remaining calculation process &mdash; the matrix, the market, the odds &mdash; stays exactly the same.</p>
+
+      <p><strong>Before</strong></p>
+      <div class="flow">
+        <div class="flow-step">Historical Matches</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Goal Frequency</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Home / Away Goal Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Final Score Probability Matrix</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Market Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Odds</div>
+      </div>
+
+      <p><strong>With Poisson</strong></p>
+      <div class="flow">
+        <div class="flow-step">Expected Goals &lambda;H, &lambda;A</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Poisson</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Home / Away Goal Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Final Score Probability Matrix</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Market Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Odds</div>
+      </div>
+
+      <p>One scoreline, worked through: <code>P(Home = 1) = <span id="worked-p-home1"></span></code> and, with &lambda; Away = <span id="worked-lambda-away"></span>, <code>P(Away = 0) = <span id="worked-p-away0"></span></code>. Using the same Home/Away independence assumption as section 2:</p>
+      <p><code>P(1&ndash;0) = P(Home = 1) &times; P(Away = 0) &asymp; <span id="worked-p-home1-2"></span> &times; <span id="worked-p-away0-2"></span> &asymp; <span id="worked-p10"></span></code></p>
+      <p><strong>P(1&ndash;0) &asymp; <span id="worked-p10-pct"></span></strong></p>
+    </div>
+
+    <div class="panel">
+      <h2>5.7 What Poisson Does and Does Not Do</h2>
+      <div class="two-col">
+        <div>
+          <h3>Poisson helps:</h3>
+          <ul>
+            <li>smooth the goal probability distribution</li>
+            <li>assign probabilities to unseen outcomes</li>
+            <li>convert expected goals into a complete goal distribution</li>
+            <li>generate a usable score probability matrix</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Poisson does not automatically know:</h3>
+          <ul>
+            <li>team strength</li>
+            <li>opponent strength</li>
+            <li>home advantage</li>
+            <li>injuries</li>
+            <li>recent form</li>
+            <li>tactical matchup</li>
+            <li>red cards or changing match state</li>
+          </ul>
+        </div>
+      </div>
+      <div class="takeaway"><p>Poisson is a probability distribution, not a prediction engine by itself.</p></div>
+      <p>Those missing factors are exactly what a more advanced model would fold into &lambda; before Poisson ever runs:</p>
+      <div class="flow">
+        <div class="flow-step">Team Strength, Opponent Strength, Home Advantage, Other Information</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Expected Goals &lambda;</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Poisson</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Goal Probabilities</div>
+      </div>
+      <p>This site stops at Poisson &mdash; that bridge to more advanced modeling isn't built here.</p>
+    </div>
+
+    <div class="panel takeaway">
+      <h2>Takeaway</h2>
+      <p>Probability tells us how likely an outcome is.</p>
+      <p>Poisson is one way to estimate that probability using an expected scoring rate.</p>
+      <p>Once the goal probabilities are produced, the same score-matrix, market, and odds calculations from earlier sections still apply.</p>
+    </div>
   </div>
 
   <div class="controls" id="page-footer-root"></div>
@@ -26,5 +188,6 @@
   <script src="../js/nav.js"></script>
   <script src="../js/formula-cards.js"></script>
   <script src="../js/exercise-common.js"></script>
+  <script src="../js/poisson-distribution.js"></script>
 </body>
 </html>

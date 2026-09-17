@@ -520,3 +520,82 @@ span.part-section {
   pointer-events: none;
   cursor: default;
 }
+
+/* Inline bar chart for probability-distribution comparisons (5.5's
+   Historical-vs-Poisson table). Two fill colors so both series read as one
+   consistent legend across every row. */
+.bar-track {
+  display: inline-block;
+  vertical-align: middle;
+  width: 120px;
+  height: 14px;
+  background: #eef0f7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #2c3e6b;
+}
+
+.bar-fill.poisson {
+  background: #7048e8;
+}
+
+.bar-label {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  font-size: 12px;
+  min-width: 42px;
+}
+
+/* Simple left-to-right flow diagram (Historical vs Poisson method, the
+   before/after pipeline once Poisson feeds the matrix, etc.) - plain boxes
+   and arrows, no diagramming library. */
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.flow-step {
+  background: #fff;
+  border: 1px solid #d8d8de;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.flow-arrow {
+  color: #8a8a95;
+  font-size: 16px;
+}
+
+/* The page's closing summary - visually distinct from a regular .panel so
+   it reads as the takeaway, not just another section. */
+.takeaway {
+  background: #eef0f7;
+  border: 1px solid #c7cbe0;
+  border-left: 4px solid #2c3e6b;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.takeaway p {
+  margin: 6px 0;
+  font-weight: 600;
+}
+
+.two-col {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.two-col > div {
+  flex: 1 1 260px;
+}

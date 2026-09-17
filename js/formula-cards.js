@@ -52,6 +52,12 @@ const FORMULA_CARDS = {
     { label: "Euro Odds", formula: "HK + 1" },
     { label: "Probability", formula: "1 / Euro" },
   ],
+  "poisson-distribution.html": [
+    { label: "Historical Probability", formula: "Count(k goals) / N matches" },
+    { label: "Expected Goals (λ)", formula: "Total goals / N matches" },
+    { label: "Poisson PMF", formula: "P(X = k) = e⁻λ × λᵏ / k!" },
+    { label: "Joint Score Probability", formula: "P(Home = h, Away = a) = P(Home = h) × P(Away = a)" },
+  ],
 };
 
 function renderFormulaCard() {
