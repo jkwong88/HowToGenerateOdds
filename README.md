@@ -55,7 +55,7 @@ dist/                                        generated, self-contained HTML file
 
 All pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so the numbers stay consistent end to end.
 
-- **2. How To Generate Final Score Probability Matrix** ([pages/generate-final-score-matrix.html](pages/generate-final-score-matrix.html)) — why the matrix matters, and what 2.1/2.2 each build toward it.
+- **2. How to Generate a Final Score Probability Matrix** ([pages/generate-final-score-matrix.html](pages/generate-final-score-matrix.html)) — why the matrix matters, and what 2.1/2.2 each build toward it.
   - **2.1** ([pages/historical-match-data.html](pages/historical-match-data.html)) — three gated parts, each unlocked by passing a Check on the previous one: Part 1 shows the raw 10-match history (Home/Away goals) as given data; Part 2 is a COUNTIF-style Home/Away goal-count frequency table (0-6 goals); Part 3 converts those counts into probabilities (count / 10).
   - **2.2** ([pages/final-score-probability-matrix.html](pages/final-score-probability-matrix.html)) — takes Part 3's Home/Away probabilities as given, and builds the Home×Away joint matrix `P(home=h, away=a) = P(home=h) * P(away=a)` over goals 0-4 (`MATRIX_GOAL_VALUES`). Only the 3×3 core (Home ≤ 2, Away ≤ 2) is a fill-in exercise; the rest of the grid reveals once the core checks out.
 - **3. Odds For Different Market Type** ([pages/market-types-overview.html](pages/market-types-overview.html)) — the given matrix every market in this section starts from, settlement logic (which scorelines make a bet win, and which don't settle cleanly), and the shared odds conversion chain.

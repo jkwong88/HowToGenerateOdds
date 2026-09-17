@@ -8,7 +8,7 @@ const PAGE_SECTIONS = [
   {
     number: "2",
     file: "generate-final-score-matrix.html",
-    heading: "How To Generate Final Score Probability Matrix",
+    heading: "How to Generate a Final Score Probability Matrix",
     type: "explanation",
     pages: [
       { number: "2.1", file: "historical-match-data.html", title: "Exercise 1", type: "exercise" },
