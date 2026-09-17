@@ -8,14 +8,14 @@ const SPREAD_CONFIGS = {
   ou: {
     ...MARKET_AXIS_CONFIGS.ou,
     value: 2.75,
-    title: "Main Market (Point 2.75)",
+    title: "Main Line: 2.75",
   },
   hdp: {
     ...MARKET_AXIS_CONFIGS.hdp,
     // The fairest Handicap line for this dataset (see the sweep in 4.1) -
     // same role as Over/Under's 2.75, just on the Home - Away axis.
     value: -0.25,
-    title: "Main Market (Home -0.25)",
+    title: "Main Line: Home −0.25",
   },
 };
 
@@ -75,7 +75,7 @@ function computeSpreadOdds(fair) {
 
 function buildSpreadHeader() {
   const config = SPREAD_CONFIGS[spreadMarketType];
-  document.getElementById("spread-title").textContent = `${config.title} \\ Spread ${SPREAD_AMOUNT.toFixed(2)}`;
+  document.getElementById("spread-title").textContent = `${config.title} | Pricing Spread: ${SPREAD_AMOUNT.toFixed(2)}`;
   document.getElementById("spread-label-row").innerHTML = `<th>${config.labels.over}</th><th>${config.labels.under}</th>`.repeat(
     4
   );
@@ -99,7 +99,7 @@ function buildFairRow(fair) {
 function buildSpreadRow() {
   const row = document.getElementById("spread-row");
   row.innerHTML = `
-    <td class="row-label">With ${SPREAD_AMOUNT.toFixed(2)} Spread</td>
+    <td class="row-label">After ${SPREAD_AMOUNT.toFixed(2)} Pricing Spread</td>
     <td data-cell="prob-over-spread-cell"><input class="answer" type="number" step="0.01" id="prob-over-spread" data-formula="1 / Euro" data-refs="euro-over-spread-cell"></td>
     <td data-cell="prob-under-spread-cell"><input class="answer" type="number" step="0.01" id="prob-under-spread" data-formula="1 / Euro" data-refs="euro-under-spread-cell"></td>
     <td data-cell="euro-over-spread-cell"><input class="answer" type="number" step="0.01" id="euro-over-spread" data-formula="HK + 1" data-refs="hk-over-spread-cell"></td>
