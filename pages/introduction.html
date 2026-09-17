@@ -6,26 +6,46 @@
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <div class="page">
+  <div class="app-shell">
+    <aside class="exercise-index">
+      <button id="hint-toggle-btn">Hint: On</button>
+      <nav>
+        <ul id="exercise-index-list"></ul>
+      </nav>
+    </aside>
+
+    <main class="exercise-content">
   <h1>How To Open Odds</h1>
   <p>Seven self-checking exercises that walk through how a sportsbook derives its football odds from raw match data, one step at a time.</p>
 
-  <h2>What you'll learn</h2>
-  <ul>
-    <li>How raw match history turns into goal-count frequencies and probabilities</li>
-    <li>How to build a joint Home &times; Away scoreline probability matrix</li>
-    <li>How a Correct Score board converts probabilities into Euro, HK, and Malay odds</li>
-    <li>How an Odd / Even market is priced from that same scoreline grid</li>
-    <li>How an Over / Under market is classified and priced, including the push and half-win/half-lose cases at quarter points</li>
-    <li>How a bookmaker sweeps every point to find where to actually open an Over / Under market</li>
-    <li>How a spread shifts a fair price into what's actually quoted</li>
-  </ul>
-
-  <p>
-    <a href="../index.html">&larr; Back to exercise list</a>
-    &nbsp;|&nbsp;
-    <a href="historical-match-data.html">Start with Exercise 1 &rarr;</a>
-  </p>
+  <div class="panel">
+    <h2>What you'll learn</h2>
+    <ul>
+      <li>How raw match history turns into goal-count frequencies and probabilities</li>
+      <li>How to build a joint Home &times; Away scoreline probability matrix</li>
+      <li>How a Correct Score board converts probabilities into Euro, HK, and Malay odds</li>
+      <li>How an Odd / Even market is priced from that same scoreline grid</li>
+      <li>How an Over / Under market is classified and priced, including the push and half-win/half-lose cases at quarter points</li>
+      <li>How a bookmaker sweeps every point to find where to actually open an Over / Under market</li>
+      <li>How a spread shifts a fair price into what's actually quoted</li>
+    </ul>
   </div>
+
+  <div class="controls">
+    <a href="../index.html">&larr; Back to exercise list</a>
+    <div class="page-nav" id="page-nav"></div>
+  </div>
+    </main>
+
+    <aside class="formula-card">
+      <h2>Formulas</h2>
+      <dl id="formula-card-list"></dl>
+    </aside>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/exercise-common.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/formula-cards.js"></script>
 </body>
 </html>
