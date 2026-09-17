@@ -36,11 +36,6 @@ function buildFrequencyTables() {
   });
 }
 
-function checkPart1() {
-  unlockSection("part2");
-  return true;
-}
-
 function checkPart2(expected) {
   const countMap = { home: expected.countHome, away: expected.countAway };
   const results = [];
@@ -71,10 +66,6 @@ function checkPart3(expected) {
   return results.every(Boolean);
 }
 
-function fillPart1() {
-  checkPart1();
-}
-
 function fillPart2(expected) {
   const countMap = { home: expected.countHome, away: expected.countAway };
   ["home", "away"].forEach((key) => {
@@ -100,7 +91,6 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
-  lockSection("part2");
   lockSection("part3");
 }
 
@@ -114,13 +104,10 @@ document.querySelectorAll("input.answer").forEach((input) => {
   attachRefHighlight(input);
 });
 
-lockSection("part2");
 lockSection("part3");
 
-document.getElementById("check-part1").addEventListener("click", checkPart1);
 document.getElementById("check-part2").addEventListener("click", () => checkPart2(expected));
 document.getElementById("check-part3").addEventListener("click", () => checkPart3(expected));
-document.getElementById("fill-part1").addEventListener("click", fillPart1);
 document.getElementById("fill-part2").addEventListener("click", () => fillPart2(expected));
 document.getElementById("fill-part3").addEventListener("click", () => fillPart3(expected));
 document.getElementById("reset-btn").addEventListener("click", resetAll);

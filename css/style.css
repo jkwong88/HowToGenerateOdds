@@ -147,7 +147,6 @@ h2 {
 .exercise-content .panel {
   box-sizing: border-box;
   max-width: 100%;
-  overflow-x: auto;
 }
 
 .exercise-content > .stack,
