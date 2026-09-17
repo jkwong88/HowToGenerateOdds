@@ -12,8 +12,8 @@ function classifyOU(home, away) {
 
 function updateStepUI() {
   const hasMiddle = hasMiddleCategory(ouPoint);
-  const actionLabel = hasMiddle ? getMiddleActionLabel(ouPoint, "Draw") : "";
-  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Draw", BET_TEAM_LABELS) : "";
+  const actionLabel = hasMiddle ? getMiddleActionLabel(ouPoint, "Push") : "";
+  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Push", BET_TEAM_LABELS) : "";
   const pivot = pivotForDisplay(ouPoint);
 
   document.getElementById("ou-step-2").style.display = hasMiddle ? "" : "none";
@@ -97,7 +97,7 @@ function betTeamProb(key) {
 function buildTrueProbTable() {
   const categories = getCategories(ouPoint);
   const pivot = pivotForDisplay(ouPoint);
-  const labels = { under: "Under", middle: getMiddleLabel(ouPoint, "Draw", BET_TEAM_LABELS), over: "Over" };
+  const labels = { under: "Under", middle: getMiddleLabel(ouPoint, "Push", BET_TEAM_LABELS), over: "Over" };
 
   const header = document.getElementById("true-prob-header");
   header.innerHTML = "<th></th>";
@@ -123,7 +123,7 @@ function buildOddsTable() {
   const body = document.getElementById("odds-table-body");
   body.innerHTML = "";
   const weight = middleWeight(ouPoint);
-  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint, "Draw", BET_TEAM_LABELS) : "";
+  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint, "Push", BET_TEAM_LABELS) : "";
   const primaryKey = primaryBetTeamKey(ouPoint);
 
   BET_TEAM_KEYS.forEach((key) => {

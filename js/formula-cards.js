@@ -21,8 +21,8 @@ const FORMULA_CARDS = {
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
   "over-under-market.html": [
-    { label: "Category Probability", formula: "Σ P(scoreline) in Under / Draw / Over" },
-    { label: "Selection Probability", formula: "Category P / (1 − push weight × Draw P)" },
+    { label: "Category Probability", formula: "Σ P(scoreline) in Under / Push / Over" },
+    { label: "Selection Probability", formula: "Category P / (1 − push weight × Push P)" },
     { label: "Euro Odds", formula: "1 / Probability" },
     { label: "HK Odds", formula: "Euro − 1" },
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },

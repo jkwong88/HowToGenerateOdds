@@ -60,7 +60,7 @@ function matrixExpected(expected, home, away) {
 // (and, via HDP, by any exercise classifying Home - Away instead of
 // Home + Away - see docs/adr/0002-generalize-point-type-math-for-hdp.md).
 //
-// A whole-number point (e.g. 2) can push - Draw is a real, refundable
+// A whole-number point (e.g. 2) can push - Push is a real, refundable
 // outcome. A .25/.75 point is really half stake at the line below and half
 // at the line above, so the scoreline sitting on the rounded point is a
 // genuine half win/half lose, not a push. A .5 point never lands on the
@@ -183,7 +183,7 @@ function pivotForDisplay(point) {
 
 // The short, single-word name for the middle category's paint button and
 // "click X" instruction: an integer point pushes (caller supplies the word
-// - "Draw" for Over/Under, "Push" for HDP), which is symmetric enough for
+// - "Push" for both Over/Under and HDP), which is symmetric enough for
 // one word. A quarter point's pivot settles the two sides *oppositely*
 // (see getMiddleLabel below), so there's no single correct word for a
 // button whose only job is "paint these cells" - "Middle" names the
