@@ -38,12 +38,6 @@ h2 {
   margin: 0 0 8px;
 }
 
-.formula-note {
-  font-size: 12px;
-  font-weight: normal;
-  color: #666;
-}
-
 .layout {
   display: flex;
   gap: 24px;
