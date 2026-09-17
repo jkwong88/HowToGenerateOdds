@@ -75,3 +75,109 @@ function computeGoalStats() {
 function matrixExpected(expected, home, away) {
   return expected.probHome[home] * expected.probAway[away];
 }
+
+// Shared Over/Under point math, used by every OU-flavored exercise page.
+//
+// A whole-number point (e.g. 2) can push - Draw is a real, refundable
+// outcome. A .25/.75 point is really half stake at the line below and half
+// at the line above, so the scoreline sitting on the rounded point is a
+// genuine half win/half lose, not a push. A .5 point never lands on the
+// line at all, so there's no third category.
+function getPointType(point) {
+  const frac = Math.round((point % 1) * 100) / 100;
+  if (frac === 0) return "integer";
+  if (frac === 0.5) return "half";
+  return "quarter";
+}
+
+function hasMiddleCategory(point) {
+  return getPointType(point) !== "half";
+}
+
+// The share of the middle category's probability excluded from the
+// bettable price: a push is excluded entirely (weight 1), a half win/half
+// lose only half-excluded (weight 0.5, matching y1 = x1/(x1 + 0.5*x2 + x3)),
+// and there is nothing to exclude at a half point (weight 0).
+function middleWeight(point) {
+  const type = getPointType(point);
+  if (type === "integer") return 1;
+  if (type === "quarter") return 0.5;
+  return 0;
+}
+
+function classifyTotal(total, point) {
+  if (!hasMiddleCategory(point)) {
+    return total < point ? "under" : "over";
+  }
+  const pivot = Math.round(point);
+  if (total < pivot) return "under";
+  if (total > pivot) return "over";
+  return "middle";
+}
+
+// At a quarter point, "over/(over + 0.5*middle + under)" and its Under
+// mirror do NOT sum to 1 (they only would if middle were 0), so only one
+// side is actually derived from the EV formula - Over directly at a .25
+// point, Under directly at a .75 point (the "lose half perspective") - and
+// the other side is 1 minus that, so the two bettable outcomes always add
+// up to exactly 1.
+function primaryBetTeamKey(point) {
+  if (getPointType(point) !== "quarter") return null;
+  const frac = Math.round((point % 1) * 100) / 100;
+  return frac === 0.25 ? "over" : "under";
+}
+
+// Raw Under/Over/middle probabilities for a given point, summed straight
+// from the Home x Away matrix.
+function computeOUCategoryProbabilities(expected, point) {
+  const prob = { under: 0, over: 0 };
+  if (hasMiddleCategory(point)) prob.middle = 0;
+
+  MATRIX_GOAL_VALUES.forEach((home) => {
+    MATRIX_GOAL_VALUES.forEach((away) => {
+      const p = matrixExpected(expected, home, away);
+      prob[classifyTotal(home + away, point)] += p;
+    });
+  });
+
+  return prob;
+}
+
+// The bettable ("BetTeam") probability for Under/Over at a given point,
+// given its raw category probabilities (as returned by
+// computeOUCategoryProbabilities). Excludes the middle category per
+// middleWeight(), and resolves the asymmetric quarter-point case via
+// primaryBetTeamKey().
+function ouBetTeamProbability(prob, point, key) {
+  const middleProb = prob.middle || 0;
+  const weight = middleWeight(point);
+
+  function rawProb(k) {
+    return prob[k] / (1 - weight * middleProb);
+  }
+
+  const primaryKey = primaryBetTeamKey(point);
+  if (primaryKey && key !== primaryKey) {
+    return 1 - rawProb(primaryKey);
+  }
+  return rawProb(key);
+}
+
+// A probability this small rounds to 0.00 at 2-decimal precision, so the
+// "true odds" (1 / probability) are undefined rather than just very large.
+function isUndefinedOdds(prob) {
+  return Math.abs(prob) < 0.005;
+}
+
+// Shared odds conversion chain: True Probability -> Euro -> HK -> Malay.
+function toEuro(prob) {
+  return 1 / prob;
+}
+
+function toHK(euro) {
+  return euro - 1;
+}
+
+function toMalay(hk) {
+  return hk <= 1 ? hk : -1 / hk;
+}

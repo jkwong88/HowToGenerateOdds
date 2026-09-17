@@ -136,18 +136,6 @@ function computeOEStats(expected) {
   };
 }
 
-function toEuro(prob) {
-  return 1 / prob;
-}
-
-function toHK(euro) {
-  return euro - 1;
-}
-
-function toMalay(hk) {
-  return hk <= 1 ? hk : -1 / hk;
-}
-
 // While hovering the Odd (or Even) probability formula, the matching cells
 // already get the usual yellow ref-highlight; this additionally fades the
 // *other* parity's cell text into its own background, so only the cells

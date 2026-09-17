@@ -6,22 +6,6 @@ let ouPoint = 2.5;
 let ouPhaseIndex = 0;
 let ouStats = null;
 
-// A whole-number point (e.g. 2) can push - Draw is a real, refundable outcome.
-// A .25/.75 point is really half stake at the line below and half at the line
-// above, so the scoreline sitting on the rounded point is a genuine half
-// win/half lose, not a push. A .5 point never lands on the line at all, so
-// there's no third category.
-function getPointType(point) {
-  const frac = Math.round((point % 1) * 100) / 100;
-  if (frac === 0) return "integer";
-  if (frac === 0.5) return "half";
-  return "quarter";
-}
-
-function hasMiddleCategory(point) {
-  return getPointType(point) !== "half";
-}
-
 // From the Over bettor's perspective: landing exactly on the pivot at a .25
 // point pushes the lower half and loses the upper half (net half lose), while
 // at a .75 point it wins the lower half and pushes the upper half (net half
@@ -37,33 +21,8 @@ function getCategories(point) {
   return hasMiddleCategory(point) ? ["under", "middle", "over"] : ["under", "over"];
 }
 
-// The share of the middle category's probability excluded from the BetTeam
-// price: a push is excluded entirely (weight 1), a half win/half lose only
-// half-excluded (weight 0.5, matching y1 = x1/(x1 + 0.5*x2 + x3)), and there
-// is nothing to exclude at a half point (weight 0).
-function middleWeight(point) {
-  const type = getPointType(point);
-  if (type === "integer") return 1;
-  if (type === "quarter") return 0.5;
-  return 0;
-}
-
 function pivotForDisplay(point) {
   return hasMiddleCategory(point) ? Math.round(point) : point;
-}
-
-function classifyTotal(total, point) {
-  if (!hasMiddleCategory(point)) {
-    return total < point ? "under" : "over";
-  }
-  const pivot = Math.round(point);
-  if (total < pivot) return "under";
-  if (total > pivot) return "over";
-  return "middle";
-}
-
-function isUndefinedOdds(prob) {
-  return Math.abs(prob) < 0.005;
 }
 
 function buildOUMatrixTable(expected) {
@@ -231,43 +190,16 @@ function computeOUStats(expected) {
   return stats;
 }
 
-function toEuro(prob) {
-  return 1 / prob;
-}
-
-function toHK(euro) {
-  return euro - 1;
-}
-
-function toMalay(hk) {
-  return hk <= 1 ? hk : -1 / hk;
-}
-
-// At a quarter point, "over/(over + 0.5*middle + under)" and its Under
-// mirror do NOT sum to 1 (they only would if middle were 0), so only one
-// side is actually derived from the EV formula - the deck derives Over
-// directly at a .25 point and Under directly at a .75 point (its "lose half
-// perspective") - and the other side is just 1 minus that, so the two
-// bettable outcomes always add up to exactly 1.
-function primaryBetTeamKey(point) {
-  if (getPointType(point) !== "quarter") return null;
-  const frac = Math.round((point % 1) * 100) / 100;
-  return frac === 0.25 ? "over" : "under";
-}
-
-function rawBetTeamProb(key) {
-  const middleProb = ouStats.middle ? ouStats.middle.prob : 0;
-  return ouStats[key].prob / (1 - middleWeight(ouPoint) * middleProb);
-}
-
 // A push is excluded entirely from the bettable probability, a half win/half
 // lose only half-excluded, and there's nothing to exclude at a half point.
+// Delegates to the shared ouBetTeamProbability (js/data.js), adapting
+// ouStats's {prob, refs} shape to the plain {key: prob} it expects.
 function betTeamProb(key) {
-  const primaryKey = primaryBetTeamKey(ouPoint);
-  if (primaryKey && key !== primaryKey) {
-    return 1 - rawBetTeamProb(primaryKey);
-  }
-  return rawBetTeamProb(key);
+  const prob = {};
+  Object.keys(ouStats).forEach((k) => {
+    prob[k] = ouStats[k].prob;
+  });
+  return ouBetTeamProbability(prob, ouPoint, key);
 }
 
 // While hovering a True Probability cell, fade the *other* categories'

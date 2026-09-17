@@ -9,12 +9,6 @@ function buildCorrectScoreEntries() {
   return entries;
 }
 
-// A probability this small rounds to 0.00 at our 2-decimal precision, so the
-// "true odds" (1 / probability) are undefined rather than just very large.
-function isUndefinedOdds(prob) {
-  return Math.abs(prob) < 0.005;
-}
-
 // Away == 0 is the exercise's core: those cells start editable, everything
 // else (Away 1-4, AOS) starts hidden and disabled until the core is solved.
 function isCoreEntry(entry) {
