@@ -6,11 +6,11 @@ body {
   color: #1a1a1a;
   background: #f7f7f9;
   display: flex;
-  justify-content: center;
 }
 
 .page {
   width: fit-content;
+  margin: 0 auto;
 }
 
 .app-shell {
