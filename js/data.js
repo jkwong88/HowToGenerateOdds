@@ -56,7 +56,9 @@ function matrixExpected(expected, home, away) {
   return expected.probHome[home] * expected.probAway[away];
 }
 
-// Shared Over/Under point math, used by every OU-flavored exercise page.
+// Shared Over/Under point math, used by every OU-flavored exercise page
+// (and, via HDP, by any exercise classifying Home - Away instead of
+// Home + Away - see docs/adr/0002-generalize-point-type-math-for-hdp.md).
 //
 // A whole-number point (e.g. 2) can push - Draw is a real, refundable
 // outcome. A .25/.75 point is really half stake at the line below and half
@@ -64,7 +66,9 @@ function matrixExpected(expected, home, away) {
 // genuine half win/half lose, not a push. A .5 point never lands on the
 // line at all, so there's no third category.
 function getPointType(point) {
-  const frac = Math.round((point % 1) * 100) / 100;
+  // Math.abs() so a negative point (HDP's Home - Away axis) still lands on
+  // the same integer/half/quarter case as its positive mirror.
+  const frac = Math.round((Math.abs(point) % 1) * 100) / 100;
   if (frac === 0) return "integer";
   if (frac === 0.5) return "half";
   return "quarter";
@@ -101,26 +105,42 @@ function classifyTotal(total, point) {
 // point, Under directly at a .75 point (the "lose half perspective") - and
 // the other side is 1 minus that, so the two bettable outcomes always add
 // up to exactly 1.
+//
+// Expressed as "does point sit above or below its rounded pivot" rather
+// than a raw modulo check, so it also works for a negative point (HDP):
+// point > pivot means the pivot is the lower of the two half-lines the
+// quarter point splits into (mirroring the +0.25 case below), regardless
+// of sign.
 function primaryBetTeamKey(point) {
   if (getPointType(point) !== "quarter") return null;
-  const frac = Math.round((point % 1) * 100) / 100;
-  return frac === 0.25 ? "over" : "under";
+  const pivot = Math.round(point);
+  return point > pivot ? "over" : "under";
 }
 
 // Raw Under/Over/middle probabilities for a given point, summed straight
-// from the Home x Away matrix.
-function computeOUCategoryProbabilities(expected, point) {
+// from the Home x Away matrix - parameterized by which axis to classify, so
+// HDP can reuse it for Home - Away instead of Over/Under's Home + Away (see
+// docs/adr/0002-generalize-point-type-math-for-hdp.md).
+function computeCategoryProbabilities(expected, point, axisValue) {
   const prob = { under: 0, over: 0 };
   if (hasMiddleCategory(point)) prob.middle = 0;
 
   MATRIX_GOAL_VALUES.forEach((home) => {
     MATRIX_GOAL_VALUES.forEach((away) => {
       const p = matrixExpected(expected, home, away);
-      prob[classifyTotal(home + away, point)] += p;
+      prob[classifyTotal(axisValue(home, away), point)] += p;
     });
   });
 
   return prob;
+}
+
+function computeOUCategoryProbabilities(expected, point) {
+  return computeCategoryProbabilities(expected, point, (home, away) => home + away);
+}
+
+function computeHDPCategoryProbabilities(expected, point) {
+  return computeCategoryProbabilities(expected, point, (home, away) => home - away);
 }
 
 // The bettable ("BetTeam") probability for Under/Over at a given point,

@@ -1,0 +1,3 @@
+# Reuse Over/Under's point-type math for HDP's difference axis
+
+HDP's push / half-win-half-lose classification is mathematically identical to Over/Under's — only the axis changes, from `Home + Away` (a sum, always ≥ 0) to `Home − Away` (a signed difference). Rather than duplicate `getPointType`/`hasMiddleCategory`/`classifyTotal`/`primaryBetTeamKey` for HDP, `js/data.js` generalizes them to accept negative points (fixing the sign-unsafe fractional-part checks that assumed a non-negative point) and HDP calls the same functions with `home - away` in place of `home + away`. A reader seeing Over/Under's helpers used by an HDP page should not assume this is accidental reuse of unrelated code — it is deliberate, since the underlying math is the same.
