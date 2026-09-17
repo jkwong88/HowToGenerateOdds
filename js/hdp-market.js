@@ -19,7 +19,6 @@ function updateStepUI() {
   const point = pointForClassify(hdpLine);
   const hasMiddle = hasMiddleCategory(point);
   const actionLabel = hasMiddle ? getMiddleActionLabel(point, "Push") : "";
-  const middleLabel = hasMiddle ? getMiddleLabel(point, "Push", BET_TEAM_LABELS) : "";
   const pivot = pivotForDisplay(point);
 
   document.getElementById("hdp-step-2").style.display = hasMiddle ? "" : "none";
@@ -33,7 +32,12 @@ function updateStepUI() {
 
   if (hasMiddle) {
     note2.style.display = "";
-    note2.innerHTML = `Step 2: click every cell where Home &minus; Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${actionLabel}.`;
+    if (getPointType(point) === "integer") {
+      note2.innerHTML = `Step 2: click every cell where Home &minus; Away <strong>equals ${pivot}</strong> (${actionLabel}), then click ${actionLabel}.`;
+    } else {
+      const { overWord, underWord } = getSplitSettlementWords(point);
+      note2.innerHTML = `Step 2: click every cell where Home &minus; Away <strong>equals ${pivot}</strong> - at ${hdpLine}, this is a split settlement (Home Covers = ${overWord}, Away Covers = ${underWord}), then click ${actionLabel}.`;
+    }
     note3.innerHTML = `Step 3: click every remaining cell (Home &minus; Away is <strong>over ${pivot}</strong>), then click Home Covers.`;
   } else {
     note2.style.display = "none";

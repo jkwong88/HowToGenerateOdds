@@ -13,7 +13,6 @@ function classifyOU(home, away) {
 function updateStepUI() {
   const hasMiddle = hasMiddleCategory(ouPoint);
   const actionLabel = hasMiddle ? getMiddleActionLabel(ouPoint, "Push") : "";
-  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Push", BET_TEAM_LABELS) : "";
   const pivot = pivotForDisplay(ouPoint);
 
   document.getElementById("ou-step-2").style.display = hasMiddle ? "" : "none";
@@ -27,7 +26,12 @@ function updateStepUI() {
 
   if (hasMiddle) {
     note2.style.display = "";
-    note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${actionLabel}.`;
+    if (getPointType(ouPoint) === "integer") {
+      note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${actionLabel}), then click ${actionLabel}.`;
+    } else {
+      const { overWord, underWord } = getSplitSettlementWords(ouPoint);
+      note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> - at ${ouPoint}, this is a split settlement (Over = ${overWord}, Under = ${underWord}), then click ${actionLabel}.`;
+    }
     note3.innerHTML = `Step 3: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then click Over.`;
   } else {
     note2.style.display = "none";

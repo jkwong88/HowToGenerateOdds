@@ -181,29 +181,37 @@ function pivotForDisplay(point) {
   return hasMiddleCategory(point) ? Math.round(point) : point;
 }
 
-// The short, single-word name for the middle category's paint button and
-// "click X" instruction: an integer point pushes (caller supplies the word
-// - "Push" for both Over/Under and HDP), which is symmetric enough for
-// one word. A quarter point's pivot settles the two sides *oppositely*
-// (see getMiddleLabel below), so there's no single correct word for a
-// button whose only job is "paint these cells" - "Middle" names the
-// category itself rather than picking a side.
+// The short, single-word/phrase name for the middle category's paint button
+// and "click X" instruction: an integer point pushes (caller supplies the
+// word - "Push" for both Over/Under and HDP), which is symmetric enough for
+// one word. A quarter point's pivot settles the two sides *oppositely* (see
+// getMiddleLabel below), so there's no single correct side-word for a
+// button whose only job is "paint these cells" - "Split Settlement" names
+// the category itself (neither side settles it the same way) rather than
+// picking a side.
 function getMiddleActionLabel(point, integerLabel) {
-  return getPointType(point) === "integer" ? integerLabel : "Middle";
+  return getPointType(point) === "integer" ? integerLabel : "Split Settlement";
+}
+
+// A quarter point's pivot settles the two bettable sides *oppositely*
+// (whichever sits above its pivot - the same rule as primaryBetTeamKey - is
+// a Half Loss, the other a Half Win), so this can't be named from a single
+// scoreline's perspective; both sides have to be given their own word.
+function getSplitSettlementWords(point) {
+  const pivot = Math.round(point);
+  const overIsHalfLoss = point > pivot;
+  return {
+    overWord: overIsHalfLoss ? "Half Loss" : "Half Win",
+    underWord: overIsHalfLoss ? "Half Win" : "Half Loss",
+  };
 }
 
 // The full, disambiguated description of the middle category, for display
-// (table header, formula text) rather than the button above: at a quarter
-// point, the two bettable sides settle the pivot *oppositely* (whichever
-// sits above its pivot - the same rule as primaryBetTeamKey - is Half Lose,
-// the other is Half Win), so both have to be named, not just one.
+// (table header, formula text) rather than the button above.
 function getMiddleLabel(point, integerLabel, sideLabels) {
   const type = getPointType(point);
   if (type === "integer") return integerLabel;
-  const pivot = Math.round(point);
-  const overIsHalfLose = point > pivot;
-  const overWord = overIsHalfLose ? "Half Lose" : "Half Win";
-  const underWord = overIsHalfLose ? "Half Win" : "Half Lose";
+  const { overWord, underWord } = getSplitSettlementWords(point);
   return `${sideLabels.over}: ${overWord} / ${sideLabels.under}: ${underWord}`;
 }
 
