@@ -22,13 +22,13 @@ const FORMULA_CARDS = {
   ],
   "over-under-market.html": [
     { label: "Category Probability", formula: "Σ P(scoreline) in Under / Push / Over" },
-    { label: "Selection Probability", formula: "Category P / (1 − push weight × Push P)" },
+    { label: "Selection Probability", formula: "Category Probability ÷ (1 − Settlement Weight × Middle Probability)" },
     { label: "Euro Odds", formula: "1 / Probability" },
     { label: "HK Odds", formula: "Euro − 1" },
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
   "1x2-double-chance-market.html": [
-    { label: "1X2 Probability", formula: "Σ P(scoreline) where Home > / = / < Away" },
+    { label: "1X2 Probability", formula: "Σ P(scoreline) for Home Win / Draw / Away Win" },
     { label: "Double Chance Probability", formula: "P(1X2 outcome A) + P(1X2 outcome B)" },
     { label: "Euro Odds", formula: "1 / Probability" },
   ],
@@ -43,7 +43,7 @@ const FORMULA_CARDS = {
   ],
   "opening-over-under-market.html": [
     { label: "Selection Probability", formula: "Same as 3.5 Over / Under or 3.6 HDP, swept over the selected market's range" },
-    { label: "Main Market", formula: "Point(s)/Line(s) where the two Selection probabilities are closest to 0.50" },
+    { label: "Main Market", formula: "Line(s) where the two fair probabilities are closest to 50% each" },
     { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
   ],
   "adding-a-spread.html": [
