@@ -24,6 +24,19 @@ function inlineAssets(htmlPath) {
     return `<script>\n${js}\n</script>`;
   });
 
+  // A local <img src="..."> is a relative file path (unlike an external
+  // http(s):// URL or an already-inlined data: URI) - inlined as base64 so
+  // the bundled file stays self-contained wherever it's shared to, not just
+  // when left sitting next to the original image at its relative path.
+  html = html.replace(/(<img\s+[^>]*src=")([^"]+)(")/g, (match, prefix, src, suffix) => {
+    if (/^(https?:)?\/\//.test(src) || src.startsWith("data:")) return match;
+    const ext = path.extname(src).toLowerCase();
+    const mimeType = IMAGE_MIME_TYPES[ext];
+    if (!mimeType) return match;
+    const data = fs.readFileSync(path.join(dir, src)).toString("base64");
+    return `${prefix}data:${mimeType};base64,${data}${suffix}`;
+  });
+
   return html;
 }
 
