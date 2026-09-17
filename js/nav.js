@@ -1,6 +1,7 @@
 // Shared page order for the prev/next navigation arrows and the exercise
 // index. Add new exercise pages here (in order) as they are created.
 const PAGE_ORDER = [
+  "introduction.html",
   "historical-match-data.html",
   "final-score-probability-matrix.html",
   "correct-score-odds.html",
@@ -11,6 +12,7 @@ const PAGE_ORDER = [
 ];
 
 const PAGE_TITLES = {
+  "introduction.html": "Introduction",
   "historical-match-data.html": "Exercise 1: Historical Match Data",
   "final-score-probability-matrix.html": "Exercise 2: Final Score Probability Matrix",
   "correct-score-odds.html": "Exercise 3: Correct Score & Odds",
