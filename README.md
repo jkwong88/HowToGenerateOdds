@@ -20,8 +20,9 @@ pages/page2.html         exercise 2 source
 pages/page3.html         exercise 3 source
 pages/page4.html         exercise 4 source
 pages/page5.html         exercise 5 source
+pages/page6.html         exercise 6 source
 css/style.css            shared styles
-js/data.js               shared fixed dataset + computeGoalStats()/matrixExpected() (counts/averages/probabilities/joint scoreline probability)
+js/data.js               shared fixed dataset, computeGoalStats()/matrixExpected(), and the shared OU point math (getPointType/classifyTotal/computeOUCategoryProbabilities/ouBetTeamProbability/isUndefinedOdds/toEuro/toHK/toMalay)
 js/exercise-common.js    shared exercise mechanics: formula-hover tooltips, answer checking, section locking
 js/nav.js                shared prev/next page arrows, driven by PAGE_ORDER
 js/page1.js              page1-specific table building and wiring
@@ -29,6 +30,7 @@ js/page2.js              page2-specific table building and wiring
 js/page3.js              page3-specific table building and wiring
 js/page4.js              page4-specific table building and wiring
 js/page5.js              page5-specific table building and wiring
+js/page6.js              page6-specific table building and wiring
 scripts/build.js         bundler: inlines css/js into dist/*.html for sharing
 dist/                    generated, self-contained HTML files (git-ignore or regenerate as needed)
 ```

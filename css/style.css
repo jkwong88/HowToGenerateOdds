@@ -206,6 +206,14 @@ td.cell-wrong {
   background: #ffa8a8;
 }
 
+tr.selected-correct td {
+  background: #d9f2d9;
+}
+
+tr.selected-wrong td {
+  background: #ffa8a8;
+}
+
 .step-note {
   font-size: 13px;
   margin: 12px 0 8px;
