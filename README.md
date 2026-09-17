@@ -2,9 +2,9 @@
 
 ## Goal
 
-Teach how a sportsbook's football odds table — see [bookie_example.png](bookie_example.png) — is derived from raw match data, then reproduce the same calculations as a static HTML page.
+Teach how a sportsbook's football odds — see [bookie_example.png](bookie_example.png) — are derived from raw match data, as a sequence of self-checking HTML exercises.
 
-The reference spreadsheet [Football Probability_Jiankun.xlsx](Football%20Probability_Jiankun.xlsx) already implements the math across separate sheets (one topic per tab). The HTML version covers the same math but is **not** a 1:1 port of the spreadsheet — sheet-by-sheet layout is an Excel convenience, not a requirement of the model itself.
+The reference materials [Football Probability_Jiankun.xlsx](Football%20Probability_Jiankun.xlsx) and [Point 0.25 & 0.75 calculation.pptx](Point%200.25%20%26%200.75%20calculation.pptx) were the starting inspiration and worked-math source, but the HTML exercises are not a 1:1 port of either — they cover **Correct Score, Odd/Even, and Over/Under (including a simple spread)**. Markets shown in bookie_example.png that aren't built here: HDP, 1X2, Double Chance, Total Goal buckets, First Half markets, and live/in-play odds decay.
 
 - Tech stack: plain HTML/CSS/JS, no build step for development.
 - Source layout: each page lives in `pages/`, referencing shared `css/` and `js/` files — this keeps the source editable and reusable across pages.
@@ -23,8 +23,8 @@ pages/page5.html         exercise 5 source
 pages/page6.html         exercise 6 source
 pages/page7.html         exercise 7 source
 css/style.css            shared styles
-js/data.js               shared fixed dataset, computeGoalStats()/matrixExpected(), and the shared OU point math (getPointType/classifyTotal/computeOUCategoryProbabilities/ouBetTeamProbability/isUndefinedOdds/toEuro/toHK/toMalay)
-js/exercise-common.js    shared exercise mechanics: formula-hover tooltips, answer checking, section locking
+js/data.js               shared fixed dataset + all shared probability/odds math (see below)
+js/exercise-common.js    shared exercise mechanics (see below)
 js/nav.js                shared prev/next page arrows, driven by PAGE_ORDER
 js/page1.js              page1-specific table building and wiring
 js/page2.js              page2-specific table building and wiring
@@ -37,156 +37,28 @@ scripts/build.js         bundler: inlines css/js into dist/*.html for sharing
 dist/                    generated, self-contained HTML files (git-ignore or regenerate as needed)
 ```
 
-## What bookie_example.png actually shows
+## The exercises
 
-One row of a bookie's non-live board packs several independent bet markets, all derived from the **same** underlying home/away goal model:
+All seven pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so the numbers stay consistent end to end.
 
-| Section | Markets |
-|---|---|
-| Full Time | HDP (handicap), OU (over/under), 1X2 (home/draw/away), OE (odd/even total goals) |
-| First Half | HDP, OU, 1X2 (same markets, computed on first-half-only goals) |
-| Total Goal | Bucketed OU (0~1, 2~3, 4~6, 7 & over) |
-| Double Chance | 1X, 12, X2 (combinations of 1X2) |
-| Correct Score | Odds for each exact scoreline (0:0, 0:1, ... AOS = "any other score") |
+1. **Historical Match Data** ([pages/page1.html](pages/page1.html)) — three gated parts, each unlocked by passing a Check on the previous one: Part 1 fills in each match's Total Score and the Home/Away/Total averages; Part 2 is a COUNTIF-style goal-count frequency table (0-6 goals); Part 3 converts those counts into probabilities (count / 10).
+2. **Final Score Probability Matrix** ([pages/page2.html](pages/page2.html)) — takes Part 3's Home/Away probabilities as given, and builds the Home×Away joint matrix `P(home=h, away=a) = P(home=h) * P(away=a)` over goals 0-4 (`MATRIX_GOAL_VALUES`). Only the 3×3 core (Home ≤ 2, Away ≤ 2) is a fill-in exercise; the rest of the grid reveals once the core checks out.
+3. **Correct Score & Odds** ([pages/page3.html](pages/page3.html)) — carries the matrix over as given data, then builds a Correct Score board (0:0 … 4:4, plus AOS) split into three sub-tables by Home value. Only the Away = 0 column is the exercise; passing it reveals the rest. Each scoreline converts True Probability → Euro → HK → Malay.
+4. **Odd / Even Market** ([pages/page4.html](pages/page4.html)) — the matrix cells become click targets: paint every Odd-total cell, then every Even-total cell (two ungraded steps), then Check verifies the whole grid at once (right/wrong cells get a green/red background). Passing unlocks an Odd/Even True Odds table (Probability → Euro → HK → Malay).
+5. **Over / Under Market** ([pages/page5.html](pages/page5.html)) — a Point dropdown (2, 2.25, 2.5, 2.75) changes the classification: a whole-number point has 3 categories (Under/Draw/Over, Draw being a real push), a `.25`/`.75` point also has 3 (Under/Half Lose or Half Win/Over, per the reference slides' EV derivation), and a `.5` point has only 2 (Under/Over, no push possible). The BetTeam conversion table only ever lists Under/Over, since a push or a half win/lose isn't itself bettable.
+6. **Opening the Over / Under Market** ([pages/page6.html](pages/page6.html)) — a given reference table sweeping every point from 0.25 to 4 (16 rows) with Over/Under Probability, Euro, HK and Malay odds. The exercise: pick the 1, 2, or 3 point(s) (a "Markets" dropdown) whose Over probability sits closest to 50/50 — the bookmaker's natural opening line(s).
+7. **Adding a Spread** ([pages/page7.html](pages/page7.html)) — takes the main market from exercise 6 (point 2.75) and asks the user to fill in a second row: a 0.10 spread applied to the fair Malay odds (half off each side), from which HK, Euro, and the resulting (now merely *implied*, margin-inclusive) Probability are derived.
 
-Every price shown is a **true probability** ("fair odds") first, then adjusted by the bookmaker's margin (see [Margin and spread](#5-margin-and-spread-tor--spread-sheets)). This document focuses on getting the true probability right; the margin step is a separate, later multiplier.
+## Shared probability/odds math (`js/data.js`)
 
-## The underlying model
+- `computeGoalStats()` — averages and COUNTIF-style counts/probabilities for Home, Away, and Total goals from `MATCH_HISTORY`.
+- `matrixExpected(expected, home, away)` — joint scoreline probability, assuming Home/Away are independent.
+- `getPointType` / `hasMiddleCategory` / `middleWeight` / `classifyTotal` / `primaryBetTeamKey` / `computeOUCategoryProbabilities` / `ouBetTeamProbability` — the point-type-aware (integer / half / quarter) Over/Under classification and bettable-probability math shared by exercises 5, 6, and 7.
+- `isUndefinedOdds` / `toEuro` / `toHK` / `toMalay` / `malayToHK` — the odds conversion chain (True Probability ⇄ Euro ⇄ HK ⇄ Malay), including the sign-based inverse used by exercise 7's spread.
 
-Everything in the spreadsheet reduces to one idea: model home goals and away goals as two Poisson-ish random variables, build a **Home × Away scoreline probability matrix**, then read every market off that matrix.
+## Shared exercise mechanics (`js/exercise-common.js`)
 
-```
-raw match history → estimate goal-scoring rate per side → Home×Away matrix → read off any market
-```
-
-### 1. Estimate team strength (`non-live prediction` sheet)
-
-Given N historical matches (head-to-head, or a team's own recent matches) with home/away goals per match:
-
-- `home_strength = AVERAGE(home_goals)`
-- `away_strength = AVERAGE(away_goals)`
-
-These averages are the "fair point" estimate for the next match:
-
-- `fair OU = home_strength + away_strength`
-- `fair HDP = home_strength - away_strength`
-
-This is the rough, non-live prediction — good for a sanity check, not yet a full probability distribution.
-
-### 2. True probability from raw score frequency (`OU Probability` sheet)
-
-With only historical counts (no distribution assumption), the true probability of each *total goal* value is just its empirical frequency:
-
-```
-P(total = k) = COUNTIF(history, k) / COUNT(history)
-```
-
-From that discrete distribution, every OU line is derived:
-
-- **Integer / half lines** (e.g. 1.5, 2.5): `P(Over) = P(total > line)`, `P(Under) = 1 - P(Over)`.
-- **Quarter lines** (e.g. 1.25, 1.75)**:** a quarter line is really two integer/half lines split 50/50. A bet on Over at a `.25` line:
-  - wins in full ("win all", `x1`) if `total >= ceil(line)`
-  - wins half / loses half ("push half", `x2`) if `total == floor(line)` — the *other* half is a loss
-  - loses in full ("lose all", `x3`) if `total < floor(line)`
-
-  ```
-  P(Over) = x1 / (x1 + 0.5*x2 + 0.5*x2_loss + x3)
-  ```
-
-  (`x2` splits into a half-win and a half-lose component depending on which side of the line you bet; see the sheet for the exact win/half/lose score buckets per `.25`/`.75` point.)
-
-- **Odds conversion** (applies everywhere, not just OU):
-  ```
-  Euro odds  = 1 / true_probability
-  HK odds    = Euro odds - 1
-  Malay odds = HK odds            if HK odds <= 1
-             = -1 / HK odds       if HK odds > 1
-  ```
-
-### 3. When history is too small: statistical model (`Stats Model + Matrix` sheet)
-
-Ten matches is not enough to trust raw frequency counts (many total-goal values will have zero observations). Instead, model each side's goal count as **Poisson**, parameterized by the average goal already computed in step 1:
-
-```
-P(home scores h) = POISSON(h, home_strength, false)
-P(away scores a) = POISSON(a, away_strength, false)
-```
-
-Because home and away goals are treated as independent, the joint scoreline probability is just the product:
-
-```
-P(home = h, away = a) = P(home scores h) * P(away scores a)
-```
-
-This is the **Home × Away matrix** — a grid where cell `(h, a)` holds the probability of that exact scoreline. This single matrix is the answer to "what if sample data isn't enough": Poisson smooths over the gaps that raw counting leaves empty.
-
-This matrix is also directly the source of **Correct Score** odds in bookie_example.png: `odds(h:a) = 1 / matrix[h][a]` (converted to house format), and "AOS" is `1 - sum(all listed scorelines)`.
-
-### 4. Reading OU and HDP off the matrix (`OU Matrix values`, `HDP Probability` sheets)
-
-Once the matrix exists, every market is just a sum over a region of cells — no re-modeling needed.
-
-**OU point → diagonal bands.** For an OU line, classify every cell `(h, a)` by comparing `h + a` to the line:
-
-- `lower` = cells where `h + a < line` (Under wins outright)
-- `diag`  = cells where `h + a == round(line)` (only relevant for `.0`/`.5` lines, where a push/half is possible)
-- `upper` = cells where `h + a > line` (Over wins outright)
-
-The exact combination rule depends on how the line ends:
-
-| Line ends with | Over probability | Under probability |
-|---|---|---|
-| `.0` | `lower / (lower + upper)` (draw/push removed) | `upper / (lower + upper)` |
-| `.25` | `lower / (lower + 0.5*diag + upper)` | `1 - over` |
-| `.5` | `lower + diag` | `upper` |
-| `.75` | `1 - under` | `upper / (upper + 0.5*diag + lower)` |
-
-(Sums are over the antidiagonal bands of the matrix defined by `h + a` vs. the rounded line — same shape for every OU point, just re-sliced.)
-
-**HDP point → same idea, but diagonals offset by the handicap.** Instead of grouping by `h + a`, group by `h - a` relative to the handicap value; "Fav" and "Udg" (favourite / underdog) take the place of Over/Under, and win-all / push-half / lose-all follow the same `.0`/`.25`/`.5`/`.75` table shape as OU.
-
-### 5. Home/Draw/Away, Odd/Even, Total Goal buckets, Double Chance
-
-Not covered by a dedicated sheet, but they fall out of the same matrix with a different grouping rule — this is the part the HTML implementation needs to add on top of the spreadsheet's logic:
-
-- **1X2:** `P(Home) = sum(h > a)`, `P(Draw) = sum(h == a)`, `P(Away) = sum(h < a)`.
-- **OE (odd/even):** `P(Odd) = sum((h+a) is odd)`, `P(Even) = sum((h+a) is even)`.
-- **Total Goal buckets:** e.g. `P(2~3) = sum(2 <= h+a <= 3)` — a coarser version of the OU banding in step 4.
-- **Double Chance:** `P(1X) = P(Home) + P(Draw)`, `P(12) = P(Home) + P(Away)`, `P(X2) = P(Draw) + P(Away)`.
-- **First Half markets:** same formulas, but the matrix is built from first-half-only goal averages instead of full-time averages.
-
-### 6. Live odds: strength decay (`Poisson` sheet)
-
-Once a match is in play, remaining strength scales down with remaining time:
-
-```
-decay_factor    = remaining_game_time / total_game_time
-live_strength   = initial_strength * decay_factor
-```
-
-`live_strength` replaces `home_strength` / `away_strength` in step 3, so the matrix — and therefore every derived market — is recomputed live as the clock runs down.
-
-### 7. Margin and spread (`TOR` / `Spread` sheets)
-
-True odds (from steps 2–6) are what the bookmaker computes internally; the price shown to a player has a **margin** (overround) baked in by shrinking the payout ("spread"):
-
-```
-margin = 1/over_price + 1/under_price - 1
-```
-
-The `Spread` and `TOR` sheets work through how spreading the true odds unevenly between Over/Under changes the bookmaker's expected profit and the resulting margin — this is a separate step applied after true probability is known, not part of the probability model itself.
-
-## Flow summary
-
-```
-1. non-live prediction   → rough fair point (OU, HDP) from historical averages
-2. OU Probability         → true probability from raw score frequency (small-N, exact)
-3. Stats Model + Matrix   → Poisson per side → Home×Away matrix (handles small-N gaps)
-4. OU Matrix values       → OU probability read off the matrix (upper/diag/lower)
-5. HDP Probability        → HDP probability read off the matrix (same idea, offset by handicap)
-6. (new) 1X2 / OE / Total Goal / Double Chance / Correct Score → other groupings of the same matrix
-7. Poisson (live)         → strength decay → live matrix → live odds
-8. Spread / TOR           → true odds → bookmaker margin → displayed price
-```
-
-Steps 1–5 and 7–8 mirror the spreadsheet tabs of the same name; step 6 is the gap between the spreadsheet (which only worked out OU/HDP) and the full board in [bookie_example.png](bookie_example.png).
+- **Formula-hover tooltips**: an empty input shows its `data-formula` on hover (to the right of the cell), toggled globally by "Formula Hover: On/Off".
+- **Cross-cell highlighting**: `data-cell` / `data-refs` let a formula's hover also highlight (or, on exercises 4/5, fade) the source cell(s) it depends on.
+- **Answer checking**: `markInput(input, expected, tolerance, decimals)` marks a cell correct/incorrect within a tolerance.
+- **Section gating**: `lockSection` / `unlockSection` disable/enable a part's inputs and buttons until a prior part is solved.
