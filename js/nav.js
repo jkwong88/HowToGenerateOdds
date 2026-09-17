@@ -18,7 +18,7 @@ const PAGE_SECTIONS = [
   {
     number: "3",
     file: "market-types-overview.html",
-    heading: "Odds For Different Market Type",
+    heading: "Odds for Different Market Types",
     type: "explanation",
     pages: [
       { number: "3.1", file: "correct-score-odds.html", title: "Correct Score", type: "exercise" },
