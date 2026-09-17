@@ -55,9 +55,14 @@ body {
 }
 
 /* Fixed to Exercise 6's natural width (its widest table, already guarded by
-   .table-scroll) so the middle column never shifts width between exercises. */
+   .table-scroll) so the middle column never shifts width between exercises.
+   min-width: 0 overrides the flex-item default of min-width: auto, which
+   would otherwise let a wide table push this column past 640px regardless
+   of the width/flex-basis set here. */
 .exercise-content {
   flex: 0 0 640px;
+  width: 640px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
