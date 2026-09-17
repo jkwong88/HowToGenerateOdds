@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exercise 7 - Adding a Spread</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="page">
+  <h1>Exercise 7: Adding a Spread</h1>
+
+  <div class="stack">
+    <div class="panel">
+      <h2>Main Market (Point 2.75) &#92; Spread 0.10</h2>
+      <table id="spread-table">
+        <thead>
+          <tr>
+            <th rowspan="2"></th>
+            <th colspan="2">Probability</th>
+            <th colspan="2">Euro Odds</th>
+            <th colspan="2">HK Odds</th>
+            <th colspan="2">Malay Odds</th>
+          </tr>
+          <tr>
+            <th>Over</th>
+            <th>Under</th>
+            <th>Over</th>
+            <th>Under</th>
+            <th>Over</th>
+            <th>Under</th>
+            <th>Over</th>
+            <th>Under</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="fair-row"></tr>
+          <tr id="spread-row"></tr>
+        </tbody>
+      </table>
+
+      <p class="step-note active">Fill in the second row: split the 0.10 spread evenly (0.05 each side) off the fair Malay odds, then work out HK, Euro and Probability from there.</p>
+
+      <div class="controls">
+        <button id="check-spread">Check</button>
+        <button id="fill-spread">Fill Answers</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="reset-btn">Reset All</button>
+    <button id="toggle-formula-btn">Formula Hover: On</button>
+    <div class="page-nav" id="page-nav"></div>
+  </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/exercise-common.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/page7.js"></script>
+</body>
+</html>

@@ -1,6 +1,14 @@
 // Shared page order for the prev/next navigation arrows. Add new exercise
 // pages here (in order) as they are created.
-const PAGE_ORDER = ["page1.html", "page2.html", "page3.html", "page4.html", "page5.html", "page6.html"];
+const PAGE_ORDER = [
+  "page1.html",
+  "page2.html",
+  "page3.html",
+  "page4.html",
+  "page5.html",
+  "page6.html",
+  "page7.html",
+];
 
 function currentPageFile() {
   return window.location.pathname.split("/").pop();

@@ -181,3 +181,10 @@ function toHK(euro) {
 function toMalay(hk) {
   return hk <= 1 ? hk : -1 / hk;
 }
+
+// Inverse of toMalay: HK<=1 maps to a non-negative Malay value, HK>1 to a
+// negative one, so the sign of the Malay value (not its magnitude) is what
+// tells us which branch to invert.
+function malayToHK(malay) {
+  return malay >= 0 ? malay : -1 / malay;
+}
