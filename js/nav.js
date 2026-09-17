@@ -23,11 +23,10 @@ const PAGE_SECTIONS = [
     pages: [
       { number: "3.1", file: "correct-score-odds.html", title: "Correct Score", type: "exercise" },
       { number: "3.2", file: "odd-even-market.html", title: "Odd / Even", type: "exercise" },
-      { number: "3.3", file: "1x2-market.html", title: "1X2", type: "explanation" },
-      { number: "3.4", file: "double-chance-market.html", title: "Double Chance", type: "explanation" },
-      { number: "3.5", file: "total-goal-market.html", title: "Total Goal", type: "explanation" },
-      { number: "3.6", file: "over-under-market.html", title: "Over / Under", type: "exercise" },
-      { number: "3.7", file: "hdp-market.html", title: "HDP", type: "explanation" },
+      { number: "3.3", file: "1x2-double-chance-market.html", title: "1X2 & Double Chance", type: "exercise" },
+      { number: "3.4", file: "total-goal-market.html", title: "Total Goal", type: "explanation" },
+      { number: "3.5", file: "over-under-market.html", title: "Over / Under", type: "exercise" },
+      { number: "3.6", file: "hdp-market.html", title: "HDP", type: "explanation" },
     ],
   },
   {
