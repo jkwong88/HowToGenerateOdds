@@ -17,14 +17,14 @@ const MARKET_CONFIGS = {
   ou: {
     ...MARKET_AXIS_CONFIGS.ou,
     sweepValues: OU_SWEEP_POINTS,
-    title: "Over / Under Table (Point 0.5 - 4)",
-    pointHeader: "Point",
+    title: "Over / Under Lines (0.50–4.00)",
+    pointHeader: "Line",
     formatValue: (value) => String(value),
   },
   hdp: {
     ...MARKET_AXIS_CONFIGS.hdp,
     sweepValues: HDP_SWEEP_LINES,
-    title: "Handicap Table (Line -2 - 2)",
+    title: "Handicap Lines (−2.00 to +2.00)",
     pointHeader: "Line",
     formatValue: (value) => (value > 0 ? `+${value}` : String(value)),
   },
@@ -104,12 +104,12 @@ function buildSweepTable(rows) {
   });
 }
 
+const MARKET_COUNT_WORDS = { 2: "two", 3: "three" };
+
 function updateInstructions() {
   const note = document.getElementById("market-step-note");
-  const noun = marketType === "hdp" ? "line" : "point";
-  const nounWord = marketCount === 1 ? noun : `${noun}s`;
-  note.textContent =
-    `Select the ${marketCount} ${nounWord} where the two Selection probabilities are closest to a 50/50 split, then Check.`;
+  const nounPhrase = marketCount === 1 ? "the line" : `the ${MARKET_COUNT_WORDS[marketCount]} lines`;
+  note.textContent = `Select ${nounPhrase} where the two fair probabilities are closest to 50% each, then click Check.`;
 }
 
 function checkedValues() {
