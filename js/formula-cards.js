@@ -31,14 +31,10 @@ const FORMULA_CARDS = {
     { label: "1X2 Probability", formula: "Σ P(scoreline) where Home > / = / < Away" },
     { label: "Double Chance Probability", formula: "P(1X2 outcome A) + P(1X2 outcome B)" },
     { label: "Euro Odds", formula: "1 / Probability" },
-    { label: "HK Odds", formula: "Euro − 1" },
-    { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
   "total-goal-market.html": [
     { label: "Bucket Probability", formula: "Σ P(scoreline) where Home + Away falls in the bucket" },
     { label: "Euro Odds", formula: "1 / Probability" },
-    { label: "HK Odds", formula: "Euro − 1" },
-    { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
   "hdp-market.html": [
     { label: "Category Probability", formula: "Σ P(scoreline) in Away Covers / Push / Home Covers, classified by Home − Away" },

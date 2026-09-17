@@ -50,13 +50,13 @@ function fillAllCells() {
 }
 
 function checkOddsTable() {
-  const passed = checkSimpleOddsTable(CATEGORIES, wlStats);
+  const passed = checkSimpleOddsTable(CATEGORIES, wlStats, false);
   if (passed) unlockSection("part2");
   return passed;
 }
 
 function fillOddsTable() {
-  fillSimpleOddsTable(CATEGORIES, wlStats);
+  fillSimpleOddsTable(CATEGORIES, wlStats, false);
   checkOddsTable();
 }
 
@@ -79,15 +79,13 @@ function buildDCTable() {
       <td class="row-label">${key}</td>
       <td data-cell="dc-prob-${key}-cell"><input class="answer" type="number" step="0.01" id="dc-prob-${key}" data-formula="${formula}" data-refs="prob-${a}-cell,prob-${b}-cell"></td>
       <td class="given-value" id="dc-euro-${key}">&mdash;</td>
-      <td class="given-value" id="dc-hk-${key}">&mdash;</td>
-      <td class="given-value" id="dc-malay-${key}">&mdash;</td>
     `;
     body.appendChild(row);
   });
 }
 
-// Only Probability is graded - Euro/HK/Malay are pure derived display cells
-// that populate once Probability checks out, so they never need to
+// Only Probability is graded - Euro Odds is a pure derived display cell
+// that populates once Probability checks out, so it never needs to
 // participate in lockSection/unlockSection's input.answer toggling.
 function checkDC(dcStats) {
   const results = DC_KEYS.map((key) => markInput(document.getElementById(`dc-prob-${key}`), dcStats[key], 0.005, 2));
@@ -95,13 +93,8 @@ function checkDC(dcStats) {
 
   if (passed) {
     DC_KEYS.forEach((key) => {
-      const prob = dcStats[key];
-      const euro = toEuro(prob);
-      const hk = toHK(euro);
-      const malay = toMalay(hk);
+      const euro = toEuro(dcStats[key]);
       document.getElementById(`dc-euro-${key}`).textContent = euro.toFixed(2);
-      document.getElementById(`dc-hk-${key}`).textContent = hk.toFixed(2);
-      document.getElementById(`dc-malay-${key}`).textContent = malay.toFixed(2);
     });
   }
 
@@ -118,8 +111,6 @@ function fillDC(dcStats) {
 function resetDCDisplay() {
   DC_KEYS.forEach((key) => {
     document.getElementById(`dc-euro-${key}`).textContent = "—";
-    document.getElementById(`dc-hk-${key}`).textContent = "—";
-    document.getElementById(`dc-malay-${key}`).textContent = "—";
   });
 }
 
@@ -151,6 +142,7 @@ buildSimpleOddsTable({
   labels: CATEGORY_LABELS,
   formulaFor: (key) =>
     key === "home" ? "SUM(cells where Home &gt; Away)" : key === "away" ? "SUM(cells where Home &lt; Away)" : "SUM(cells where Home = Away)",
+  includeHkMalay: false,
 });
 buildDCTable();
 CATEGORIES.forEach((cat) => attachDimComplement(`prob-${cat}`, cat, () => wlStats, () => CATEGORIES));

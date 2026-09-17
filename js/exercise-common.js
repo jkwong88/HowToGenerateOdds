@@ -278,22 +278,29 @@ function attachDimComplement(inputId, key, getStats, getCategories) {
 // shared by Odd/Even, 1X2, and Total Goal. Over/Under and HDP need the
 // push-aware True-Probability + BetTeam table instead, so they build their
 // own (see over-under-market.js/hdp-market.js).
-function buildSimpleOddsTable({ bodyId, categories, labels, formulaFor }) {
+// `includeHkMalay` defaults to true (Odd/Even's shape); 1X2, Double Chance,
+// and Total Goal pass false, since those markets only ever show Euro Odds.
+function buildSimpleOddsTable({ bodyId, categories, labels, formulaFor, includeHkMalay = true }) {
   const body = document.getElementById(bodyId);
   categories.forEach((key) => {
     const row = document.createElement("tr");
-    row.innerHTML = `
+    let cells = `
       <td class="row-label">${labels[key]}</td>
       <td data-cell="prob-${key}-cell"><input class="answer" type="number" step="0.01" id="prob-${key}" data-formula="${formulaFor(key)}"></td>
       <td data-cell="euro-${key}-cell"><input class="answer" type="number" step="0.01" id="euro-${key}" data-formula="1 / Probability" data-refs="prob-${key}-cell"></td>
-      <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
-      <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
     `;
+    if (includeHkMalay) {
+      cells += `
+        <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
+        <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
+      `;
+    }
+    row.innerHTML = cells;
     body.appendChild(row);
   });
 }
 
-function checkSimpleOddsTable(categories, stats) {
+function checkSimpleOddsTable(categories, stats, includeHkMalay = true) {
   const results = [];
 
   categories.forEach((key) => {
@@ -302,32 +309,38 @@ function checkSimpleOddsTable(categories, stats) {
 
     if (!isUndefinedOdds(prob)) {
       const euro = toEuro(prob);
-      const hk = toHK(euro);
-      const malay = toMalay(hk);
       results.push(markInput(document.getElementById(`euro-${key}`), euro, 0.005, 2));
-      results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
-      results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
+
+      if (includeHkMalay) {
+        const hk = toHK(euro);
+        const malay = toMalay(hk);
+        results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
+        results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
+      }
     }
   });
 
   return results.every(Boolean);
 }
 
-function fillSimpleOddsTable(categories, stats) {
+function fillSimpleOddsTable(categories, stats, includeHkMalay = true) {
   categories.forEach((key) => {
     const prob = stats[key].prob;
     document.getElementById(`prob-${key}`).value = prob.toFixed(2);
 
     if (!isUndefinedOdds(prob)) {
       const euro = toEuro(prob);
-      const hk = toHK(euro);
-      const malay = toMalay(hk);
       document.getElementById(`euro-${key}`).value = euro.toFixed(2);
-      document.getElementById(`hk-${key}`).value = hk.toFixed(2);
-      document.getElementById(`malay-${key}`).value = malay.toFixed(2);
+
+      if (includeHkMalay) {
+        const hk = toHK(euro);
+        const malay = toMalay(hk);
+        document.getElementById(`hk-${key}`).value = hk.toFixed(2);
+        document.getElementById(`malay-${key}`).value = malay.toFixed(2);
+      }
     }
   });
-  checkSimpleOddsTable(categories, stats);
+  checkSimpleOddsTable(categories, stats, includeHkMalay);
 }
 
 updateHintButtonLabel();

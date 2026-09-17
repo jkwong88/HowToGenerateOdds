@@ -90,6 +90,7 @@ buildSimpleOddsTable({
       b46: "SUM(cells where 4 &le; Home+Away &le; 6)",
       b7p: "SUM(cells where Home+Away &ge; 7)",
     }[key]),
+  includeHkMalay: false,
 });
 CATEGORIES.forEach((cat) => attachDimComplement(`prob-${cat}`, cat, () => tgStats, () => CATEGORIES));
 
@@ -111,6 +112,6 @@ document.getElementById("complete-b46").addEventListener("click", completeB46);
 document.getElementById("complete-b7p").addEventListener("click", checkAllCells);
 document.getElementById("reset-tg").addEventListener("click", resetAll);
 document.getElementById("fill-tg").addEventListener("click", fillAllCells);
-document.getElementById("check-odds-table").addEventListener("click", () => checkSimpleOddsTable(CATEGORIES, tgStats));
-document.getElementById("fill-odds-table").addEventListener("click", () => fillSimpleOddsTable(CATEGORIES, tgStats));
+document.getElementById("check-odds-table").addEventListener("click", () => checkSimpleOddsTable(CATEGORIES, tgStats, false));
+document.getElementById("fill-odds-table").addEventListener("click", () => fillSimpleOddsTable(CATEGORIES, tgStats, false));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
