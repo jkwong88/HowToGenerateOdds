@@ -78,15 +78,15 @@ function updateStepUI() {
   const note2 = document.getElementById("step-note-2");
   const note3 = document.getElementById("step-note-3");
 
-  note1.innerHTML = `Step 1: click every cell where Home + Away is <strong>under ${pivot}</strong>, then Under.`;
+  note1.innerHTML = `Step 1: click every cell where Home + Away is <strong>under ${pivot}</strong>, then click Under.`;
 
   if (hasMiddle) {
     note2.style.display = "";
-    note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${middleLabel}), then ${middleLabel}.`;
-    note3.innerHTML = `Step 3: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then Over.`;
+    note2.innerHTML = `Step 2: click every cell where Home + Away <strong>equals ${pivot}</strong> (${middleLabel}), then click ${middleLabel}.`;
+    note3.innerHTML = `Step 3: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then click Over.`;
   } else {
     note2.style.display = "none";
-    note3.innerHTML = `Step 2: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then Over.`;
+    note3.innerHTML = `Step 2: click every remaining cell (Home + Away is <strong>over ${pivot}</strong>), then click Over.`;
   }
 }
 

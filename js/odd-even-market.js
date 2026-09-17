@@ -55,7 +55,7 @@ function updateStepHighlight() {
   document.getElementById("step-note-2").classList.toggle("active", !step2Locked && step3Locked);
 }
 
-// Step 1's "Odds Complete" and step 2's "Even Complete" just move to the
+// Step 1's "Odd" and step 2's "Even" just move to the
 // next step - neither checks anything.
 function completeStep1() {
   oePhase = 2;
