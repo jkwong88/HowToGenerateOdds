@@ -13,46 +13,6 @@ function classify1X2(home, away) {
   return "draw";
 }
 
-function buildWLMatrixTable(expected) {
-  const header = document.getElementById("wl-matrix-header");
-  MATRIX_GOAL_VALUES.forEach((v) => {
-    header.innerHTML += `<th>${v}</th>`;
-  });
-
-  const body = document.getElementById("wl-matrix-body");
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    const row = document.createElement("tr");
-    let cells = `<td class="row-label">${home}</td>`;
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const value = matrixExpected(expected, home, away).toFixed(2);
-      cells += `<td><button type="button" class="oe-cell" id="wl-cell-${home}-${away}" data-cell="wl-cell:${home}-${away}">${value}</button></td>`;
-    });
-    row.innerHTML = cells;
-    body.appendChild(row);
-  });
-}
-
-// Clicking always paints with the current phase's color; if the cell already
-// carries a different phase's color, the click replaces it instead of stacking.
-function wireMatrixClicks() {
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`wl-cell-${home}-${away}`);
-      btn.addEventListener("click", () => {
-        if (btn.disabled) return;
-        btn.closest("td").classList.remove("cell-correct", "cell-wrong");
-        const targetClass = CATEGORY_CLASS[CATEGORIES[wlPhaseIndex]];
-        if (btn.classList.contains(targetClass)) {
-          btn.classList.remove(targetClass);
-        } else {
-          Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-          btn.classList.add(targetClass);
-        }
-      });
-    });
-  });
-}
-
 function updateStepHighlight() {
   const step2Locked = document.getElementById("wl-step-2").classList.contains("locked");
   const step3Locked = document.getElementById("wl-step-3").classList.contains("locked");
@@ -78,138 +38,26 @@ function completeDraw() {
 
 // "Away" is the only place the whole grid actually gets verified.
 function checkAllCells() {
-  let allCorrect = true;
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`wl-cell-${home}-${away}`);
-      const cell = btn.closest("td");
-      const correctClass = CATEGORY_CLASS[classify1X2(home, away)];
-      const isCorrect = btn.classList.contains(correctClass);
-      cell.classList.toggle("cell-correct", isCorrect);
-      cell.classList.toggle("cell-wrong", !isCorrect);
-      if (!isCorrect) allCorrect = false;
-    });
-  });
-
-  if (allCorrect) {
-    MATRIX_GOAL_VALUES.forEach((home) => {
-      MATRIX_GOAL_VALUES.forEach((away) => {
-        document.getElementById(`wl-cell-${home}-${away}`).disabled = true;
-      });
-    });
-    unlockSection("odds-section");
-  }
-
+  const allCorrect = matrix.checkAll(classify1X2);
+  if (allCorrect) unlockSection("odds-section");
   updateStepHighlight();
   return allCorrect;
 }
 
 function fillAllCells() {
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`wl-cell-${home}-${away}`);
-      Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-      btn.classList.add(CATEGORY_CLASS[classify1X2(home, away)]);
-    });
-  });
+  matrix.fillAll(classify1X2);
   checkAllCells();
 }
 
-function compute1X2Stats(expected) {
-  const prob = { home: 0, draw: 0, away: 0 };
-  const refs = { home: [], draw: [], away: [] };
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const p = matrixExpected(expected, home, away);
-      const cat = classify1X2(home, away);
-      prob[cat] += p;
-      refs[cat].push(`wl-cell:${home}-${away}`);
-    });
-  });
-
-  const stats = {};
-  CATEGORIES.forEach((cat) => {
-    stats[cat] = { prob: prob[cat], refs: refs[cat].join(",") };
-  });
-  return stats;
-}
-
-// While hovering a True Probability formula, fade the *other* categories'
-// matrix cells into their own background so only the summed cells stay legible.
-function attachDimComplement(key, wlStats) {
-  const input = document.getElementById(`prob-${key}`);
-  const cell = input.closest("td");
-
-  function setDim(on) {
-    CATEGORIES.filter((k) => k !== key).forEach((k) => {
-      wlStats[k].refs.split(",").forEach((ref) => {
-        const trimmed = ref.trim();
-        if (!trimmed) return;
-        document.querySelectorAll(`[data-cell="${trimmed}"]`).forEach((el) => el.classList.toggle("dim-text", on));
-      });
-    });
-  }
-
-  cell.addEventListener("mouseenter", () => {
-    if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) setDim(true);
-  });
-  cell.addEventListener("mouseleave", () => setDim(false));
-}
-
-function buildOddsTable() {
-  const body = document.getElementById("odds-table-body");
-  const formulas = {
-    home: "SUM(cells where Home &gt; Away)",
-    draw: "SUM(cells where Home = Away)",
-    away: "SUM(cells where Home &lt; Away)",
-  };
-
-  CATEGORIES.forEach((key) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td class="row-label">${CATEGORY_LABELS[key]}</td>
-      <td data-cell="prob-${key}-cell"><input class="answer" type="number" step="0.01" id="prob-${key}" data-formula="${formulas[key]}"></td>
-      <td data-cell="euro-${key}-cell"><input class="answer" type="number" step="0.01" id="euro-${key}" data-formula="1 / Probability" data-refs="prob-${key}-cell"></td>
-      <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
-      <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
-    `;
-    body.appendChild(row);
-  });
-}
-
-function checkOddsTable(wlStats) {
-  const results = [];
-
-  CATEGORIES.forEach((key) => {
-    const prob = wlStats[key].prob;
-    const euro = toEuro(prob);
-    const hk = toHK(euro);
-    const malay = toMalay(hk);
-    results.push(markInput(document.getElementById(`prob-${key}`), prob, 0.005, 2));
-    results.push(markInput(document.getElementById(`euro-${key}`), euro, 0.005, 2));
-    results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
-    results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
-  });
-
-  const passed = results.every(Boolean);
+function checkOddsTable() {
+  const passed = checkSimpleOddsTable(CATEGORIES, wlStats);
   if (passed) unlockSection("part2");
   return passed;
 }
 
-function fillOddsTable(wlStats) {
-  CATEGORIES.forEach((key) => {
-    const prob = wlStats[key].prob;
-    const euro = toEuro(prob);
-    const hk = toHK(euro);
-    const malay = toMalay(hk);
-    document.getElementById(`prob-${key}`).value = prob.toFixed(2);
-    document.getElementById(`euro-${key}`).value = euro.toFixed(2);
-    document.getElementById(`hk-${key}`).value = hk.toFixed(2);
-    document.getElementById(`malay-${key}`).value = malay.toFixed(2);
-  });
-  checkOddsTable(wlStats);
+function fillOddsTable() {
+  fillSimpleOddsTable(CATEGORIES, wlStats);
+  checkOddsTable();
 }
 
 function computeDCStats(wlStats) {
@@ -281,15 +129,7 @@ function resetAll() {
     syncEmptyTooltip(input);
   });
   resetDCDisplay();
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`wl-cell-${home}-${away}`);
-      Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-      btn.closest("td").classList.remove("cell-correct", "cell-wrong");
-      btn.disabled = false;
-    });
-  });
+  matrix.reset();
 
   wlPhaseIndex = 0;
   lockSection("wl-step-2");
@@ -300,14 +140,20 @@ function resetAll() {
 }
 
 const expected = computeGoalStats();
-const wlStats = compute1X2Stats(expected);
+const matrix = createMatrixClassifier({ idPrefix: "wl", expected, categoryClass: CATEGORY_CLASS });
+const wlStats = matrix.computeStats(classify1X2, CATEGORIES);
 const dcStats = computeDCStats(wlStats);
 
-buildWLMatrixTable(expected);
-wireMatrixClicks();
-buildOddsTable();
+matrix.wireClicks(() => CATEGORY_CLASS[CATEGORIES[wlPhaseIndex]]);
+buildSimpleOddsTable({
+  bodyId: "odds-table-body",
+  categories: CATEGORIES,
+  labels: CATEGORY_LABELS,
+  formulaFor: (key) =>
+    key === "home" ? "SUM(cells where Home &gt; Away)" : key === "away" ? "SUM(cells where Home &lt; Away)" : "SUM(cells where Home = Away)",
+});
 buildDCTable();
-CATEGORIES.forEach((cat) => attachDimComplement(cat, wlStats));
+CATEGORIES.forEach((cat) => attachDimComplement(`prob-${cat}`, cat, () => wlStats, () => CATEGORIES));
 
 document.querySelectorAll("input.answer").forEach((input) => {
   syncEmptyTooltip(input);
@@ -326,8 +172,8 @@ document.getElementById("complete-draw").addEventListener("click", completeDraw)
 document.getElementById("complete-away").addEventListener("click", checkAllCells);
 document.getElementById("reset-wl").addEventListener("click", resetAll);
 document.getElementById("fill-wl").addEventListener("click", fillAllCells);
-document.getElementById("check-odds-table").addEventListener("click", () => checkOddsTable(wlStats));
-document.getElementById("fill-odds-table").addEventListener("click", () => fillOddsTable(wlStats));
+document.getElementById("check-odds-table").addEventListener("click", checkOddsTable);
+document.getElementById("fill-odds-table").addEventListener("click", fillOddsTable);
 document.getElementById("check-dc").addEventListener("click", () => checkDC(dcStats));
 document.getElementById("fill-dc").addEventListener("click", () => fillDC(dcStats));
 document.getElementById("reset-btn").addEventListener("click", resetAll);

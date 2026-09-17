@@ -6,45 +6,8 @@ let ouPoint = 2.5;
 let ouPhaseIndex = 0;
 let ouStats = null;
 
-function buildOUMatrixTable(expected) {
-  const header = document.getElementById("ou-matrix-header");
-  MATRIX_GOAL_VALUES.forEach((v) => {
-    header.innerHTML += `<th>${v}</th>`;
-  });
-
-  const body = document.getElementById("ou-matrix-body");
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    const row = document.createElement("tr");
-    let cells = `<td class="row-label">${home}</td>`;
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const value = matrixExpected(expected, home, away).toFixed(2);
-      cells += `<td><button type="button" class="oe-cell" id="ou-cell-${home}-${away}" data-cell="ou-cell:${home}-${away}">${value}</button></td>`;
-    });
-    row.innerHTML = cells;
-    body.appendChild(row);
-  });
-}
-
-// Clicking always paints with the current phase's color; if the cell already
-// carries a different phase's color, the click replaces it instead of stacking.
-function wireMatrixClicks() {
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`ou-cell-${home}-${away}`);
-      btn.addEventListener("click", () => {
-        if (btn.disabled) return;
-        btn.closest("td").classList.remove("cell-correct", "cell-wrong");
-        const targetCategory = getCategories(ouPoint)[ouPhaseIndex];
-        const targetClass = CATEGORY_CLASS[targetCategory];
-        if (btn.classList.contains(targetClass)) {
-          btn.classList.remove(targetClass);
-        } else {
-          Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-          btn.classList.add(targetClass);
-        }
-      });
-    });
-  });
+function classifyOU(home, away) {
+  return classifyTotal(home + away, ouPoint);
 }
 
 function updateStepUI() {
@@ -108,100 +71,19 @@ function completeMiddle() {
 
 // "Over" is the only place the whole grid actually gets verified.
 function checkAllCells() {
-  let allCorrect = true;
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`ou-cell-${home}-${away}`);
-      const cell = btn.closest("td");
-      const correctClass = CATEGORY_CLASS[classifyTotal(home + away, ouPoint)];
-      const isCorrect = btn.classList.contains(correctClass);
-      cell.classList.toggle("cell-correct", isCorrect);
-      cell.classList.toggle("cell-wrong", !isCorrect);
-      if (!isCorrect) allCorrect = false;
-    });
-  });
-
-  if (allCorrect) {
-    MATRIX_GOAL_VALUES.forEach((home) => {
-      MATRIX_GOAL_VALUES.forEach((away) => {
-        document.getElementById(`ou-cell-${home}-${away}`).disabled = true;
-      });
-    });
-    unlockSection("odds-section");
-  }
-
+  const allCorrect = matrix.checkAll(classifyOU);
+  if (allCorrect) unlockSection("odds-section");
   updateStepHighlight();
   return allCorrect;
 }
 
 function fillAllCells() {
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`ou-cell-${home}-${away}`);
-      Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-      btn.classList.add(CATEGORY_CLASS[classifyTotal(home + away, ouPoint)]);
-    });
-  });
+  matrix.fillAll(classifyOU);
   checkAllCells();
-}
-
-function computeOUStats(expected) {
-  const categories = getCategories(ouPoint);
-  const prob = {};
-  const refs = {};
-  categories.forEach((cat) => {
-    prob[cat] = 0;
-    refs[cat] = [];
-  });
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const p = matrixExpected(expected, home, away);
-      const category = classifyTotal(home + away, ouPoint);
-      prob[category] += p;
-      refs[category].push(`ou-cell:${home}-${away}`);
-    });
-  });
-
-  const stats = {};
-  categories.forEach((cat) => {
-    stats[cat] = { prob: prob[cat], refs: refs[cat].join(",") };
-  });
-  return stats;
 }
 
 function betTeamProb(key) {
   return betTeamProbabilityFromStats(ouStats, ouPoint, key);
-}
-
-// While hovering a True Probability cell, fade the *other* categories'
-// matrix cells into their own background so only the summed cells stay
-// legible. Reads ouStats/ouPoint live, so it keeps working after a rebuild.
-function attachDimComplement(key) {
-  const input = document.getElementById(`tp-${key}`);
-  if (!input) return;
-  const cell = input.closest("td");
-
-  function setDim(on) {
-    getCategories(ouPoint)
-      .filter((k) => k !== key)
-      .forEach((k) => {
-        if (!ouStats[k]) return;
-        ouStats[k].refs.split(",").forEach((ref) => {
-          const trimmed = ref.trim();
-          if (!trimmed) return;
-          document.querySelectorAll(`[data-cell="${trimmed}"]`).forEach((el) => {
-            el.classList.toggle("dim-text", on);
-          });
-        });
-      });
-  }
-
-  cell.addEventListener("mouseenter", () => {
-    if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) setDim(true);
-  });
-  cell.addEventListener("mouseleave", () => setDim(false));
 }
 
 function buildTrueProbTable() {
@@ -324,13 +206,13 @@ function wireAnswerInputs(container) {
 }
 
 function rebuildOddsSection(expected) {
-  ouStats = computeOUStats(expected);
+  ouStats = matrix.computeStats(classifyOU, getCategories(ouPoint));
   buildTrueProbTable();
   buildOddsTable();
 
   wireAnswerInputs(document.getElementById("true-prob-table"));
   wireAnswerInputs(document.getElementById("odds-table"));
-  getCategories(ouPoint).forEach((cat) => attachDimComplement(cat));
+  getCategories(ouPoint).forEach((cat) => attachDimComplement(`tp-${cat}`, cat, () => ouStats, () => getCategories(ouPoint)));
 }
 
 function resetAll() {
@@ -338,15 +220,7 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`ou-cell-${home}-${away}`);
-      Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-      btn.closest("td").classList.remove("cell-correct", "cell-wrong");
-      btn.disabled = false;
-    });
-  });
+  matrix.reset();
 
   ouPhaseIndex = 0;
   lockSection("ou-step-2");
@@ -363,9 +237,9 @@ function onPointChange(event) {
 }
 
 const expected = computeGoalStats();
+const matrix = createMatrixClassifier({ idPrefix: "ou", expected, categoryClass: CATEGORY_CLASS });
 
-buildOUMatrixTable(expected);
-wireMatrixClicks();
+matrix.wireClicks(() => CATEGORY_CLASS[getCategories(ouPoint)[ouPhaseIndex]]);
 rebuildOddsSection(expected);
 
 lockSection("ou-step-2");

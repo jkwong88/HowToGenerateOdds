@@ -13,46 +13,6 @@ function classifyTotalGoal(home, away) {
   return "b7p";
 }
 
-function buildTGMatrixTable(expected) {
-  const header = document.getElementById("tg-matrix-header");
-  MATRIX_GOAL_VALUES.forEach((v) => {
-    header.innerHTML += `<th>${v}</th>`;
-  });
-
-  const body = document.getElementById("tg-matrix-body");
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    const row = document.createElement("tr");
-    let cells = `<td class="row-label">${home}</td>`;
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const value = matrixExpected(expected, home, away).toFixed(2);
-      cells += `<td><button type="button" class="oe-cell" id="tg-cell-${home}-${away}" data-cell="tg-cell:${home}-${away}">${value}</button></td>`;
-    });
-    row.innerHTML = cells;
-    body.appendChild(row);
-  });
-}
-
-// Clicking always paints with the current phase's color; if the cell already
-// carries a different phase's color, the click replaces it instead of stacking.
-function wireMatrixClicks() {
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`tg-cell-${home}-${away}`);
-      btn.addEventListener("click", () => {
-        if (btn.disabled) return;
-        btn.closest("td").classList.remove("cell-correct", "cell-wrong");
-        const targetClass = CATEGORY_CLASS[CATEGORIES[tgPhaseIndex]];
-        if (btn.classList.contains(targetClass)) {
-          btn.classList.remove(targetClass);
-        } else {
-          Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-          btn.classList.add(targetClass);
-        }
-      });
-    });
-  });
-}
-
 function updateStepHighlight() {
   const locked = {};
   CATEGORIES.forEach((cat) => {
@@ -88,143 +48,15 @@ function completeB46() {
 }
 
 function checkAllCells() {
-  let allCorrect = true;
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`tg-cell-${home}-${away}`);
-      const cell = btn.closest("td");
-      const correctClass = CATEGORY_CLASS[classifyTotalGoal(home, away)];
-      const isCorrect = btn.classList.contains(correctClass);
-      cell.classList.toggle("cell-correct", isCorrect);
-      cell.classList.toggle("cell-wrong", !isCorrect);
-      if (!isCorrect) allCorrect = false;
-    });
-  });
-
-  if (allCorrect) {
-    MATRIX_GOAL_VALUES.forEach((home) => {
-      MATRIX_GOAL_VALUES.forEach((away) => {
-        document.getElementById(`tg-cell-${home}-${away}`).disabled = true;
-      });
-    });
-    unlockSection("odds-section");
-  }
-
+  const allCorrect = matrix.checkAll(classifyTotalGoal);
+  if (allCorrect) unlockSection("odds-section");
   updateStepHighlight();
   return allCorrect;
 }
 
 function fillAllCells() {
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`tg-cell-${home}-${away}`);
-      Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-      btn.classList.add(CATEGORY_CLASS[classifyTotalGoal(home, away)]);
-    });
-  });
+  matrix.fillAll(classifyTotalGoal);
   checkAllCells();
-}
-
-function computeTGStats(expected) {
-  const prob = { b01: 0, b23: 0, b46: 0, b7p: 0 };
-  const refs = { b01: [], b23: [], b46: [], b7p: [] };
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const p = matrixExpected(expected, home, away);
-      const cat = classifyTotalGoal(home, away);
-      prob[cat] += p;
-      refs[cat].push(`tg-cell:${home}-${away}`);
-    });
-  });
-
-  const stats = {};
-  CATEGORIES.forEach((cat) => {
-    stats[cat] = { prob: prob[cat], refs: refs[cat].join(",") };
-  });
-  return stats;
-}
-
-// While hovering a True Probability formula, fade the *other* categories'
-// matrix cells into their own background so only the summed cells stay legible.
-function attachDimComplement(key, tgStats) {
-  const input = document.getElementById(`prob-${key}`);
-  const cell = input.closest("td");
-
-  function setDim(on) {
-    CATEGORIES.filter((k) => k !== key).forEach((k) => {
-      tgStats[k].refs.split(",").forEach((ref) => {
-        const trimmed = ref.trim();
-        if (!trimmed) return;
-        document.querySelectorAll(`[data-cell="${trimmed}"]`).forEach((el) => el.classList.toggle("dim-text", on));
-      });
-    });
-  }
-
-  cell.addEventListener("mouseenter", () => {
-    if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) setDim(true);
-  });
-  cell.addEventListener("mouseleave", () => setDim(false));
-}
-
-function buildOddsTable() {
-  const body = document.getElementById("odds-table-body");
-  const formulas = {
-    b01: "SUM(cells where Home+Away &le; 1)",
-    b23: "SUM(cells where 2 &le; Home+Away &le; 3)",
-    b46: "SUM(cells where 4 &le; Home+Away &le; 6)",
-    b7p: "SUM(cells where Home+Away &ge; 7)",
-  };
-
-  CATEGORIES.forEach((key) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td class="row-label">${CATEGORY_LABELS[key]}</td>
-      <td data-cell="prob-${key}-cell"><input class="answer" type="number" step="0.01" id="prob-${key}" data-formula="${formulas[key]}"></td>
-      <td data-cell="euro-${key}-cell"><input class="answer" type="number" step="0.01" id="euro-${key}" data-formula="1 / Probability" data-refs="prob-${key}-cell"></td>
-      <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
-      <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
-    `;
-    body.appendChild(row);
-  });
-}
-
-function checkOddsTable(tgStats) {
-  const results = [];
-
-  CATEGORIES.forEach((key) => {
-    const prob = tgStats[key].prob;
-    results.push(markInput(document.getElementById(`prob-${key}`), prob, 0.005, 2));
-
-    if (!isUndefinedOdds(prob)) {
-      const euro = toEuro(prob);
-      const hk = toHK(euro);
-      const malay = toMalay(hk);
-      results.push(markInput(document.getElementById(`euro-${key}`), euro, 0.005, 2));
-      results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
-      results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
-    }
-  });
-
-  return results.every(Boolean);
-}
-
-function fillOddsTable(tgStats) {
-  CATEGORIES.forEach((key) => {
-    const prob = tgStats[key].prob;
-    document.getElementById(`prob-${key}`).value = prob.toFixed(2);
-
-    if (!isUndefinedOdds(prob)) {
-      const euro = toEuro(prob);
-      const hk = toHK(euro);
-      const malay = toMalay(hk);
-      document.getElementById(`euro-${key}`).value = euro.toFixed(2);
-      document.getElementById(`hk-${key}`).value = hk.toFixed(2);
-      document.getElementById(`malay-${key}`).value = malay.toFixed(2);
-    }
-  });
-  checkOddsTable(tgStats);
 }
 
 function resetAll() {
@@ -232,15 +64,7 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
-
-  MATRIX_GOAL_VALUES.forEach((home) => {
-    MATRIX_GOAL_VALUES.forEach((away) => {
-      const btn = document.getElementById(`tg-cell-${home}-${away}`);
-      Object.values(CATEGORY_CLASS).forEach((c) => btn.classList.remove(c));
-      btn.closest("td").classList.remove("cell-correct", "cell-wrong");
-      btn.disabled = false;
-    });
-  });
+  matrix.reset();
 
   tgPhaseIndex = 0;
   lockSection("tg-step-2");
@@ -251,12 +75,23 @@ function resetAll() {
 }
 
 const expected = computeGoalStats();
-const tgStats = computeTGStats(expected);
+const matrix = createMatrixClassifier({ idPrefix: "tg", expected, categoryClass: CATEGORY_CLASS });
+const tgStats = matrix.computeStats(classifyTotalGoal, CATEGORIES);
 
-buildTGMatrixTable(expected);
-wireMatrixClicks();
-buildOddsTable();
-CATEGORIES.forEach((cat) => attachDimComplement(cat, tgStats));
+matrix.wireClicks(() => CATEGORY_CLASS[CATEGORIES[tgPhaseIndex]]);
+buildSimpleOddsTable({
+  bodyId: "odds-table-body",
+  categories: CATEGORIES,
+  labels: CATEGORY_LABELS,
+  formulaFor: (key) =>
+    ({
+      b01: "SUM(cells where Home+Away &le; 1)",
+      b23: "SUM(cells where 2 &le; Home+Away &le; 3)",
+      b46: "SUM(cells where 4 &le; Home+Away &le; 6)",
+      b7p: "SUM(cells where Home+Away &ge; 7)",
+    }[key]),
+});
+CATEGORIES.forEach((cat) => attachDimComplement(`prob-${cat}`, cat, () => tgStats, () => CATEGORIES));
 
 document.querySelectorAll("input.answer").forEach((input) => {
   syncEmptyTooltip(input);
@@ -276,6 +111,6 @@ document.getElementById("complete-b46").addEventListener("click", completeB46);
 document.getElementById("complete-b7p").addEventListener("click", checkAllCells);
 document.getElementById("reset-tg").addEventListener("click", resetAll);
 document.getElementById("fill-tg").addEventListener("click", fillAllCells);
-document.getElementById("check-odds-table").addEventListener("click", () => checkOddsTable(tgStats));
-document.getElementById("fill-odds-table").addEventListener("click", () => fillOddsTable(tgStats));
+document.getElementById("check-odds-table").addEventListener("click", () => checkSimpleOddsTable(CATEGORIES, tgStats));
+document.getElementById("fill-odds-table").addEventListener("click", () => fillSimpleOddsTable(CATEGORIES, tgStats));
 document.getElementById("reset-btn").addEventListener("click", resetAll);
