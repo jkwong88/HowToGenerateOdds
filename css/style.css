@@ -18,6 +18,21 @@ h1 {
   margin-bottom: 16px;
 }
 
+.point-label {
+  font-size: 13px;
+  font-weight: normal;
+  margin-left: 16px;
+}
+
+.point-select {
+  font-size: 13px;
+  padding: 4px 8px;
+  border: 1px solid #b6b6c2;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 h2 {
   font-size: 15px;
   margin: 0 0 8px;
@@ -156,6 +171,36 @@ td.given-value {
 }
 
 .oe-cell.marked-even.dim-text {
+  color: #7048e8;
+}
+
+.oe-cell.marked-under {
+  background: #1c7ed6;
+  border-color: #1864ab;
+  color: #fff;
+}
+
+.oe-cell.marked-middle {
+  background: #f59f00;
+  border-color: #e67700;
+  color: #fff;
+}
+
+.oe-cell.marked-over {
+  background: #7048e8;
+  border-color: #5f3dc4;
+  color: #fff;
+}
+
+.oe-cell.marked-under.dim-text {
+  color: #1c7ed6;
+}
+
+.oe-cell.marked-middle.dim-text {
+  color: #f59f00;
+}
+
+.oe-cell.marked-over.dim-text {
   color: #7048e8;
 }
 
