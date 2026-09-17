@@ -1,6 +1,6 @@
 const CATEGORY_CLASS = { b01: "marked-under", b23: "marked-middle", b46: "marked-over", b7p: "marked-odd" };
 const CATEGORIES = ["b01", "b23", "b46", "b7p"];
-const CATEGORY_LABELS = { b01: "0~1", b23: "2~3", b46: "4~6", b7p: "7 & Over" };
+const CATEGORY_LABELS = { b01: "0–1", b23: "2–3", b46: "4–6", b7p: "7+" };
 const STEP_IDS = { b01: "tg-step-1", b23: "tg-step-2", b46: "tg-step-3", b7p: "tg-step-4" };
 
 let tgPhaseIndex = 0;
@@ -27,7 +27,7 @@ function updateStepHighlight() {
 }
 
 // The first three steps just move to the next step - none of them check
-// anything. The last step ("7 & Over") is the only place the whole grid
+// anything. The last step ("7+") is the only place the whole grid
 // actually gets verified.
 function completeB01() {
   tgPhaseIndex = 1;
