@@ -1,27 +1,69 @@
-const SWEEP_POINTS = [];
+const OU_SWEEP_POINTS = [];
 for (let p = 0.25; p <= 4; p += 0.25) {
-  SWEEP_POINTS.push(Math.round(p * 100) / 100);
+  OU_SWEEP_POINTS.push(Math.round(p * 100) / 100);
 }
 
+const HDP_SWEEP_LINES = [];
+for (let l = -2; l <= 2; l += 0.25) {
+  HDP_SWEEP_LINES.push(Math.round(l * 100) / 100);
+}
+
+// Both market types reduce to the same shape: sweep a set of displayed
+// values, classify the matrix by some axis at each one, and find whichever
+// value(s) split their two BetTeam outcomes closest to 50/50. Only the axis
+// and labels differ between them (see docs/adr/0003).
+const MARKET_CONFIGS = {
+  ou: {
+    sweepValues: OU_SWEEP_POINTS,
+    title: "Over / Under Table (Point 0.25 - 4)",
+    pointHeader: "Point",
+    labels: { over: "Over", under: "Under" },
+    // Over/Under's point is used directly - no sign flip needed.
+    classifyPoint: (value) => value,
+    axisValue: (home, away) => home + away,
+    formatValue: (value) => String(value),
+  },
+  hdp: {
+    sweepValues: HDP_SWEEP_LINES,
+    title: "Handicap Table (Line -2 - 2)",
+    pointHeader: "Line",
+    labels: { over: "Home Covers", under: "Away Covers" },
+    // The displayed Line follows standard Asian Handicap sign (negative =
+    // Home favorite); classifyTotal/etc. need the negation of that (see
+    // js/hdp-market.js's pointForClassify for the full derivation).
+    classifyPoint: (value) => -value,
+    axisValue: (home, away) => home - away,
+    formatValue: (value) => (value > 0 ? `+${value}` : String(value)),
+  },
+};
+
+let marketType = "ou";
 let marketCount = 1;
 
-function computeSweepRows(expected) {
-  return SWEEP_POINTS.map((point) => {
-    const prob = computeOUCategoryProbabilities(expected, point);
+function idKey(value) {
+  return String(value).replace(/\./g, "_").replace(/-/g, "m");
+}
+
+function computeSweepRows() {
+  const config = MARKET_CONFIGS[marketType];
+  return config.sweepValues.map((value) => {
+    const point = config.classifyPoint(value);
+    const prob = computeCategoryProbabilities(expected, point, config.axisValue);
     const over = ouBetTeamProbability(prob, point, "over");
     const under = ouBetTeamProbability(prob, point, "under");
-    return { point, over, under };
+    return { value, over, under };
   });
 }
 
-// A bookmaker's natural market(s) are whichever points split Over/Under
-// closest to 50/50, since that draws the most balanced two-way action -
-// with more than one market open, they'd pick the closest few, not just one.
-function findMainMarketPoints(rows, count) {
+// A bookmaker's natural market(s) are whichever points split the two
+// BetTeam outcomes closest to 50/50, since that draws the most balanced
+// two-way action - with more than one market open, they'd pick the closest
+// few, not just one.
+function findMainMarketValues(rows, count) {
   return [...rows]
     .sort((a, b) => Math.abs(a.over - 0.5) - Math.abs(b.over - 0.5))
     .slice(0, count)
-    .map((row) => row.point)
+    .map((row) => row.value)
     .sort((a, b) => a - b);
 }
 
@@ -33,17 +75,29 @@ function formatOdds(prob) {
   return { euro: euro.toFixed(2), hk: hk.toFixed(2), malay: malay.toFixed(2) };
 }
 
+// The label row repeats (Over, Under) once per column-group (True
+// Probability, Euro, HK, Malay), so it's the same two <th>s four times over.
+function buildSweepHeader() {
+  const config = MARKET_CONFIGS[marketType];
+  document.getElementById("sweep-title").textContent = config.title;
+  document.getElementById("sweep-point-header").textContent = config.pointHeader;
+  document.getElementById("sweep-label-row").innerHTML = `<th>${config.labels.over}</th><th>${config.labels.under}</th>`.repeat(
+    4
+  );
+}
+
 function buildSweepTable(rows) {
+  const config = MARKET_CONFIGS[marketType];
   const body = document.getElementById("ou-sweep-body");
   body.innerHTML = "";
 
-  rows.forEach(({ point, over, under }) => {
+  rows.forEach(({ value, over, under }) => {
     const overOdds = formatOdds(over);
     const underOdds = formatOdds(under);
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><input type="checkbox" name="main-market" id="market-${point}" value="${point}"></td>
-      <td class="row-label">${point}</td>
+      <td><input type="checkbox" name="main-market" id="market-${idKey(value)}" value="${value}"></td>
+      <td class="row-label">${config.formatValue(value)}</td>
       <td>${over.toFixed(2)}</td>
       <td>${under.toFixed(2)}</td>
       <td>${overOdds.euro}</td>
@@ -59,12 +113,13 @@ function buildSweepTable(rows) {
 
 function updateInstructions() {
   const note = document.getElementById("market-step-note");
-  const word = marketCount === 1 ? "point" : "points";
+  const noun = marketType === "hdp" ? "line" : "point";
+  const nounWord = marketCount === 1 ? noun : `${noun}s`;
   note.textContent =
-    `Select the ${marketCount} ${word} where Over and Under True Probability are closest to a 50/50 split, then Check.`;
+    `Select the ${marketCount} ${nounWord} where the two BetTeam probabilities are closest to a 50/50 split, then Check.`;
 }
 
-function checkedPoints() {
+function checkedValues() {
   return Array.from(document.querySelectorAll('input[name="main-market"]:checked'))
     .map((input) => parseFloat(input.value))
     .sort((a, b) => a - b);
@@ -76,26 +131,26 @@ function clearRowFeedback() {
   });
 }
 
-function checkMarket(correctPoints) {
+function checkMarket(correctValues) {
   clearRowFeedback();
-  const picked = checkedPoints();
+  const picked = checkedValues();
 
-  picked.forEach((point) => {
-    const row = document.getElementById(`market-${point}`).closest("tr");
-    row.classList.add(correctPoints.includes(point) ? "selected-correct" : "selected-wrong");
+  picked.forEach((value) => {
+    const row = document.getElementById(`market-${idKey(value)}`).closest("tr");
+    row.classList.add(correctValues.includes(value) ? "selected-correct" : "selected-wrong");
   });
 
-  return picked.length === correctPoints.length && picked.every((point) => correctPoints.includes(point));
+  return picked.length === correctValues.length && picked.every((value) => correctValues.includes(value));
 }
 
-function fillMarket(correctPoints) {
+function fillMarket(correctValues) {
   document.querySelectorAll('input[name="main-market"]').forEach((input) => {
     input.checked = false;
   });
-  correctPoints.forEach((point) => {
-    document.getElementById(`market-${point}`).checked = true;
+  correctValues.forEach((value) => {
+    document.getElementById(`market-${idKey(value)}`).checked = true;
   });
-  checkMarket(correctPoints);
+  checkMarket(correctValues);
 }
 
 function resetAll() {
@@ -105,6 +160,21 @@ function resetAll() {
   clearRowFeedback();
 }
 
+let sweepRows = [];
+
+function rebuildSweep() {
+  buildSweepHeader();
+  sweepRows = computeSweepRows();
+  buildSweepTable(sweepRows);
+  updateInstructions();
+  resetAll();
+}
+
+function onMarketTypeChange(event) {
+  marketType = event.target.value;
+  rebuildSweep();
+}
+
 function onMarketCountChange(event) {
   marketCount = parseInt(event.target.value, 10);
   updateInstructions();
@@ -112,16 +182,15 @@ function onMarketCountChange(event) {
 }
 
 const expected = computeGoalStats();
-const sweepRows = computeSweepRows(expected);
 
-buildSweepTable(sweepRows);
-updateInstructions();
+rebuildSweep();
 
+document.getElementById("market-type-select").addEventListener("change", onMarketTypeChange);
 document.getElementById("market-count-select").addEventListener("change", onMarketCountChange);
 document.getElementById("check-market").addEventListener("click", () =>
-  checkMarket(findMainMarketPoints(sweepRows, marketCount))
+  checkMarket(findMainMarketValues(sweepRows, marketCount))
 );
 document.getElementById("fill-market").addEventListener("click", () =>
-  fillMarket(findMainMarketPoints(sweepRows, marketCount))
+  fillMarket(findMainMarketValues(sweepRows, marketCount))
 );
 document.getElementById("reset-btn").addEventListener("click", resetAll);

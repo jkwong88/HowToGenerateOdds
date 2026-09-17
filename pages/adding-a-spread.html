@@ -10,11 +10,18 @@
     <aside class="exercise-index" id="exercise-index-root"></aside>
 
     <main class="exercise-content">
-  <h1>4.2 Adding a Spread</h1>
+  <h1>
+    4.2 Adding a Spread
+    <label for="spread-market-type-select" class="point-label">Market:</label>
+    <select id="spread-market-type-select" class="point-select">
+      <option value="ou" selected>Over / Under</option>
+      <option value="hdp">Handicap</option>
+    </select>
+  </h1>
 
   <div class="stack">
     <div class="panel">
-      <h2>Main Market (Point 2.75) &#92; Spread 0.10</h2>
+      <h2 id="spread-title">Main Market (Point 2.75) &#92; Spread 0.10</h2>
       <div class="table-scroll">
       <table id="spread-table">
         <thead>
@@ -25,7 +32,7 @@
             <th colspan="2">HK Odds</th>
             <th colspan="2">Malay Odds</th>
           </tr>
-          <tr>
+          <tr id="spread-label-row">
             <th>Over</th>
             <th>Under</th>
             <th>Over</th>
@@ -43,7 +50,7 @@
       </table>
       </div>
 
-      <p class="step-note active">Fill in the second row: split the 0.10 spread evenly (0.05 each side) off the fair Malay odds, then work out HK, Euro and Probability from there.</p>
+      <p class="step-note active" id="spread-instructions">Fill in the second row: split the 0.10 spread evenly (0.05 each side) off the fair Malay odds, then work out HK, Euro and Probability from there.</p>
 
       <div class="controls">
         <button id="check-spread">Check</button>
