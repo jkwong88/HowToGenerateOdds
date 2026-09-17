@@ -24,7 +24,8 @@
     <p>Use the Home and Away goal probabilities from 2.1 to build a joint scoreline probability matrix:</p>
     <p><code>P(Home = h, Away = a) = P(Home = h) &times; P(Away = a)</code></p>
     <p>This matrix becomes the starting point for every market in Section 3.</p>
-    <p>Multiplying the two probabilities together only works if Home and Away goals are independent &mdash; for independent events, the probability of both happening is the product of their individual probabilities. That independence is a simplifying modeling assumption this project makes, not something that follows automatically from Home and Away being different teams: in a real match the two sides' scoring can interact (game state, tactics, a team sitting back once ahead, and so on). Treating them as independent ignores that interaction in exchange for a matrix simple enough to build by hand from 10 matches.</p>
+    <p>For this simplified exercise, Home and Away goals are assumed to be independent. Under this assumption, the probability of both outcomes occurring is the product of their individual probabilities.</p>
+    <p>This is a modeling simplification. In real matches, the two teams' scoring outcomes can influence each other.</p>
   </div>
 
   <div class="controls" id="page-footer-root"></div>
