@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>3. Odds For Different Market Type</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="exercise-index" id="exercise-index-root"></aside>
+
+    <main class="exercise-content">
+  <h1>3. Odds For Different Market Type</h1>
+  <p>After generated final score probability matrix, every market below is just a different way of grouping and summing cells from that same matrix, then converting the result into a price.</p>
+
+  <h2>Knowledge Needed Before Working Through Them</h2>
+
+  <div class="panel">
+    <h2>The Given Data</h2>
+    <p>Every market in this section takes the Home &times; Away scoreline matrix from section 2 as given data &mdash; nothing here recomputes it.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Settlement Logic</h2>
+    <p>Each market groups and sums matrix cells that satisfy its win condition (e.g. Home + Away is odd, Home &gt; Away, Total Goals falls in a bucket). Scorelines that don't settle as a clean win/lose &mdash; a push or a half-win/half-lose &mdash; are set aside before converting a category's probability into a price (BetTeam probability).</p>
+  </div>
+
+  <div class="panel">
+    <h2>The Odds Conversion Chain</h2>
+    <p>True Probability &rarr; Euro &rarr; HK &rarr; Malay.</p>
+    <div class="formula-chain">
+      <div class="formula-chain-card">
+        <h3>Euro Odds</h3>
+        <p>1 / Probability</p>
+      </div>
+      <div class="formula-chain-card">
+        <h3>HK Odds</h3>
+        <p>Euro &minus; 1</p>
+      </div>
+      <div class="formula-chain-card">
+        <h3>Malay Odds</h3>
+        <p>HK if HK &le; 1, else &minus;1 / HK</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" id="page-footer-root"></div>
+    </main>
+
+    <aside class="formula-card" id="formula-card-root"></aside>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/formula-cards.js"></script>
+  <script src="../js/exercise-common.js"></script>
+</body>
+</html>
