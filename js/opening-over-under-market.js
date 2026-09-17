@@ -1,5 +1,5 @@
 const OU_SWEEP_POINTS = [];
-for (let p = 0.25; p <= 4; p += 0.25) {
+for (let p = 0.5; p <= 4; p += 0.25) {
   OU_SWEEP_POINTS.push(Math.round(p * 100) / 100);
 }
 
@@ -17,7 +17,7 @@ const MARKET_CONFIGS = {
   ou: {
     ...MARKET_AXIS_CONFIGS.ou,
     sweepValues: OU_SWEEP_POINTS,
-    title: "Over / Under Table (Point 0.25 - 4)",
+    title: "Over / Under Table (Point 0.5 - 4)",
     pointHeader: "Point",
     formatValue: (value) => String(value),
   },
