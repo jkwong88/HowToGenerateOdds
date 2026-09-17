@@ -76,6 +76,9 @@ body {
 
 .formula-card {
   flex: 0 0 280px;
+  width: 280px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .formula-card dl {
