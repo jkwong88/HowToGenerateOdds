@@ -49,9 +49,13 @@ function computeFairOdds(expected) {
 // that shaved Malay, not from the original true probability. The resulting
 // "probability" is now an implied one: it sums to more than 1, and that
 // excess is the bookmaker's margin.
+//
+// Subtracting the spread can push a fair Malay already close to +/-1 past
+// it (e.g. -0.97 - 0.05 = -1.02); normalizeMalay re-expresses that in valid
+// notation (|Malay| <= 1) before it's shown or converted further.
 function computeSpreadOdds(fair) {
-  const malayOver = fair.malayOver - SPREAD_AMOUNT / 2;
-  const malayUnder = fair.malayUnder - SPREAD_AMOUNT / 2;
+  const malayOver = normalizeMalay(fair.malayOver - SPREAD_AMOUNT / 2);
+  const malayUnder = normalizeMalay(fair.malayUnder - SPREAD_AMOUNT / 2);
   const hkOver = malayToHK(malayOver);
   const hkUnder = malayToHK(malayUnder);
   const euroOver = hkOver + 1;
@@ -102,8 +106,8 @@ function buildSpreadRow() {
     <td data-cell="euro-under-spread-cell"><input class="answer" type="number" step="0.01" id="euro-under-spread" data-formula="HK + 1" data-refs="hk-under-spread-cell"></td>
     <td data-cell="hk-over-spread-cell"><input class="answer" type="number" step="0.01" id="hk-over-spread" data-formula="Malay if Malay &ge; 0, else &minus;1 / Malay" data-refs="malay-over-spread-cell"></td>
     <td data-cell="hk-under-spread-cell"><input class="answer" type="number" step="0.01" id="hk-under-spread" data-formula="Malay if Malay &ge; 0, else &minus;1 / Malay" data-refs="malay-under-spread-cell"></td>
-    <td data-cell="malay-over-spread-cell"><input class="answer" type="number" step="0.01" id="malay-over-spread" data-formula="Fair Malay (Over) &minus; Spread / 2" data-refs="malay-over-fair-cell"></td>
-    <td data-cell="malay-under-spread-cell"><input class="answer" type="number" step="0.01" id="malay-under-spread" data-formula="Fair Malay (Under) &minus; Spread / 2" data-refs="malay-under-fair-cell"></td>
+    <td data-cell="malay-over-spread-cell"><input class="answer" type="number" step="0.01" id="malay-over-spread" data-formula="Fair Malay (Over) &minus; Spread / 2 (then &minus;1 / result if |result| &gt; 1)" data-refs="malay-over-fair-cell"></td>
+    <td data-cell="malay-under-spread-cell"><input class="answer" type="number" step="0.01" id="malay-under-spread" data-formula="Fair Malay (Under) &minus; Spread / 2 (then &minus;1 / result if |result| &gt; 1)" data-refs="malay-under-fair-cell"></td>
   `;
 }
 

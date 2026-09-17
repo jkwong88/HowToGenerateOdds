@@ -243,3 +243,16 @@ function toMalay(hk) {
 function malayToHK(malay) {
   return malay >= 0 ? malay : -1 / malay;
 }
+
+// Real Malay odds are always quoted with |Malay| <= 1 (that's what toMalay's
+// own branches always produce) - a value outside that range only ever shows
+// up here after arithmetic on an already-converted Malay (adding-a-spread.js
+// subtracts a spread from the fair Malay directly), and isn't a valid quote.
+// Re-expressing it via the same invert-and-flip-sign transform as
+// toMalay/malayToHK (just triggered by magnitude instead of a sign check)
+// gives the equivalent, correctly-notated value - malayToHK(malay) and
+// malayToHK(normalizeMalay(malay)) always agree, so downstream HK/Euro/
+// Probability are unaffected either way; only the displayed Malay changes.
+function normalizeMalay(malay) {
+  return Math.abs(malay) > 1 ? -1 / malay : malay;
+}

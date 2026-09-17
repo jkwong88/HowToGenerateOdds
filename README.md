@@ -78,6 +78,7 @@ All pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so 
 - `betTeamProbabilityFromStats(stats, point, key)` / `getCategories` / `pivotForDisplay` / `getMiddleLabel(point, integerLabel)` — the category-list/label/BetTeam-adapter helpers shared by 3.5 and 3.6, so neither page hand-rolls its own copy.
 - `hdpLineToPoint(line)` / `MARKET_AXIS_CONFIGS` — the Asian-Handicap sign flip and the shared Over/Under-vs-Handicap axis config, so 3.6, 4.1, and 4.2 all derive the Home − Away axis the same way instead of three separate copies.
 - `isUndefinedOdds` / `toEuro` / `toHK` / `toMalay` / `malayToHK` — the odds conversion chain (True Probability ⇄ Euro ⇄ HK ⇄ Malay), including the sign-based inverse used by 4.2's spread.
+- `normalizeMalay(malay)` — real Malay odds are always quoted with `|Malay| ≤ 1`; 4.2's spread (the only place doing arithmetic directly on an already-converted Malay) can push it past that, so this re-expresses it in valid notation before it's shown or converted further.
 
 ## Shared exercise mechanics (`js/exercise-common.js`)
 
