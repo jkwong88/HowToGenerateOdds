@@ -8,7 +8,8 @@ The reference materials [Football Probability_Jiankun.xlsx](Football%20Probabili
 
 - Tech stack: plain HTML/CSS/JS, no build step for development.
 - Source layout: each page lives in `pages/`, referencing shared `css/` and `js/` files — this keeps the source editable and reusable across pages.
-- Sharing a single file: run `node scripts/build.js` to inline every page's linked CSS/JS into a self-contained file under `dist/` (e.g. `pages/historical-match-data.html` → `dist/historical-match-data.html`). Share the file from `dist/`, not the one under `pages/`.
+- Sharing a single page: run `node scripts/build.js` to inline every page's linked CSS/JS/images into a self-contained file under `dist/` (e.g. `pages/historical-match-data.html` → `dist/historical-match-data.html`). Share the file from `dist/`, not the one under `pages/`.
+- Sharing the whole site as one file: run `node scripts/build-single-file.js` to produce `dist/how-to-open-odds-single-file.html` - a single file with every page and its full navigation (sidebar, prev/next, Reset All) working, safe to move/email/upload anywhere. It works by embedding each page (via `build.js`'s inlining) as an `<iframe srcdoc>` the shell swaps on navigation, rather than merging every page's markup and JS into one document - the market-specific scripts all reuse names like `CATEGORY_CLASS`/`checkAllCells`, which only works because each page still runs in its own script scope.
 - All code, comments, and strings in this folder must be written in English.
 
 ## Project structure
@@ -44,7 +45,8 @@ js/over-under-market.js                      3.5-specific table building and wir
 js/hdp-market.js                             3.6-specific table building and wiring
 js/opening-over-under-market.js              4.1-specific table building and wiring (Over/Under + Handicap)
 js/adding-a-spread.js                        4.2-specific table building and wiring (Over/Under + Handicap)
-scripts/build.js                             bundler: inlines css/js into dist/*.html for sharing
+scripts/build.js                             bundler: inlines css/js/images into dist/*.html for sharing
+scripts/build-single-file.js                 bundles every page into one dist/how-to-open-odds-single-file.html
 dist/                                        generated, self-contained HTML files (git-ignore or regenerate as needed)
 ```
 

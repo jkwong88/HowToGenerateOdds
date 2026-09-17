@@ -50,4 +50,8 @@ function build() {
   });
 }
 
-build();
+module.exports = { inlineAssets, PAGES_DIR, DIST_DIR };
+
+// Only run the per-page build when invoked directly (`node scripts/build.js`),
+// not when required by another script (e.g. build-single-file.js).
+if (require.main === module) build();
