@@ -15,12 +15,15 @@ body {
 
 .app-shell {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 24px;
 }
 
 .exercise-index {
   flex: 0 0 200px;
+  box-sizing: border-box;
+  padding-right: 16px;
+  border-right: 1px solid #d8d8de;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -63,6 +66,9 @@ body {
   flex: 0 0 640px;
   width: 640px;
   min-width: 0;
+  box-sizing: border-box;
+  padding-right: 16px;
+  border-right: 1px solid #d8d8de;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
