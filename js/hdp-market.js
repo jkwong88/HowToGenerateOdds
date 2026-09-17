@@ -85,8 +85,15 @@ function checkAllCells() {
   return allCorrect;
 }
 
+// Show Answers skips the manual Step 1/2/3 clicks that would otherwise
+// unlock these sections, so it has to unlock them itself - otherwise the
+// grid ends up fully filled and checked while the step buttons stay locked
+// and the instructions still point at Step 1.
 function fillAllCells() {
   matrix.fillAll(classifyHDP);
+  hdpPhaseIndex = getCategories(pointForClassify(hdpLine)).length - 1;
+  unlockSection("hdp-step-2");
+  unlockSection("hdp-step-3");
   checkAllCells();
 }
 

@@ -38,11 +38,19 @@ function completeStep2() {
 function checkAllCells() {
   const allCorrect = matrix.checkAll(classifyOE);
   if (allCorrect) unlockSection("odds-section");
+  updateStepHighlight();
   return allCorrect;
 }
 
+// Show Answers skips the manual Step 1/Step 2 clicks that would otherwise
+// unlock these sections, so it has to unlock them itself - otherwise the
+// grid ends up fully filled and checked while the step buttons stay locked
+// and the instructions still point at Step 1.
 function fillAllCells() {
   matrix.fillAll(classifyOE);
+  oePhase = 2;
+  unlockSection("oe-step-2");
+  unlockSection("oe-step-3");
   checkAllCells();
 }
 
