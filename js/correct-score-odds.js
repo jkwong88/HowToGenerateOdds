@@ -5,7 +5,7 @@ function buildCorrectScoreEntries() {
       entries.push({ key: `${home}-${away}`, label: `${home}:${away}`, home, away, isAOS: false });
     });
   });
-  entries.push({ key: "aos", label: "AOS", isAOS: true });
+  entries.push({ key: "aos", label: "Any Other Score (AOS)", isAOS: true });
   return entries;
 }
 
