@@ -59,11 +59,11 @@ body {
 
 /* Fixed width so the middle column never shifts between exercises.
    min-width: 0 overrides the flex-item default of min-width: auto, which
-   would otherwise let a wide table push this column past 1000px regardless
+   would otherwise let a wide table push this column past 900px regardless
    of the width/flex-basis set here. */
 .exercise-content {
-  flex: 0 0 1000px;
-  width: 1000px;
+  flex: 0 0 900px;
+  width: 900px;
   min-width: 0;
   box-sizing: border-box;
   padding-right: 16px;
