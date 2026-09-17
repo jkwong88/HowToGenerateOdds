@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Exercise 5 - Over / Under Market</title>
+<title>Exercise 4 - Odd / Even Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -15,59 +15,39 @@
     </aside>
 
     <main class="exercise-content">
-  <h1>
-    Exercise 5: Over / Under Market
-    <label for="ou-point-select" class="point-label">Point:</label>
-    <select id="ou-point-select" class="point-select">
-      <option value="2">2</option>
-      <option value="2.25">2.25</option>
-      <option value="2.5" selected>2.5</option>
-      <option value="2.75">2.75</option>
-    </select>
-  </h1>
+  <h1>Exercise 4: Odd / Even Market</h1>
 
   <div class="stack">
     <div class="panel">
       <h2>Final Score Probability Table</h2>
-      <table id="ou-matrix-table">
+      <table id="oe-matrix-table">
         <thead>
-          <tr id="ou-matrix-header"><th>Home &#92; Away</th></tr>
+          <tr id="oe-matrix-header"><th>Home &#92; Away</th></tr>
         </thead>
-        <tbody id="ou-matrix-body"></tbody>
+        <tbody id="oe-matrix-body"></tbody>
       </table>
 
-      <p class="step-note" id="step-note-1"></p>
-      <p class="step-note" id="step-note-2"></p>
-      <p class="step-note" id="step-note-3"></p>
+      <p class="step-note" id="step-note-1">Step 1: click every cell where Home + Away is <strong>odd</strong>, then Odds Complete.</p>
+      <p class="step-note" id="step-note-2">Step 2: click every remaining cell (Home + Away is <strong>even</strong>), then Even Complete.</p>
 
       <div class="controls">
-        <span class="part-section" id="ou-step-1">
-          <button id="complete-under">Under</button>
+        <span class="part-section" id="oe-step-1">
+          <button id="check-odd">Odds Complete</button>
         </span>
-        <span class="part-section locked" id="ou-step-2">
-          <button id="complete-middle">Draw</button>
+        <span class="part-section locked" id="oe-step-2">
+          <button id="check-even">Even Complete</button>
         </span>
-        <span class="part-section locked" id="ou-step-3">
-          <button id="complete-over">Over</button>
+        <span class="part-section locked" id="oe-step-3">
+          <button id="check-oe">Check</button>
         </span>
-        <button id="reset-ou">Reset</button>
-        <button id="fill-ou">Show Answers</button>
+        <button id="reset-oe">Reset</button>
+        <button id="fill-oe">Show Answers</button>
       </div>
     </div>
 
     <div class="panel part-section locked" id="odds-section">
-      <div class="lock-notice">Complete all steps above first to unlock.</div>
-      <h2>Over / Under True Odds</h2>
-
-      <table id="true-prob-table">
-        <thead>
-          <tr id="true-prob-header"><th></th></tr>
-        </thead>
-        <tbody>
-          <tr id="true-prob-row"></tr>
-        </tbody>
-      </table>
-
+      <div class="lock-notice">Complete all three steps above first to unlock.</div>
+      <h2>Odd / Even True Odds</h2>
       <table id="odds-table">
         <thead>
           <tr>
@@ -103,6 +83,6 @@
   <script src="../js/exercise-common.js"></script>
   <script src="../js/nav.js"></script>
   <script src="../js/formula-cards.js"></script>
-  <script src="../js/page5.js"></script>
+  <script src="../js/odd-even-market.js"></script>
 </body>
 </html>

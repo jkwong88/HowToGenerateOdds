@@ -8,46 +8,46 @@ The reference materials [Football Probability_Jiankun.xlsx](Football%20Probabili
 
 - Tech stack: plain HTML/CSS/JS, no build step for development.
 - Source layout: each page lives in `pages/`, referencing shared `css/` and `js/` files — this keeps the source editable and reusable across pages.
-- Sharing a single file: run `node scripts/build.js` to inline every page's linked CSS/JS into a self-contained file under `dist/` (e.g. `pages/page1.html` → `dist/page1.html`). Share the file from `dist/`, not the one under `pages/`.
+- Sharing a single file: run `node scripts/build.js` to inline every page's linked CSS/JS into a self-contained file under `dist/` (e.g. `pages/historical-match-data.html` → `dist/historical-match-data.html`). Share the file from `dist/`, not the one under `pages/`.
 - All code, comments, and strings in this folder must be written in English.
 
 ## Project structure
 
 ```
-index.html              landing page listing exercises
-pages/page1.html         exercise 1 source (links css/js by relative path)
-pages/page2.html         exercise 2 source
-pages/page3.html         exercise 3 source
-pages/page4.html         exercise 4 source
-pages/page5.html         exercise 5 source
-pages/page6.html         exercise 6 source
-pages/page7.html         exercise 7 source
-css/style.css            shared styles
-js/data.js               shared fixed dataset + all shared probability/odds math (see below)
-js/exercise-common.js    shared exercise mechanics (see below)
-js/nav.js                shared prev/next page arrows, driven by PAGE_ORDER
-js/page1.js              page1-specific table building and wiring
-js/page2.js              page2-specific table building and wiring
-js/page3.js              page3-specific table building and wiring
-js/page4.js              page4-specific table building and wiring
-js/page5.js              page5-specific table building and wiring
-js/page6.js              page6-specific table building and wiring
-js/page7.js              page7-specific table building and wiring
-scripts/build.js         bundler: inlines css/js into dist/*.html for sharing
-dist/                    generated, self-contained HTML files (git-ignore or regenerate as needed)
+index.html                                   landing page listing exercises
+pages/historical-match-data.html             exercise 1 source (links css/js by relative path)
+pages/final-score-probability-matrix.html    exercise 2 source
+pages/correct-score-odds.html                exercise 3 source
+pages/odd-even-market.html                   exercise 4 source
+pages/over-under-market.html                 exercise 5 source
+pages/opening-over-under-market.html         exercise 6 source
+pages/adding-a-spread.html                   exercise 7 source
+css/style.css                                shared styles
+js/data.js                                   shared fixed dataset + all shared probability/odds math (see below)
+js/exercise-common.js                        shared exercise mechanics (see below)
+js/nav.js                                    shared prev/next page arrows, driven by PAGE_ORDER
+js/historical-match-data.js                  exercise 1-specific table building and wiring
+js/final-score-probability-matrix.js         exercise 2-specific table building and wiring
+js/correct-score-odds.js                     exercise 3-specific table building and wiring
+js/odd-even-market.js                        exercise 4-specific table building and wiring
+js/over-under-market.js                      exercise 5-specific table building and wiring
+js/opening-over-under-market.js              exercise 6-specific table building and wiring
+js/adding-a-spread.js                        exercise 7-specific table building and wiring
+scripts/build.js                             bundler: inlines css/js into dist/*.html for sharing
+dist/                                        generated, self-contained HTML files (git-ignore or regenerate as needed)
 ```
 
 ## The exercises
 
 All seven pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so the numbers stay consistent end to end.
 
-1. **Historical Match Data** ([pages/page1.html](pages/page1.html)) — three gated parts, each unlocked by passing a Check on the previous one: Part 1 fills in each match's Total Score and the Home/Away/Total averages; Part 2 is a COUNTIF-style goal-count frequency table (0-6 goals); Part 3 converts those counts into probabilities (count / 10).
-2. **Final Score Probability Matrix** ([pages/page2.html](pages/page2.html)) — takes Part 3's Home/Away probabilities as given, and builds the Home×Away joint matrix `P(home=h, away=a) = P(home=h) * P(away=a)` over goals 0-4 (`MATRIX_GOAL_VALUES`). Only the 3×3 core (Home ≤ 2, Away ≤ 2) is a fill-in exercise; the rest of the grid reveals once the core checks out.
-3. **Correct Score & Odds** ([pages/page3.html](pages/page3.html)) — carries the matrix over as given data, then builds a Correct Score board (0:0 … 4:4, plus AOS) split into three sub-tables by Home value. Only the Away = 0 column is the exercise; passing it reveals the rest. Each scoreline converts True Probability → Euro → HK → Malay.
-4. **Odd / Even Market** ([pages/page4.html](pages/page4.html)) — the matrix cells become click targets: paint every Odd-total cell, then every Even-total cell (two ungraded steps), then Check verifies the whole grid at once (right/wrong cells get a green/red background). Passing unlocks an Odd/Even True Odds table (Probability → Euro → HK → Malay).
-5. **Over / Under Market** ([pages/page5.html](pages/page5.html)) — a Point dropdown (2, 2.25, 2.5, 2.75) changes the classification: a whole-number point has 3 categories (Under/Draw/Over, Draw being a real push), a `.25`/`.75` point also has 3 (Under/Half Lose or Half Win/Over, per the reference slides' EV derivation), and a `.5` point has only 2 (Under/Over, no push possible). The BetTeam conversion table only ever lists Under/Over, since a push or a half win/lose isn't itself bettable.
-6. **Opening the Over / Under Market** ([pages/page6.html](pages/page6.html)) — a given reference table sweeping every point from 0.25 to 4 (16 rows) with Over/Under Probability, Euro, HK and Malay odds. The exercise: pick the 1, 2, or 3 point(s) (a "Markets" dropdown) whose Over probability sits closest to 50/50 — the bookmaker's natural opening line(s).
-7. **Adding a Spread** ([pages/page7.html](pages/page7.html)) — takes the main market from exercise 6 (point 2.75) and asks the user to fill in a second row: a 0.10 spread applied to the fair Malay odds (half off each side), from which HK, Euro, and the resulting (now merely *implied*, margin-inclusive) Probability are derived.
+1. **Historical Match Data** ([pages/historical-match-data.html](pages/historical-match-data.html)) — three gated parts, each unlocked by passing a Check on the previous one: Part 1 fills in each match's Total Score and the Home/Away/Total averages; Part 2 is a COUNTIF-style goal-count frequency table (0-6 goals); Part 3 converts those counts into probabilities (count / 10).
+2. **Final Score Probability Matrix** ([pages/final-score-probability-matrix.html](pages/final-score-probability-matrix.html)) — takes Part 3's Home/Away probabilities as given, and builds the Home×Away joint matrix `P(home=h, away=a) = P(home=h) * P(away=a)` over goals 0-4 (`MATRIX_GOAL_VALUES`). Only the 3×3 core (Home ≤ 2, Away ≤ 2) is a fill-in exercise; the rest of the grid reveals once the core checks out.
+3. **Correct Score & Odds** ([pages/correct-score-odds.html](pages/correct-score-odds.html)) — carries the matrix over as given data, then builds a Correct Score board (0:0 … 4:4, plus AOS) split into three sub-tables by Home value. Only the Away = 0 column is the exercise; passing it reveals the rest. Each scoreline converts True Probability → Euro → HK → Malay.
+4. **Odd / Even Market** ([pages/odd-even-market.html](pages/odd-even-market.html)) — the matrix cells become click targets: paint every Odd-total cell, then every Even-total cell (two ungraded steps), then Check verifies the whole grid at once (right/wrong cells get a green/red background). Passing unlocks an Odd/Even True Odds table (Probability → Euro → HK → Malay).
+5. **Over / Under Market** ([pages/over-under-market.html](pages/over-under-market.html)) — a Point dropdown (2, 2.25, 2.5, 2.75) changes the classification: a whole-number point has 3 categories (Under/Draw/Over, Draw being a real push), a `.25`/`.75` point also has 3 (Under/Half Lose or Half Win/Over, per the reference slides' EV derivation), and a `.5` point has only 2 (Under/Over, no push possible). The BetTeam conversion table only ever lists Under/Over, since a push or a half win/lose isn't itself bettable.
+6. **Opening the Over / Under Market** ([pages/opening-over-under-market.html](pages/opening-over-under-market.html)) — a given reference table sweeping every point from 0.25 to 4 (16 rows) with Over/Under Probability, Euro, HK and Malay odds. The exercise: pick the 1, 2, or 3 point(s) (a "Markets" dropdown) whose Over probability sits closest to 50/50 — the bookmaker's natural opening line(s).
+7. **Adding a Spread** ([pages/adding-a-spread.html](pages/adding-a-spread.html)) — takes the main market from exercise 6 (point 2.75) and asks the user to fill in a second row: a 0.10 spread applied to the fair Malay odds (half off each side), from which HK, Euro, and the resulting (now merely *implied*, margin-inclusive) Probability are derived.
 
 ## Shared probability/odds math (`js/data.js`)
 
