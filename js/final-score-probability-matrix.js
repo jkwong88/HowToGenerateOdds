@@ -7,7 +7,6 @@ function buildGivenTable(expected) {
   const rows = [
     { key: "home", id: "given-home-row", map: expected.probHome },
     { key: "away", id: "given-away-row", map: expected.probAway },
-    { key: "total", id: "given-total-row", map: expected.probTotal },
   ];
 
   rows.forEach(({ key, id, map }) => {
