@@ -1,26 +1,21 @@
 const SPREAD_AMOUNT = 0.1;
 
 // Both market types reuse the exact same "split the spread evenly off the
-// fair Malay odds" mechanic (see docs/adr/0003) - only which fixed
-// point/line is opened, and what the two sides are called, differs.
+// fair Malay odds" mechanic (see docs/adr/0003) - the axis math and BetTeam
+// labels are shared (data.js's MARKET_AXIS_CONFIGS); only which fixed
+// point/line is opened, and the title, are page-local.
 const SPREAD_CONFIGS = {
   ou: {
+    ...MARKET_AXIS_CONFIGS.ou,
     value: 2.75,
     title: "Main Market (Point 2.75) \\ Spread 0.10",
-    labels: { over: "Over", under: "Under" },
-    classifyPoint: (value) => value,
-    axisValue: (home, away) => home + away,
   },
   hdp: {
+    ...MARKET_AXIS_CONFIGS.hdp,
     // The fairest Handicap line for this dataset (see the sweep in 4.1) -
     // same role as Over/Under's 2.75, just on the Home - Away axis.
     value: -0.25,
     title: "Main Market (Home -0.25) \\ Spread 0.10",
-    labels: { over: "Home Covers", under: "Away Covers" },
-    // Displayed value follows standard Asian Handicap sign; classifyTotal
-    // needs its negation (see js/hdp-market.js's pointForClassify).
-    classifyPoint: (value) => -value,
-    axisValue: (home, away) => home - away,
   },
 };
 

@@ -72,7 +72,9 @@ All pages share one fixed 10-match dataset (`MATCH_HISTORY` in `js/data.js`) so 
 - `computeGoalStats()` — averages and COUNTIF-style counts/probabilities for Home, Away, and Total goals from `MATCH_HISTORY`.
 - `matrixExpected(expected, home, away)` — joint scoreline probability, assuming Home/Away are independent.
 - `getPointType` / `hasMiddleCategory` / `middleWeight` / `classifyTotal` / `primaryBetTeamKey` / `ouBetTeamProbability` — the point-type-aware (integer / half / quarter) classification and bettable-probability math shared by 3.5, 3.6, 4.1, and 4.2. Sign-safe (`getPointType`/`primaryBetTeamKey` work for negative points too), so 3.6's Home − Away axis reuses them unchanged (see [ADR 0002](docs/adr/0002-generalize-point-type-math-for-hdp.md)).
-- `computeCategoryProbabilities(expected, point, axisValue)` — generic Under/Middle/Over split, parameterized by axis; `computeOUCategoryProbabilities` (Home + Away) and `computeHDPCategoryProbabilities` (Home − Away) are both thin wrappers over it.
+- `computeCategoryProbabilities(expected, point, axisValue)` — generic Under/Middle/Over split, parameterized by axis; `computeHDPCategoryProbabilities` (Home − Away) is a thin wrapper over it, and 4.1/4.2 call it directly with either axis via `MARKET_AXIS_CONFIGS`.
+- `betTeamProbabilityFromStats(stats, point, key)` / `getCategories` / `pivotForDisplay` / `getMiddleLabel(point, integerLabel)` — the category-list/label/BetTeam-adapter helpers shared by 3.5 and 3.6, so neither page hand-rolls its own copy.
+- `hdpLineToPoint(line)` / `MARKET_AXIS_CONFIGS` — the Asian-Handicap sign flip and the shared Over/Under-vs-Handicap axis config, so 3.6, 4.1, and 4.2 all derive the Home − Away axis the same way instead of three separate copies.
 - `isUndefinedOdds` / `toEuro` / `toHK` / `toMalay` / `malayToHK` — the odds conversion chain (True Probability ⇄ Euro ⇄ HK ⇄ Malay), including the sign-based inverse used by 4.2's spread.
 
 ## Shared exercise mechanics (`js/exercise-common.js`)

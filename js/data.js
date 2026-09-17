@@ -135,17 +135,13 @@ function computeCategoryProbabilities(expected, point, axisValue) {
   return prob;
 }
 
-function computeOUCategoryProbabilities(expected, point) {
-  return computeCategoryProbabilities(expected, point, (home, away) => home + away);
-}
-
 function computeHDPCategoryProbabilities(expected, point) {
   return computeCategoryProbabilities(expected, point, (home, away) => home - away);
 }
 
 // The bettable ("BetTeam") probability for Under/Over at a given point,
 // given its raw category probabilities (as returned by
-// computeOUCategoryProbabilities). Excludes the middle category per
+// computeCategoryProbabilities). Excludes the middle category per
 // middleWeight(), and resolves the asymmetric quarter-point case via
 // primaryBetTeamKey().
 function ouBetTeamProbability(prob, point, key) {
@@ -162,6 +158,65 @@ function ouBetTeamProbability(prob, point, key) {
   }
   return rawProb(key);
 }
+
+// Adapts a {cat: {prob, refs}} stats map (as built by each market page's
+// compute*Stats) into the plain {cat: prob} shape ouBetTeamProbability
+// expects, so pages don't each hand-roll the same adapter.
+function betTeamProbabilityFromStats(stats, point, key) {
+  const prob = {};
+  Object.keys(stats).forEach((k) => {
+    prob[k] = stats[k].prob;
+  });
+  return ouBetTeamProbability(prob, point, key);
+}
+
+// The category list and middle-category display data for a point-type-aware
+// (integer/half/quarter) market - shared by every Under/Middle/Over-style
+// exercise (Over/Under, HDP, and the section-4 sweep/spread pages).
+function getCategories(point) {
+  return hasMiddleCategory(point) ? ["under", "middle", "over"] : ["under", "over"];
+}
+
+function pivotForDisplay(point) {
+  return hasMiddleCategory(point) ? Math.round(point) : point;
+}
+
+// The middle category's label: an integer point pushes (caller supplies the
+// word - "Draw" for Over/Under, "Push" for HDP); a quarter point is a
+// genuine half win/half lose instead, framed from whichever side sits above
+// its pivot (the same "above/below pivot" rule as primaryBetTeamKey).
+function getMiddleLabel(point, integerLabel) {
+  const type = getPointType(point);
+  if (type === "integer") return integerLabel;
+  const pivot = Math.round(point);
+  return point > pivot ? "Half Lose" : "Half Win";
+}
+
+// The dropdown/sweep shows the standard Asian Handicap line applied to Home
+// (negative = Home favorite/giving goals, positive = Home underdog/getting
+// goals). classifyTotal/etc. compare Home - Away directly against a point,
+// so the line has to be negated first: Home covers a line L when
+// (Home - Away) > -L, i.e. when Home - Away > hdpLineToPoint(L).
+function hdpLineToPoint(line) {
+  return -line;
+}
+
+// Shared axis/label config for pages that toggle between Over/Under and
+// Handicap (4.1 Opening the Market, 4.2 Adding a Spread) - only each page's
+// own sweep range/fixed value/title differ; the axis math and BetTeam
+// labels are identical either way.
+const MARKET_AXIS_CONFIGS = {
+  ou: {
+    classifyPoint: (value) => value,
+    axisValue: (home, away) => home + away,
+    labels: { over: "Over", under: "Under" },
+  },
+  hdp: {
+    classifyPoint: hdpLineToPoint,
+    axisValue: (home, away) => home - away,
+    labels: { over: "Home Covers", under: "Away Covers" },
+  },
+};
 
 // A probability this small rounds to 0.00 at 2-decimal precision, so the
 // "true odds" (1 / probability) are undefined rather than just very large.

@@ -6,25 +6,6 @@ let ouPoint = 2.5;
 let ouPhaseIndex = 0;
 let ouStats = null;
 
-// From the Over bettor's perspective: landing exactly on the pivot at a .25
-// point pushes the lower half and loses the upper half (net half lose), while
-// at a .75 point it wins the lower half and pushes the upper half (net half
-// win).
-function getMiddleLabel(point) {
-  const type = getPointType(point);
-  if (type === "integer") return "Draw";
-  const frac = Math.round((point % 1) * 100) / 100;
-  return frac === 0.25 ? "Half Lose" : "Half Win";
-}
-
-function getCategories(point) {
-  return hasMiddleCategory(point) ? ["under", "middle", "over"] : ["under", "over"];
-}
-
-function pivotForDisplay(point) {
-  return hasMiddleCategory(point) ? Math.round(point) : point;
-}
-
 function buildOUMatrixTable(expected) {
   const header = document.getElementById("ou-matrix-header");
   MATRIX_GOAL_VALUES.forEach((v) => {
@@ -68,7 +49,7 @@ function wireMatrixClicks() {
 
 function updateStepUI() {
   const hasMiddle = hasMiddleCategory(ouPoint);
-  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint) : "";
+  const middleLabel = hasMiddle ? getMiddleLabel(ouPoint, "Draw") : "";
   const pivot = pivotForDisplay(ouPoint);
 
   document.getElementById("ou-step-2").style.display = hasMiddle ? "" : "none";
@@ -190,16 +171,8 @@ function computeOUStats(expected) {
   return stats;
 }
 
-// A push is excluded entirely from the bettable probability, a half win/half
-// lose only half-excluded, and there's nothing to exclude at a half point.
-// Delegates to the shared ouBetTeamProbability (js/data.js), adapting
-// ouStats's {prob, refs} shape to the plain {key: prob} it expects.
 function betTeamProb(key) {
-  const prob = {};
-  Object.keys(ouStats).forEach((k) => {
-    prob[k] = ouStats[k].prob;
-  });
-  return ouBetTeamProbability(prob, ouPoint, key);
+  return betTeamProbabilityFromStats(ouStats, ouPoint, key);
 }
 
 // While hovering a True Probability cell, fade the *other* categories'
@@ -234,7 +207,7 @@ function attachDimComplement(key) {
 function buildTrueProbTable() {
   const categories = getCategories(ouPoint);
   const pivot = pivotForDisplay(ouPoint);
-  const labels = { under: "Under", middle: getMiddleLabel(ouPoint), over: "Over" };
+  const labels = { under: "Under", middle: getMiddleLabel(ouPoint, "Draw"), over: "Over" };
 
   const header = document.getElementById("true-prob-header");
   header.innerHTML = "<th></th>";
@@ -260,7 +233,7 @@ function buildOddsTable() {
   const body = document.getElementById("odds-table-body");
   body.innerHTML = "";
   const weight = middleWeight(ouPoint);
-  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint) : "";
+  const middleLabel = hasMiddleCategory(ouPoint) ? getMiddleLabel(ouPoint, "Draw") : "";
   const primaryKey = primaryBetTeamKey(ouPoint);
 
   BET_TEAM_KEYS.forEach((key) => {

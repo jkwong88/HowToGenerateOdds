@@ -6,34 +6,10 @@ let hdpLine = 0;
 let hdpPhaseIndex = 0;
 let hdpStats = null;
 
-// The dropdown shows the standard Asian Handicap line applied to Home
-// (negative = Home favorite/giving goals, positive = Home underdog/getting
-// goals). classifyTotal/getPointType/etc. compare Home - Away directly
-// against a point, so the line has to be negated first: Home covers a line
-// L when (Home - Away) > -L, i.e. when Home - Away > pointForClassify.
-function pointForClassify(line) {
-  return -line;
-}
-
-// Mirrors over-under-market.js's getMiddleLabel, but framed from Home's
-// side (the "over" category here) instead of the Over bettor's side -
-// point above its pivot means Home is the primary/directly-computed side,
-// so a draw on that pivot is a net half lose for Home; below its pivot, a
-// net half win.
-function getMiddleLabel(point) {
-  const type = getPointType(point);
-  if (type === "integer") return "Push";
-  const pivot = Math.round(point);
-  return point > pivot ? "Half Lose" : "Half Win";
-}
-
-function getCategories(point) {
-  return hasMiddleCategory(point) ? ["under", "middle", "over"] : ["under", "over"];
-}
-
-function pivotForDisplay(point) {
-  return hasMiddleCategory(point) ? Math.round(point) : point;
-}
+// data.js's hdpLineToPoint negates the standard Asian Handicap sign into the
+// point classifyTotal/etc. compare Home - Away against - see its comment for
+// the full derivation.
+const pointForClassify = hdpLineToPoint;
 
 function buildHDPMatrixTable(expected) {
   const header = document.getElementById("hdp-matrix-header");
@@ -80,7 +56,7 @@ function wireMatrixClicks() {
 function updateStepUI() {
   const point = pointForClassify(hdpLine);
   const hasMiddle = hasMiddleCategory(point);
-  const middleLabel = hasMiddle ? getMiddleLabel(point) : "";
+  const middleLabel = hasMiddle ? getMiddleLabel(point, "Push") : "";
   const pivot = pivotForDisplay(point);
 
   document.getElementById("hdp-step-2").style.display = hasMiddle ? "" : "none";
@@ -205,17 +181,8 @@ function computeHDPStats(expected) {
   return stats;
 }
 
-// A push is excluded entirely from the bettable probability, a half win/half
-// lose only half-excluded, and there's nothing to exclude at a half point.
-// Delegates to the shared ouBetTeamProbability (js/data.js), adapting
-// hdpStats's {prob, refs} shape to the plain {key: prob} it expects.
 function betTeamProb(key) {
-  const point = pointForClassify(hdpLine);
-  const prob = {};
-  Object.keys(hdpStats).forEach((k) => {
-    prob[k] = hdpStats[k].prob;
-  });
-  return ouBetTeamProbability(prob, point, key);
+  return betTeamProbabilityFromStats(hdpStats, pointForClassify(hdpLine), key);
 }
 
 // While hovering a True Probability cell, fade the *other* categories'
@@ -252,7 +219,7 @@ function buildTrueProbTable() {
   const point = pointForClassify(hdpLine);
   const categories = getCategories(point);
   const pivot = pivotForDisplay(point);
-  const labels = { under: "Away Covers", middle: getMiddleLabel(point), over: "Home Covers" };
+  const labels = { under: "Away Covers", middle: getMiddleLabel(point, "Push"), over: "Home Covers" };
 
   const header = document.getElementById("true-prob-header");
   header.innerHTML = "<th></th>";
@@ -279,7 +246,7 @@ function buildOddsTable() {
   const body = document.getElementById("odds-table-body");
   body.innerHTML = "";
   const weight = middleWeight(point);
-  const middleLabel = hasMiddleCategory(point) ? getMiddleLabel(point) : "";
+  const middleLabel = hasMiddleCategory(point) ? getMiddleLabel(point, "Push") : "";
   const primaryKey = primaryBetTeamKey(point);
 
   BET_TEAM_KEYS.forEach((key) => {

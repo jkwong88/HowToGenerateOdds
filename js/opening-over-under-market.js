@@ -10,29 +10,22 @@ for (let l = -2; l <= 2; l += 0.25) {
 
 // Both market types reduce to the same shape: sweep a set of displayed
 // values, classify the matrix by some axis at each one, and find whichever
-// value(s) split their two BetTeam outcomes closest to 50/50. Only the axis
-// and labels differ between them (see docs/adr/0003).
+// value(s) split their two BetTeam outcomes closest to 50/50. The axis math
+// and BetTeam labels are shared (data.js's MARKET_AXIS_CONFIGS, see docs/adr/
+// 0003); only the sweep range, title, and value formatting are page-local.
 const MARKET_CONFIGS = {
   ou: {
+    ...MARKET_AXIS_CONFIGS.ou,
     sweepValues: OU_SWEEP_POINTS,
     title: "Over / Under Table (Point 0.25 - 4)",
     pointHeader: "Point",
-    labels: { over: "Over", under: "Under" },
-    // Over/Under's point is used directly - no sign flip needed.
-    classifyPoint: (value) => value,
-    axisValue: (home, away) => home + away,
     formatValue: (value) => String(value),
   },
   hdp: {
+    ...MARKET_AXIS_CONFIGS.hdp,
     sweepValues: HDP_SWEEP_LINES,
     title: "Handicap Table (Line -2 - 2)",
     pointHeader: "Line",
-    labels: { over: "Home Covers", under: "Away Covers" },
-    // The displayed Line follows standard Asian Handicap sign (negative =
-    // Home favorite); classifyTotal/etc. need the negation of that (see
-    // js/hdp-market.js's pointForClassify for the full derivation).
-    classifyPoint: (value) => -value,
-    axisValue: (home, away) => home - away,
     formatValue: (value) => (value > 0 ? `+${value}` : String(value)),
   },
 };
