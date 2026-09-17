@@ -83,13 +83,19 @@ body {
   font-size: 13px;
 }
 
-.formula-card dt {
-  font-weight: 600;
+.formula-item {
+  background: #fff;
+  border: 1px solid #d8d8de;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.formula-item + .formula-item {
   margin-top: 12px;
 }
 
-.formula-card dt:first-child {
-  margin-top: 0;
+.formula-card dt {
+  font-weight: 600;
 }
 
 .formula-card dd {

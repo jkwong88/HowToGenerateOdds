@@ -46,7 +46,7 @@ function renderFormulaCard() {
 
   const formulas = FORMULA_CARDS[currentPageFile()] || [];
   list.innerHTML = formulas
-    .map(({ label, formula }) => `<dt>${label}</dt><dd>${formula}</dd>`)
+    .map(({ label, formula }) => `<div class="formula-item"><dt>${label}</dt><dd>${formula}</dd></div>`)
     .join("");
 }
 
