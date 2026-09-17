@@ -2,19 +2,13 @@ function buildHistoryTable() {
   const body = document.getElementById("history-body");
   MATCH_HISTORY.forEach((match) => {
     const row = document.createElement("tr");
-    const total = match.home + match.away;
     row.innerHTML = `
       <td class="row-label">${match.no}</td>
       <td data-cell="hist-home:${match.home}">${match.home}</td>
       <td data-cell="hist-away:${match.away}">${match.away}</td>
-      <td data-cell="hist-total:${total}"><input class="answer" type="number" step="0.1" id="total-${match.no}" data-formula="Home + Away"></td>
     `;
     body.appendChild(row);
   });
-
-  document.getElementById("avg-home").dataset.formula = "SUM(Home) / 10";
-  document.getElementById("avg-away").dataset.formula = "SUM(Away) / 10";
-  document.getElementById("avg-total").dataset.formula = "SUM(Total Score) / 10";
 }
 
 function buildFrequencyTables() {
@@ -25,11 +19,10 @@ function buildFrequencyTables() {
     probHeader.innerHTML += `<th>${v}</th>`;
   });
 
-  const rowLabels = { home: "Home", away: "Away", total: "Total" };
+  const rowLabels = { home: "Home", away: "Away" };
   const rows = [
     { key: "home", count: "count-home-row", prob: "prob-home-row" },
     { key: "away", count: "count-away-row", prob: "prob-away-row" },
-    { key: "total", count: "count-total-row", prob: "prob-total-row" },
   ];
 
   rows.forEach(({ key, count, prob }) => {
@@ -43,24 +36,16 @@ function buildFrequencyTables() {
   });
 }
 
-function checkPart1(expected) {
-  const results = MATCH_HISTORY.map((m) =>
-    markInput(document.getElementById(`total-${m.no}`), expected.expectedTotals[m.no])
-  );
-  results.push(markInput(document.getElementById("avg-home"), expected.avgHome));
-  results.push(markInput(document.getElementById("avg-away"), expected.avgAway));
-  results.push(markInput(document.getElementById("avg-total"), expected.avgTotal));
-
-  const passed = results.every(Boolean);
-  if (passed) unlockSection("part2");
-  return passed;
+function checkPart1() {
+  unlockSection("part2");
+  return true;
 }
 
 function checkPart2(expected) {
-  const countMap = { home: expected.countHome, away: expected.countAway, total: expected.countTotal };
+  const countMap = { home: expected.countHome, away: expected.countAway };
   const results = [];
 
-  ["home", "away", "total"].forEach((key) => {
+  ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
       const input = document.getElementById(`count-${key}-${v}`);
       results.push(markInput(input, countMap[key][v]));
@@ -73,10 +58,10 @@ function checkPart2(expected) {
 }
 
 function checkPart3(expected) {
-  const probMap = { home: expected.probHome, away: expected.probAway, total: expected.probTotal };
+  const probMap = { home: expected.probHome, away: expected.probAway };
   const results = [];
 
-  ["home", "away", "total"].forEach((key) => {
+  ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
       const input = document.getElementById(`prob-${key}-${v}`);
       results.push(markInput(input, probMap[key][v]));
@@ -86,19 +71,13 @@ function checkPart3(expected) {
   return results.every(Boolean);
 }
 
-function fillPart1(expected) {
-  MATCH_HISTORY.forEach((m) => {
-    document.getElementById(`total-${m.no}`).value = expected.expectedTotals[m.no].toFixed(1);
-  });
-  document.getElementById("avg-home").value = expected.avgHome.toFixed(1);
-  document.getElementById("avg-away").value = expected.avgAway.toFixed(1);
-  document.getElementById("avg-total").value = expected.avgTotal.toFixed(1);
-  checkPart1(expected);
+function fillPart1() {
+  checkPart1();
 }
 
 function fillPart2(expected) {
-  const countMap = { home: expected.countHome, away: expected.countAway, total: expected.countTotal };
-  ["home", "away", "total"].forEach((key) => {
+  const countMap = { home: expected.countHome, away: expected.countAway };
+  ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
       document.getElementById(`count-${key}-${v}`).value = countMap[key][v];
     });
@@ -107,8 +86,8 @@ function fillPart2(expected) {
 }
 
 function fillPart3(expected) {
-  const probMap = { home: expected.probHome, away: expected.probAway, total: expected.probTotal };
-  ["home", "away", "total"].forEach((key) => {
+  const probMap = { home: expected.probHome, away: expected.probAway };
+  ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
       document.getElementById(`prob-${key}-${v}`).value = probMap[key][v].toFixed(1);
     });
@@ -138,10 +117,10 @@ document.querySelectorAll("input.answer").forEach((input) => {
 lockSection("part2");
 lockSection("part3");
 
-document.getElementById("check-part1").addEventListener("click", () => checkPart1(expected));
+document.getElementById("check-part1").addEventListener("click", checkPart1);
 document.getElementById("check-part2").addEventListener("click", () => checkPart2(expected));
 document.getElementById("check-part3").addEventListener("click", () => checkPart3(expected));
-document.getElementById("fill-part1").addEventListener("click", () => fillPart1(expected));
+document.getElementById("fill-part1").addEventListener("click", fillPart1);
 document.getElementById("fill-part2").addEventListener("click", () => fillPart2(expected));
 document.getElementById("fill-part3").addEventListener("click", () => fillPart3(expected));
 document.getElementById("reset-btn").addEventListener("click", resetAll);

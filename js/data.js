@@ -28,46 +28,26 @@ function countByValue(goals, value) {
 function computeGoalStats() {
   const homeGoals = MATCH_HISTORY.map((m) => m.home);
   const awayGoals = MATCH_HISTORY.map((m) => m.away);
-  const totals = MATCH_HISTORY.map((m) => m.home + m.away);
-
-  const expectedTotals = {};
-  MATCH_HISTORY.forEach((m, i) => {
-    expectedTotals[m.no] = totals[i];
-  });
-
-  const avgHome = homeGoals.reduce((a, b) => a + b, 0) / homeGoals.length;
-  const avgAway = awayGoals.reduce((a, b) => a + b, 0) / awayGoals.length;
-  const avgTotal = totals.reduce((a, b) => a + b, 0) / totals.length;
 
   const countHome = {};
   const countAway = {};
-  const countTotal = {};
   GOAL_VALUES.forEach((v) => {
     countHome[v] = countByValue(homeGoals, v);
     countAway[v] = countByValue(awayGoals, v);
-    countTotal[v] = countByValue(totals, v);
   });
 
   const probHome = {};
   const probAway = {};
-  const probTotal = {};
   GOAL_VALUES.forEach((v) => {
     probHome[v] = countHome[v] / homeGoals.length;
     probAway[v] = countAway[v] / awayGoals.length;
-    probTotal[v] = countTotal[v] / totals.length;
   });
 
   return {
-    expectedTotals,
-    avgHome,
-    avgAway,
-    avgTotal,
     countHome,
     countAway,
-    countTotal,
     probHome,
     probAway,
-    probTotal,
   };
 }
 
