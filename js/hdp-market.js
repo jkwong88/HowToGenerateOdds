@@ -115,7 +115,7 @@ function buildTrueProbTable() {
   });
 
   const row = document.getElementById("true-prob-row");
-  let rowHtml = `<td class="row-label">True Probability</td>`;
+  let rowHtml = `<td class="row-label">Fair Probability</td>`;
   categories.forEach((cat) => {
     const formula =
       cat === "under"
@@ -144,17 +144,17 @@ function buildOddsTable() {
     let probFormula;
     let probRefs;
     if (weight === 0) {
-      probFormula = `Same as True Probability (${label})`;
+      probFormula = `Same as Fair Probability (${label})`;
       probRefs = `tp-${key}-cell`;
     } else if (primaryKey && key !== primaryKey) {
       const otherLabel = BET_TEAM_LABELS[primaryKey];
-      probFormula = `1 &minus; BetTeam Probability (${otherLabel})`;
+      probFormula = `1 &minus; Selection Probability (${otherLabel})`;
       probRefs = `prob-${primaryKey}-cell`;
     } else if (weight === 1) {
-      probFormula = `True Probability (${label}) / (1 &minus; True Probability (${middleLabel}))`;
+      probFormula = `Fair Probability (${label}) / (1 &minus; Fair Probability (${middleLabel}))`;
       probRefs = `tp-${key}-cell,tp-middle-cell`;
     } else {
-      probFormula = `True Probability (${label}) / (1 &minus; 0.5 &times; True Probability (${middleLabel}))`;
+      probFormula = `Fair Probability (${label}) / (1 &minus; 0.5 &times; Fair Probability (${middleLabel}))`;
       probRefs = `tp-${key}-cell,tp-middle-cell`;
     }
 

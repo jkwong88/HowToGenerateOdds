@@ -109,7 +109,7 @@ function updateInstructions() {
   const noun = marketType === "hdp" ? "line" : "point";
   const nounWord = marketCount === 1 ? noun : `${noun}s`;
   note.textContent =
-    `Select the ${marketCount} ${nounWord} where the two BetTeam probabilities are closest to a 50/50 split, then Check.`;
+    `Select the ${marketCount} ${nounWord} where the two Selection probabilities are closest to a 50/50 split, then Check.`;
 }
 
 function checkedValues() {

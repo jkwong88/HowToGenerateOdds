@@ -22,7 +22,7 @@ const FORMULA_CARDS = {
   ],
   "over-under-market.html": [
     { label: "Category Probability", formula: "Σ P(scoreline) in Under / Draw / Over" },
-    { label: "BetTeam Probability", formula: "Category P / (1 − push weight × Draw P)" },
+    { label: "Selection Probability", formula: "Category P / (1 − push weight × Draw P)" },
     { label: "Euro Odds", formula: "1 / Probability" },
     { label: "HK Odds", formula: "Euro − 1" },
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
@@ -38,12 +38,12 @@ const FORMULA_CARDS = {
   ],
   "hdp-market.html": [
     { label: "Category Probability", formula: "Σ P(scoreline) in Away Covers / Push / Home Covers, classified by Home − Away" },
-    { label: "BetTeam Probability", formula: "Same as 3.5 Over / Under, applied to Home − Away instead of Home + Away" },
+    { label: "Selection Probability", formula: "Same as 3.5 Over / Under, applied to Home − Away instead of Home + Away" },
     { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
   ],
   "opening-over-under-market.html": [
-    { label: "BetTeam Probability", formula: "Same as 3.5 Over / Under or 3.6 HDP, swept over the selected market's range" },
-    { label: "Main Market", formula: "Point(s)/Line(s) where the two BetTeam probabilities are closest to 0.50" },
+    { label: "Selection Probability", formula: "Same as 3.5 Over / Under or 3.6 HDP, swept over the selected market's range" },
+    { label: "Main Market", formula: "Point(s)/Line(s) where the two Selection probabilities are closest to 0.50" },
     { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
   ],
   "adding-a-spread.html": [
