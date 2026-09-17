@@ -22,7 +22,7 @@
 
   <div class="panel">
     <h2>Settlement Logic</h2>
-    <p>Each market groups and sums matrix cells that satisfy its win condition (e.g. Home + Away is odd, Home &gt; Away, Total Goals falls in a bucket). Scorelines that don't settle as a clean win/lose &mdash; a push or a half-win/half-lose &mdash; are set aside before converting a category's probability into a price (Selection probability).</p>
+    <p>Each market groups scorelines according to its settlement rules, then sums the corresponding probabilities. For lines that can result in a push or split settlement, the middle outcome is adjusted according to its settlement value before the final bettable probability is calculated.</p>
   </div>
 
   <div class="panel">
