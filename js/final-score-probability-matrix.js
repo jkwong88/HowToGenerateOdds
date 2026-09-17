@@ -33,7 +33,7 @@ function buildMatrixTable() {
     let cells = `<td class="row-label">${r}</td>`;
     MATRIX_GOAL_VALUES.forEach((c) => {
       const disabledAttr = isEdgeCell(r, c) ? " disabled" : "";
-      cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home=${r}) &times; P(Away=${c})" data-refs="given-home:${r},given-away:${c}"${disabledAttr}></td>`;
+      cells += `<td><input class="answer" type="number" step="0.01" id="matrix-${r}-${c}" data-formula="P(Home = ${r}) &times; P(Away = ${c})" data-refs="given-home:${r},given-away:${c}"${disabledAttr}></td>`;
     });
     row.innerHTML = cells;
     body.appendChild(row);

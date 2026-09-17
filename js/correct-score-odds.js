@@ -96,7 +96,7 @@ function buildScoreTable(stats) {
 
       const probFormula = entry.isAOS
         ? "1 &minus; SUM(all other probabilities)"
-        : `Matrix(Home=${entry.home}, Away=${entry.away})`;
+        : `Matrix(Home = ${entry.home}, Away = ${entry.away})`;
       const probRefs = entry.isAOS ? nonAosRefs : `final-matrix:${entry.key}`;
       const probAttrs = isCore ? ` data-refs="${probRefs}"` : " disabled";
       probRow.innerHTML += `<td data-cell="score-prob:${entry.key}"><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}"${probAttrs}></td>`;
