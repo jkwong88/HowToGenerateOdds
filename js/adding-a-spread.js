@@ -73,6 +73,33 @@ function computeSpreadOdds(fair) {
   };
 }
 
+// Walks the Malay-normalization rule through this page's own live numbers
+// (the "over" side, i.e. Over for O/U or Home Covers for HDP) rather than a
+// fixed example, so it stays accurate across the Market Type toggle instead
+// of quoting numbers that only match one of the two configs.
+function updateExampleText(fair, spread) {
+  const config = SPREAD_CONFIGS[spreadMarketType];
+  const label = config.labels.over;
+  const halfSpread = SPREAD_AMOUNT / 2;
+  const shaved = fair.malayOver - halfSpread;
+  // Whether this side's shaved Malay actually needs re-notating depends on
+  // how close its fair Malay already sat to +/-1 - true for this dataset's
+  // O/U main line, not always true for HDP's, so the wording has to check
+  // rather than assume the crossing happens.
+  const crossedOne = Math.abs(shaved) > 1;
+
+  let text = `Example, using this page's own ${label} main line: the fair Malay odds is <strong>${fair.malayOver.toFixed(2)}</strong>. `;
+  text += `Subtracting half the ${SPREAD_AMOUNT.toFixed(2)} spread: <strong>${fair.malayOver.toFixed(2)} &minus; ${halfSpread.toFixed(2)} = ${shaved.toFixed(2)}</strong>. `;
+  if (crossedOne) {
+    text += `Real Malay odds are always quoted with |Malay| &le; 1, so ${shaved.toFixed(2)} is re-expressed in valid notation as its equivalent quote, <strong>approximately ${spread.malayOver.toFixed(2)}</strong> `;
+  } else {
+    text += `That's still within valid Malay notation (|Malay| &le; 1), so it's shown as-is: <strong>${spread.malayOver.toFixed(2)}</strong> `;
+  }
+  text += `&mdash; the value the table below actually asks you to calculate.`;
+
+  document.getElementById("spread-example").innerHTML = text;
+}
+
 function buildSpreadHeader() {
   const config = SPREAD_CONFIGS[spreadMarketType];
   document.getElementById("spread-title").textContent = `${config.title} | Pricing Spread: ${SPREAD_AMOUNT.toFixed(2)}`;
@@ -166,6 +193,7 @@ function rebuildSpread() {
 
   buildFairRow(fairOdds);
   buildSpreadRow();
+  updateExampleText(fairOdds, spreadOdds);
 
   document.querySelectorAll("input.answer").forEach((input) => {
     syncEmptyTooltip(input);

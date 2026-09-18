@@ -48,10 +48,11 @@ function computeSweepRows() {
   });
 }
 
-// A bookmaker's natural market(s) are whichever points split the two
-// BetTeam outcomes closest to 50/50, since that draws the most balanced
-// two-way action - with more than one market open, they'd pick the closest
-// few, not just one.
+// This course's simplified opening rule: the candidate main line(s) are
+// whichever points split the two BetTeam outcomes closest to 50/50 - with
+// more than one requested, the closest few, not just one. A real
+// bookmaker's opening line can also weigh trading judgment, market
+// information, and risk, which this model doesn't capture.
 function findMainMarketValues(rows, count) {
   return [...rows]
     .sort((a, b) => Math.abs(a.over - 0.5) - Math.abs(b.over - 0.5))
@@ -108,7 +109,7 @@ const MARKET_COUNT_WORDS = { 2: "two", 3: "three" };
 
 function updateInstructions() {
   const note = document.getElementById("market-step-note");
-  const nounPhrase = marketCount === 1 ? "the line" : `the ${MARKET_COUNT_WORDS[marketCount]} lines`;
+  const nounPhrase = marketCount === 1 ? "the candidate main line" : `the ${MARKET_COUNT_WORDS[marketCount]} candidate main lines`;
   note.textContent = `Select ${nounPhrase} where the two fair probabilities are closest to 50% each, then click Check.`;
 }
 

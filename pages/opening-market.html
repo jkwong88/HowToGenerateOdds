@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>4. Opening Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -11,16 +12,25 @@
 
     <main class="exercise-content">
   <h1>4. Opening Market</h1>
-  <p>A fair market can be built for any point or line, but a bookmaker only ever lists a few. This section covers how a specific line gets chosen (opened) from everything section 3 makes possible, and how it's priced once it's actually quoted.</p>
+  <p>A fair market can be built for any line, but a bookmaker only ever lists a few. This section covers how a specific line gets chosen (opened) from everything section 3 makes possible, and how it's priced once it's actually quoted.</p>
 
   <div class="panel">
     <h2>4.1 Opening the Market</h2>
-    <p>Sweep every point (Over/Under, 0.5&ndash;4) or line (Handicap, -2 to 2) using the same math as 3.5/3.6, and find whichever one(s) split the two Selection probabilities closest to 50/50. That's the fairest, most balanced line to open &mdash; it draws the most two-way action, since neither side looks like the obviously better bet.</p>
+    <p>In this course, we use the line whose two fair selection probabilities are closest to 50% as the <strong>candidate main line</strong>. This gives us a simple and consistent way to identify a balanced line from the probability model. Real market opening may also consider trading judgment, market information, risk, and other inputs this course doesn't model.</p>
+    <div class="flow">
+      <div class="flow-step">Model</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Calculate every candidate line</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Compare distance from 50/50</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Select candidate main line</div>
+    </div>
   </div>
 
   <div class="panel">
     <h2>4.2 Adding a Pricing Spread</h2>
-    <p>Take the line 4.1 opened and shave a pricing spread symmetrically off its fair Malay odds (half off each side). This is how a real, quoted market differs from a fair one: the resulting probabilities now sum to slightly more than 100%, and that excess is the bookmaker's margin.</p>
+    <p>Take the candidate main line 4.1 selected and shave a pricing spread symmetrically off its fair Malay odds (half off each side). This is how a real, quoted market differs from a fair one: the resulting implied probabilities now sum to slightly more than 100% &mdash; an <strong>overround</strong> &mdash; which is how the bookmaker builds in a margin on the quote.</p>
   </div>
 
   <div class="controls" id="page-footer-root"></div>

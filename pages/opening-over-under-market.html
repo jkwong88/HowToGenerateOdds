@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>4.1 Opening the Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -17,7 +18,7 @@
       <option value="ou" selected>Over / Under</option>
       <option value="hdp">Handicap</option>
     </select>
-    <label for="market-count-select" class="point-label">Number of Main Lines:</label>
+    <label for="market-count-select" class="point-label">Number of Candidate Main Lines:</label>
     <select id="market-count-select" class="point-select">
       <option value="1" selected>1 line</option>
       <option value="2">2 lines</option>
@@ -27,6 +28,16 @@
 
   <div class="stack">
     <div class="panel">
+      <p>In this course, the candidate main line is whichever line's two fair selection probabilities land closest to 50/50 &mdash; a simplified teaching methodology, not a claim about how real bookmakers always open a market.</p>
+      <div class="flow">
+        <div class="flow-step">Model</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Calculate every candidate line</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Compare distance from 50/50</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Select candidate main line</div>
+      </div>
       <h2 id="sweep-title">Over / Under Lines (0.50&ndash;4.00)</h2>
       <div class="table-scroll">
         <table id="ou-sweep-table">
@@ -34,7 +45,7 @@
             <tr>
               <th rowspan="2">Select</th>
               <th rowspan="2" id="sweep-point-header">Line</th>
-              <th colspan="2">Fair Probability</th>
+              <th colspan="2">Settlement-Adjusted Fair Probability</th>
               <th colspan="2">Euro Odds</th>
               <th colspan="2">HK Odds</th>
               <th colspan="2">Malay Odds</th>
