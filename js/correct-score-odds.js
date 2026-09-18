@@ -58,12 +58,13 @@ const SCORE_TABLE_GROUPS = [
   { homeValues: [4], includeAOS: true },
 ];
 
+// Non-core cells (everything outside the Away = 0 column) are never an
+// exercise the student answers - they're given, derived values, same role
+// as Part 2 Double Chance's Euro Odds column - so they're built as plain
+// `.given-value` <td>s instead of disabled <input>s, matching that same
+// UI: a placeholder until revealed, then plain text, never gradeable.
 function buildScoreTable(stats) {
   const container = document.getElementById("score-tables");
-  const nonAosRefs = stats.entries
-    .filter((entry) => !entry.isAOS)
-    .map((entry) => `score-prob:${entry.key}`)
-    .join(",");
 
   SCORE_TABLE_GROUPS.forEach((group, index) => {
     const groupEntries = stats.entries.filter((entry) =>
@@ -92,37 +93,25 @@ function buildScoreTable(stats) {
     groupEntries.forEach((entry) => {
       header.innerHTML += `<th>${entry.label}</th>`;
 
-      const isCore = isCoreEntry(entry);
+      if (isCoreEntry(entry)) {
+        const probFormula = `Matrix(Home = ${entry.home}, Away = ${entry.away})`;
+        probRow.innerHTML += `<td data-cell="score-prob:${entry.key}"><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}" data-refs="final-matrix:${entry.key}"></td>`;
 
-      const probFormula = entry.isAOS
-        ? "1 &minus; SUM(all other probabilities)"
-        : `Matrix(Home = ${entry.home}, Away = ${entry.away})`;
-      const probRefs = entry.isAOS ? nonAosRefs : `final-matrix:${entry.key}`;
-      const probAttrs = isCore ? ` data-refs="${probRefs}"` : " disabled";
-      probRow.innerHTML += `<td data-cell="score-prob:${entry.key}"><input class="answer" type="number" step="0.01" id="score-prob-${entry.key}" data-formula="${probFormula}"${probAttrs}></td>`;
-
-      const oddsUndefined = isUndefinedOdds(stats.probByKey[entry.key]);
-      let oddsAttrs;
-      if (!isCore) {
-        oddsAttrs = " disabled";
-      } else if (oddsUndefined) {
-        oddsAttrs = ' disabled placeholder="N/A"';
+        const oddsAttrs = isUndefinedOdds(stats.probByKey[entry.key])
+          ? ' disabled placeholder="N/A"'
+          : ` data-refs="score-prob:${entry.key}"`;
+        oddsRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-odds-${entry.key}" data-formula="1 / Probability"${oddsAttrs}></td>`;
       } else {
-        oddsAttrs = ` data-refs="score-prob:${entry.key}"`;
+        probRow.innerHTML += `<td class="given-value" id="score-prob-${entry.key}">&mdash;</td>`;
+        oddsRow.innerHTML += `<td class="given-value" id="score-odds-${entry.key}">&mdash;</td>`;
       }
-      oddsRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="score-odds-${entry.key}" data-formula="1 / Probability"${oddsAttrs}></td>`;
     });
   });
 }
 
 function hideEntry(entry) {
-  [`score-prob-${entry.key}`, `score-odds-${entry.key}`].forEach((id) => {
-    const input = document.getElementById(id);
-    input.value = "";
-    input.classList.remove("correct", "incorrect");
-    setCellTooltip(input, "");
-    input.disabled = true;
-  });
+  document.getElementById(`score-prob-${entry.key}`).textContent = "—";
+  document.getElementById(`score-odds-${entry.key}`).textContent = "—";
 }
 
 function hideNonCoreEntries(stats) {
@@ -133,21 +122,10 @@ function hideNonCoreEntries(stats) {
 
 function revealEntry(stats, entry) {
   const prob = stats.probByKey[entry.key];
-  const probInput = document.getElementById(`score-prob-${entry.key}`);
-  probInput.value = prob.toFixed(2);
-  markInput(probInput, prob, 0.005, 2);
-  probInput.disabled = true;
+  document.getElementById(`score-prob-${entry.key}`).textContent = prob.toFixed(2);
 
-  const oddsInput = document.getElementById(`score-odds-${entry.key}`);
-  if (isUndefinedOdds(prob)) {
-    oddsInput.value = "";
-    oddsInput.placeholder = "N/A";
-    setCellTooltip(oddsInput, "");
-  } else {
-    oddsInput.value = (1 / prob).toFixed(2);
-    markInput(oddsInput, 1 / prob, 0.005, 2);
-  }
-  oddsInput.disabled = true;
+  const oddsCell = document.getElementById(`score-odds-${entry.key}`);
+  oddsCell.textContent = isUndefinedOdds(prob) ? "N/A" : (1 / prob).toFixed(2);
 }
 
 function revealNonCoreEntries(stats) {

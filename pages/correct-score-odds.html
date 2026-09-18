@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3.1 Correct Score Odds</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -25,6 +26,7 @@
 
     <div class="panel" id="score-section">
       <h2>Correct Score Probability & Odds</h2>
+      <p class="step-note active">"Any Other Score (AOS)" covers every scoreline outside the 5&times;5 Home/Away grid above. In this dataset, AOS works out to <strong>0.00</strong> &mdash; not because those scorelines are impossible, but because none of the 10 historical matches happened to include one. A historical-frequency model can only assign probability to what it has actually observed, so a small sample can make a real possibility look like zero. Section 5 (Poisson) shows one way to fix that.</p>
       <div id="score-tables"></div>
       <div class="controls">
         <button id="check-score">Check</button>
