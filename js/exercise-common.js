@@ -1,6 +1,5 @@
 // Shared exercise mechanics (tooltips, hint toggle, answer checking,
 // section locking) reused by every exercise page.
-const DEFAULT_TOLERANCE = 0.05;
 const HINT_STORAGE_KEY = "hintOn";
 
 function readStoredHint() {
@@ -54,7 +53,10 @@ function toggleHint() {
   refreshFormulaTooltips();
 }
 
-function markInput(input, expected, tolerance = DEFAULT_TOLERANCE, decimals = 1) {
+// tolerance/decimals are required, not defaulted - every call site must
+// state the precision policy it's checking against (see README), so a
+// display change and its validation can never silently drift apart.
+function markInput(input, expected, tolerance, decimals) {
   const isEmpty = input.value.trim() === "";
   const value = parseFloat(input.value);
   const isCorrect = !isEmpty && Math.abs(value - expected) <= tolerance;
@@ -87,17 +89,26 @@ function setRefHighlight(refs, on) {
   });
 }
 
+// Mirrors the hover trigger on `focus`/`blur` too (not just `mouseenter`/
+// `mouseleave`), so tabbing to an empty input highlights its source cells
+// the same way pointing at it does - keyboard users get the same
+// cross-cell feedback as mouse users, not a degraded version of it.
 function attachRefHighlight(input) {
   const refs = input.dataset.refs;
   if (!refs) return;
   const cell = input.closest("td");
 
-  cell.addEventListener("mouseenter", () => {
+  const show = () => {
     if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) {
       setRefHighlight(refs, true);
     }
-  });
-  cell.addEventListener("mouseleave", () => setRefHighlight(refs, false));
+  };
+  const hide = () => setRefHighlight(refs, false);
+
+  cell.addEventListener("mouseenter", show);
+  cell.addEventListener("mouseleave", hide);
+  input.addEventListener("focus", show);
+  input.addEventListener("blur", hide);
 }
 
 function lockSection(sectionId) {
@@ -241,6 +252,60 @@ function createMatrixClassifier({ idPrefix, expected, categoryClass }) {
   return { wireClicks, checkAll, fillAll, reset, computeStats };
 }
 
+// Builds a free-selection category button group (a "paint mode" picker) -
+// shared by every matrix-classification exercise (Odd/Even, 1X2, Total
+// Goal, Over/Under, HDP) so a student can switch which category they're
+// painting at any time, instead of being forced through a one-way
+// Step 1 -> Step 2 -> ... sequence that couldn't be corrected once
+// advanced past. `categories`/`labels` can change later via `rebuild`
+// (Over/Under and HDP swap between 2 and 3 categories, and relabel the
+// middle one, depending on the selected point/line).
+// `descriptions` is optional: when given, each button also shows the
+// category's defining rule (e.g. "Home > Away") as a second line, turning
+// the button into a small card instead of a plain label - the CSS is the
+// same either way (unselected = grey, selected = that category's color).
+function createCategoryPicker({ containerId, categories, categoryClass, labels, descriptions }) {
+  const container = document.getElementById(containerId);
+  let active;
+
+  function renderButton(cat) {
+    const desc = descriptions && descriptions[cat];
+    const inner = desc
+      ? `<span class="cat-btn-label">${labels[cat]}</span><span class="cat-btn-desc">${desc}</span>`
+      : labels[cat];
+    return `<button type="button" class="cat-btn${desc ? " cat-btn-card" : ""} ${categoryClass[cat]}" data-category="${cat}" aria-pressed="${cat === active}">${inner}</button>`;
+  }
+
+  function render() {
+    active = categories[0];
+    container.innerHTML = categories.map(renderButton).join("");
+    container.querySelectorAll(".cat-btn").forEach((btn) => {
+      btn.addEventListener("click", () => setActive(btn.dataset.category));
+    });
+  }
+
+  function setActive(cat) {
+    active = cat;
+    container.querySelectorAll(".cat-btn").forEach((btn) => {
+      btn.setAttribute("aria-pressed", String(btn.dataset.category === active));
+    });
+  }
+
+  function getActive() {
+    return active;
+  }
+
+  function rebuild(newCategories, newLabels, newDescriptions) {
+    categories = newCategories;
+    descriptions = newDescriptions;
+    labels = newLabels;
+    render();
+  }
+
+  render();
+  return { getActive, setActive, reset: () => setActive(categories[0]), rebuild };
+}
+
 // While hovering a probability formula cell for category `key`, fade the
 // *other* categories' matrix cells into their own background so only the
 // cells actually being summed stay legible. `getStats`/`getCategories` are
@@ -267,10 +332,15 @@ function attachDimComplement(inputId, key, getStats, getCategories) {
       });
   }
 
-  cell.addEventListener("mouseenter", () => {
+  const show = () => {
     if (cell.dataset.tooltip && cell.dataset.tooltip === input.dataset.formula) setDim(true);
-  });
-  cell.addEventListener("mouseleave", () => setDim(false));
+  };
+  const hide = () => setDim(false);
+
+  cell.addEventListener("mouseenter", show);
+  cell.addEventListener("mouseleave", hide);
+  input.addEventListener("focus", show);
+  input.addEventListener("blur", hide);
 }
 
 // Builds/checks/fills a straightforward Probability -> Euro -> HK -> Malay
@@ -278,69 +348,104 @@ function attachDimComplement(inputId, key, getStats, getCategories) {
 // shared by Odd/Even, 1X2, and Total Goal. Over/Under and HDP need the
 // push-aware True-Probability + BetTeam table instead, so they build their
 // own (see over-under-market.js/hdp-market.js).
-// `includeHkMalay` defaults to true (Odd/Even's shape); 1X2, Double Chance,
-// and Total Goal pass false, since those markets only ever show Euro Odds.
-function buildSimpleOddsTable({ bodyId, categories, labels, formulaFor, includeHkMalay = true }) {
+// `euroMode` (default "input"): "input" makes Euro Odds an editable,
+// graded field; "given" makes it a derived `.given-value` cell that's
+// revealed (not graded) once Probability checks out - the same role
+// Double Chance's own Euro Odds column already plays, used here by 1X2's
+// win/loss table since Euro Odds isn't graded there either; "omit" drops
+// it entirely, since odds conversion isn't Total Goal's focus (Correct
+// Score, Odd/Even, and 1X2 already drill it).
+// `includeHkMalay` defaults to true (Odd/Even's shape) and only applies
+// when `euroMode` is "input"; 1X2 and Double Chance don't need it, since
+// those markets only ever show Euro Odds.
+function buildSimpleOddsTable({ bodyId, categories, labels, formulaFor, euroMode = "input", includeHkMalay = true }) {
   const body = document.getElementById(bodyId);
   categories.forEach((key) => {
     const row = document.createElement("tr");
     let cells = `
       <td class="row-label">${labels[key]}</td>
       <td data-cell="prob-${key}-cell"><input class="answer" type="number" step="0.01" id="prob-${key}" data-formula="${formulaFor(key)}"></td>
-      <td data-cell="euro-${key}-cell"><input class="answer" type="number" step="0.01" id="euro-${key}" data-formula="1 / Probability" data-refs="prob-${key}-cell"></td>
     `;
-    if (includeHkMalay) {
-      cells += `
-        <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
-        <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
-      `;
+    if (euroMode === "given") {
+      cells += `<td class="given-value" id="euro-${key}">&mdash;</td>`;
+    } else if (euroMode === "input") {
+      cells += `<td data-cell="euro-${key}-cell"><input class="answer" type="number" step="0.01" id="euro-${key}" data-formula="1 / Probability" data-refs="prob-${key}-cell"></td>`;
+
+      if (includeHkMalay) {
+        cells += `
+          <td data-cell="hk-${key}-cell"><input class="answer" type="number" step="0.01" id="hk-${key}" data-formula="Euro &minus; 1" data-refs="euro-${key}-cell"></td>
+          <td><input class="answer" type="number" step="0.01" id="malay-${key}" data-formula="HK if HK &le; 1, else &minus;1 / HK" data-refs="hk-${key}-cell"></td>
+        `;
+      }
     }
     row.innerHTML = cells;
     body.appendChild(row);
   });
 }
 
-function checkSimpleOddsTable(categories, stats, includeHkMalay = true) {
-  const results = [];
+function checkSimpleOddsTable(categories, stats, euroMode = "input", includeHkMalay = true) {
+  const results = categories.map((key) => markInput(document.getElementById(`prob-${key}`), stats[key].prob, 0.005, 2));
 
-  categories.forEach((key) => {
-    const prob = stats[key].prob;
-    results.push(markInput(document.getElementById(`prob-${key}`), prob, 0.005, 2));
-
-    if (!isUndefinedOdds(prob)) {
-      const euro = toEuro(prob);
-      results.push(markInput(document.getElementById(`euro-${key}`), euro, 0.005, 2));
-
-      if (includeHkMalay) {
-        const hk = toHK(euro);
-        const malay = toMalay(hk);
-        results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
-        results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
-      }
+  if (euroMode === "given") {
+    if (results.every(Boolean)) {
+      categories.forEach((key) => {
+        const prob = stats[key].prob;
+        document.getElementById(`euro-${key}`).textContent = isUndefinedOdds(prob) ? "N/A" : toEuro(prob).toFixed(2);
+      });
     }
-  });
+  } else if (euroMode === "input") {
+    categories.forEach((key) => {
+      const prob = stats[key].prob;
+      if (!isUndefinedOdds(prob)) {
+        const euro = toEuro(prob);
+        results.push(markInput(document.getElementById(`euro-${key}`), euro, 0.005, 2));
+
+        if (includeHkMalay) {
+          const hk = toHK(euro);
+          const malay = toMalay(hk);
+          results.push(markInput(document.getElementById(`hk-${key}`), hk, 0.005, 2));
+          results.push(markInput(document.getElementById(`malay-${key}`), malay, 0.005, 2));
+        }
+      }
+    });
+  }
 
   return results.every(Boolean);
 }
 
-function fillSimpleOddsTable(categories, stats, includeHkMalay = true) {
+function fillSimpleOddsTable(categories, stats, euroMode = "input", includeHkMalay = true) {
   categories.forEach((key) => {
-    const prob = stats[key].prob;
-    document.getElementById(`prob-${key}`).value = prob.toFixed(2);
-
-    if (!isUndefinedOdds(prob)) {
-      const euro = toEuro(prob);
-      document.getElementById(`euro-${key}`).value = euro.toFixed(2);
-
-      if (includeHkMalay) {
-        const hk = toHK(euro);
-        const malay = toMalay(hk);
-        document.getElementById(`hk-${key}`).value = hk.toFixed(2);
-        document.getElementById(`malay-${key}`).value = malay.toFixed(2);
-      }
-    }
+    document.getElementById(`prob-${key}`).value = stats[key].prob.toFixed(2);
   });
-  checkSimpleOddsTable(categories, stats, includeHkMalay);
+
+  if (euroMode === "input") {
+    categories.forEach((key) => {
+      const prob = stats[key].prob;
+      if (!isUndefinedOdds(prob)) {
+        const euro = toEuro(prob);
+        document.getElementById(`euro-${key}`).value = euro.toFixed(2);
+
+        if (includeHkMalay) {
+          const hk = toHK(euro);
+          const malay = toMalay(hk);
+          document.getElementById(`hk-${key}`).value = hk.toFixed(2);
+          document.getElementById(`malay-${key}`).value = malay.toFixed(2);
+        }
+      }
+    });
+  }
+  checkSimpleOddsTable(categories, stats, euroMode, includeHkMalay);
+}
+
+// Resets a "given" Euro Odds column back to its unrevealed placeholder -
+// input.answer cells are already handled by each page's generic
+// `input.answer` reset loop, but a `.given-value` cell isn't an input, so
+// it needs its own reset call (mirrors Double Chance's resetDCDisplay).
+function resetSimpleOddsTable(categories, euroMode) {
+  if (euroMode !== "given") return;
+  categories.forEach((key) => {
+    document.getElementById(`euro-${key}`).textContent = "—";
+  });
 }
 
 updateHintButtonLabel();
