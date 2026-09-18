@@ -31,7 +31,7 @@ function buildFrequencyTables() {
     const label = rowLabels[key];
     GOAL_VALUES.forEach((v) => {
       countRow.innerHTML += `<td data-cell="count-${key}:${v}"><input class="answer" type="number" step="1" id="count-${key}-${v}" data-formula="Count(${label} = ${v})" data-refs="hist-${key}:${v}"></td>`;
-      probRow.innerHTML += `<td><input class="answer" type="number" step="0.1" id="prob-${key}-${v}" data-formula="Goal Count &divide; 10 Matches" data-refs="count-${key}:${v}"></td>`;
+      probRow.innerHTML += `<td><input class="answer" type="number" step="0.01" id="prob-${key}-${v}" data-formula="Goal Count &divide; 10 Matches" data-refs="count-${key}:${v}"></td>`;
     });
   });
 }
@@ -43,7 +43,7 @@ function checkPart2(expected) {
   ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
       const input = document.getElementById(`count-${key}-${v}`);
-      results.push(markInput(input, countMap[key][v]));
+      results.push(markInput(input, countMap[key][v], 0, 0));
     });
   });
 
@@ -59,7 +59,7 @@ function checkPart3(expected) {
   ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
       const input = document.getElementById(`prob-${key}-${v}`);
-      results.push(markInput(input, probMap[key][v]));
+      results.push(markInput(input, probMap[key][v], 0.005, 2));
     });
   });
 
@@ -80,7 +80,7 @@ function fillPart3(expected) {
   const probMap = { home: expected.probHome, away: expected.probAway };
   ["home", "away"].forEach((key) => {
     GOAL_VALUES.forEach((v) => {
-      document.getElementById(`prob-${key}-${v}`).value = probMap[key][v].toFixed(1);
+      document.getElementById(`prob-${key}-${v}`).value = probMap[key][v].toFixed(2);
     });
   });
   checkPart3(expected);

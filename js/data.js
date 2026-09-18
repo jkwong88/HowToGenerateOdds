@@ -241,10 +241,11 @@ const MARKET_AXIS_CONFIGS = {
   },
 };
 
-// A probability this small rounds to 0.00 at 2-decimal precision, so the
-// "true odds" (1 / probability) are undefined rather than just very large.
+// Only a genuinely zero probability has no odds - a small non-zero
+// probability (even one that rounds to 0.00 at 2-decimal display precision)
+// still has a real, if very large, fair odds value (e.g. P = 0.004 -> 250).
 function isUndefinedOdds(prob) {
-  return Math.abs(prob) < 0.005;
+  return prob === 0;
 }
 
 // Shared odds conversion chain: True Probability -> Euro -> HK -> Malay.
