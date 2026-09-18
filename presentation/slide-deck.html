@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Sportsbook Odds Are Derived - Session Slides</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --accent: #38bdf8;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --warn: #fbbf24;
+    --done: #f87171;
+    --ok: #34d399;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  .deck {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  .slide {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5vh 8vw;
+    position: relative;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; }
+  .page-number {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .demo-pointer {
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    max-width: 60vw;
+  }
+  .eyebrow {
+    color: var(--accent);
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 2.5rem 0 0.5rem 0;
+  }
+  h1 {
+    font-size: 2.4rem;
+    margin: 0 0 0.75rem 0;
+  }
+  h2 {
+    font-size: 2rem;
+    margin: 0 0 1.25rem 0;
+  }
+  ul.bullets {
+    font-size: 1.3rem;
+    line-height: 1.65;
+    max-width: 48rem;
+  }
+  ul.bullets li { margin-bottom: 0.55rem; }
+  .board-image {
+    max-width: 100%;
+    max-height: 42vh;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    margin: 0.5rem 0 1.25rem 0;
+  }
+  .comparison-table {
+    margin-top: 1.5rem;
+    border-collapse: collapse;
+    font-size: 1.1rem;
+    max-width: 30rem;
+  }
+  .comparison-table th, .comparison-table td {
+    border: 1px solid #334155;
+    padding: 0.5rem 1.1rem;
+    text-align: right;
+  }
+  .comparison-table th:first-child, .comparison-table td:first-child {
+    text-align: left;
+  }
+  .comparison-table thead th {
+    background: var(--panel);
+    color: var(--accent);
+  }
+  .timer-box {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    max-width: fit-content;
+  }
+  .timer-label {
+    font-size: 0.95rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .timer-display {
+    font-size: 2.2rem;
+    font-variant-numeric: tabular-nums;
+    min-width: 4ch;
+  }
+  .timer-display.timer-warning { color: var(--warn); }
+  .timer-display.timer-done { color: var(--done); }
+  .timer-box button {
+    font-size: 1rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .timer-start { background: var(--ok); color: #052e1a; }
+  .timer-stop { background: var(--done); color: #3f0d0d; }
+  .timer-reset { background: #475569; color: var(--text); }
+  .timer-box button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 8vw;
+    border-top: 1px solid #334155;
+  }
+  .nav-bar button {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .nav-bar button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .nav-status { color: var(--muted); font-size: 0.95rem; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <section class="slide active" data-page="1">
+    <div class="demo-pointer">1. Introduction</div>
+    <div class="page-number">Page 1 / 17</div>
+    <div class="eyebrow">Welcome</div>
+    <h1>How Sportsbook Odds Are Derived</h1>
+    <ul class="bullets">
+      <li>A series of self-checking exercises: raw match data &rarr; score probabilities &rarr; market probabilities &rarr; betting odds, one market at a time</li>
+      <li>Today's roadmap: How to Generate a Final Score Probability Matrix, Odds for Different Market Types, Opening Market, and From Historical Probability to Poisson</li>
+      <li>By the end, you'll see the exact same 10-match dataset turn into real quoted odds</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="2">
+    <div class="demo-pointer">Page footer controls</div>
+    <div class="page-number">Page 2 / 17</div>
+    <div class="eyebrow">Session Agenda</div>
+    <h2>How We'll Run This</h2>
+    <ul class="bullets">
+      <li>We work through each exercise live; every exercise gets its own 3-minute timer before we review answers together</li>
+      <li>Click "Check" (or "Check Classification") for instant right/wrong feedback on any table</li>
+      <li>Stuck on a formula? Use the "Hint: On/Off" button at the top of the page to reveal formula hints on hover or keyboard focus</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="3">
+    <div class="demo-pointer">How to Generate a Final Score Probability Matrix</div>
+    <div class="page-number">Page 3 / 17</div>
+    <div class="eyebrow">Overview</div>
+    <h2>How to Generate a Final Score Probability Matrix</h2>
+    <ul class="bullets">
+      <li>What: build the Final Score Probability Matrix, the Home &times; Away scoreline probabilities behind every market</li>
+      <li>Why: every market type is priced off this one matrix, so getting it right here keeps everything downstream correct</li>
+      <li>How (two steps): 1) Probability = Goal Count &divide; Number of Matches for Home/Away; 2) P(Home=h, Away=a) = P(Home=h) &times; P(Away=a), assuming independence</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="4">
+    <div class="demo-pointer">Historical Match Data</div>
+    <div class="page-number">Page 4 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Historical Match Data</h2>
+    <ul class="bullets">
+      <li>Part 1: raw 10-match Home/Away goals (given) &rarr; Part 2: goal-count frequency table &rarr; Part 3: convert counts to probabilities</li>
+      <li>Each part unlocks only after the previous part's Check passes</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="5">
+    <div class="demo-pointer">Final Score Probability Matrix</div>
+    <div class="page-number">Page 5 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Final Score Probability Matrix</h2>
+    <ul class="bullets">
+      <li>Fill in the 3&times;3 core (Home &le; 2, Away &le; 2); the rest of the grid reveals once it checks out</li>
+      <li>Uses the independence formula from the previous slide: P(Home=h, Away=a) = P(Home=h) &times; P(Away=a)</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="6">
+    <div class="demo-pointer">Odds for Different Market Types</div>
+    <div class="page-number">Page 6 / 17</div>
+    <div class="eyebrow">Overview</div>
+    <h2>Odds for Different Market Types</h2>
+    <ul class="bullets">
+      <li>Every market groups and sums scorelines from the same matrix - no probabilities are built from scratch again</li>
+      <li>Push/split-settlement lines adjust the middle outcome's settlement value before computing the final bettable probability</li>
+      <li>Shared conversion chain: Fair Probability &rarr; Euro Odds &rarr; HK Odds &rarr; Malay Odds</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="7">
+    <div class="demo-pointer">Correct Score</div>
+    <div class="page-number">Page 7 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Correct Score</h2>
+    <ul class="bullets">
+      <li>How it bets: wins only if the final score matches your exact pick (e.g. 2:1) - the narrowest, longest-odds market</li>
+      <li>"Any Other Score (AOS)" odds show N/A - probability is exactly 0.00 since none of the 10 matches landed there (Poisson, later, can fix that)</li>
+      <li>Exercise: fill the Away = 0 column, converting Fair Probability &rarr; Euro &rarr; HK &rarr; Malay Odds</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="8">
+    <div class="demo-pointer">Odd / Even</div>
+    <div class="page-number">Page 8 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Odd / Even</h2>
+    <ul class="bullets">
+      <li>How it bets: wins based only on whether the total goals in the match is odd or even</li>
+      <li>Pick a category, then click matrix cells to classify each scoreline as Odd or Even</li>
+      <li>Check Classification grades the whole grid at once; passing unlocks the Fair Odds table - fill that in too</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="9">
+    <div class="demo-pointer">Over / Under (Line 2.5)</div>
+    <div class="page-number">Page 9 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Over / Under</h2>
+    <ul class="bullets">
+      <li>How it bets: wins based on whether total goals finish over or under a set line</li>
+      <li>Try Line 2.5 first (half-point, only Under/Over, no push), then switch to Line 2 (whole number, adds a real Push category)</li>
+      <li>Raw Outcome Probability &rarr; Settlement-Adjusted Selection Probability &rarr; odds (only graded at Line 2.5)</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="10">
+    <div class="demo-pointer">Opening Market</div>
+    <div class="page-number">Page 10 / 17</div>
+    <div class="eyebrow">Overview</div>
+    <h2>Opening Market</h2>
+    <ul class="bullets">
+      <li>A fair market can be built for any line, but a bookmaker only ever quotes a few</li>
+      <li>Pick the candidate main line(s) whose fair probability sits closest to a 50/50 split</li>
+      <li>Then shave a pricing spread off the fair Malay odds to produce the quoted, overround-inclusive market</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="11">
+    <div class="demo-pointer">Opening the Market</div>
+    <div class="page-number">Page 11 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Opening the Market</h2>
+    <ul class="bullets">
+      <li>Set Market Type to Over / Under</li>
+      <li>Try Number of Candidate Main Lines = 1, then 2, then 3 - watch which lines get selected each time</li>
+      <li>Selection rule: whichever line(s) land closest to a 50/50 fair split</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="12">
+    <div class="demo-pointer">Adding a Pricing Spread</div>
+    <div class="page-number">Page 12 / 17</div>
+    <div class="eyebrow">Exercise</div>
+    <h2>Adding a Pricing Spread</h2>
+    <ul class="bullets">
+      <li>Fixed main line: Over/Under 2.75, pricing spread 0.10 applied to fair Malay odds, half off each side</li>
+      <li>Fill in Probability, Euro, HK, and Malay Odds for the spread row</li>
+      <li>Resulting probabilities sum to slightly more than 100% - that excess is the overround</li>
+    </ul>
+    <div class="timer-box" data-timer data-duration="180">
+      <span class="timer-label">Exercise timer</span>
+      <span class="timer-display">03:00</span>
+      <button class="timer-start">Start</button>
+      <button class="timer-stop" disabled>Stop</button>
+      <button class="timer-reset">Reset</button>
+    </div>
+  </section>
+
+  <section class="slide" data-page="13">
+    <div class="demo-pointer">Introduction (odds board image)</div>
+    <div class="page-number">Page 13 / 17</div>
+    <div class="eyebrow">Recap</div>
+    <h2>What We Covered on This Board</h2>
+    <img class="board-image" src="../bookie_example.png" alt="Example sportsbook odds board showing HDP, OU, 1X2, OE, Total Goals, Double Chance, and Correct Score markets">
+    <ul class="bullets">
+      <li>Covered today: Correct Score, Odd/Even, Over/Under (Line 2.5 and Line 2), and how the Opening Market prices a line</li>
+      <li>Left for self-practice: 1X2, Double Chance, Total Goals, and HDP</li>
+      <li>Not built in this course at all: First Half markets and live/in-play odds decay</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="14">
+    <div class="demo-pointer">From Historical Probability to Poisson &mdash; intro &amp; limitation</div>
+    <div class="page-number">Page 14 / 17</div>
+    <div class="eyebrow">Poisson</div>
+    <h2>From Historical Probability to Poisson</h2>
+    <ul class="bullets">
+      <li>Same rule as before: Probability = Count / Number of Matches (Historical / Empirical Probability)</li>
+      <li>The limitation: a goal count that never occurred shows 0%, not truly impossible, just unobserved in 10 matches</li>
+      <li>Poisson reframes the question, from "how often did this happen" to "given the expected rate, how likely is each goal count"</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="15">
+    <div class="demo-pointer">From Historical Probability to Poisson &mdash; formula &amp; comparison</div>
+    <div class="page-number">Page 15 / 17</div>
+    <div class="eyebrow">Poisson</div>
+    <h2>The Poisson Formula &amp; Comparison</h2>
+    <ul class="bullets">
+      <li>Formula: P(X=k) = e<sup>-&lambda;</sup> &times; &lambda;<sup>k</sup> / k! - fixed scoring rate, Home/Away modeled independently</li>
+      <li>Symbols: P(X=k) = probability of k goals; &lambda; = mean scoring rate (total goals &divide; 10 matches, separately for Home/Away); k! = factorial</li>
+      <li>Side-by-side table comparing Historical vs Poisson probability for each goal count</li>
+    </ul>
+    <table class="comparison-table" id="comparisonTable">
+      <thead>
+        <tr><th>Goals</th><th>Historical</th><th id="comparisonPoissonHeader">Poisson</th></tr>
+      </thead>
+      <tbody id="comparisonTableBody"></tbody>
+    </table>
+  </section>
+
+  <section class="slide" data-page="16">
+    <div class="demo-pointer">From Historical Probability to Poisson &mdash; back to the matrix &amp; limits</div>
+    <div class="page-number">Page 16 / 17</div>
+    <div class="eyebrow">Poisson</div>
+    <h2>Back to the Matrix, and Poisson's Limits</h2>
+    <ul class="bullets">
+      <li>Only the goal-probability estimate changes - the matrix &rarr; market &rarr; odds pipeline is identical to before</li>
+      <li>Worked example: P(Home=1) &times; P(Away=0) using Poisson-estimated probabilities, same independence formula as before</li>
+      <li>Poisson smooths gaps and covers unseen outcomes, but doesn't know team strength, form, or injuries - it's a distribution, not a prediction engine</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-page="17">
+    <div class="page-number">Page 17 / 17</div>
+    <div class="eyebrow">Thank You</div>
+    <h1>Thanks for Joining</h1>
+    <ul class="bullets">
+      <li>Same file, same dataset, one continuous pipeline from raw match data to quoted odds</li>
+      <li>Practice the rest (1X2, Double Chance, Total Goals, HDP) on your own time</li>
+      <li>Questions welcome now, or reach out any time after</li>
+    </ul>
+  </section>
+
+  <div class="nav-bar">
+    <button id="prevBtn">Prev</button>
+    <span class="nav-status" id="navStatus">Page 1 / 17</span>
+    <button id="nextBtn">Next</button>
+  </div>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const navStatus = document.getElementById('navStatus');
+  let current = 0;
+
+  function showSlide(index) {
+    slides[current].classList.remove('active');
+    current = index;
+    slides[current].classList.add('active');
+    navStatus.textContent = `Page ${current + 1} / ${slides.length}`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+
+  prevBtn.addEventListener('click', () => { if (current > 0) showSlide(current - 1); });
+  nextBtn.addEventListener('click', () => { if (current < slides.length - 1) showSlide(current + 1); });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextBtn.click();
+    if (e.key === 'ArrowLeft') prevBtn.click();
+  });
+
+  document.querySelectorAll('[data-timer]').forEach((box) => {
+    const duration = parseInt(box.dataset.duration, 10);
+    const display = box.querySelector('.timer-display');
+    const startBtn = box.querySelector('.timer-start');
+    const stopBtn = box.querySelector('.timer-stop');
+    const resetBtn = box.querySelector('.timer-reset');
+    let remaining = duration;
+    let intervalId = null;
+
+    function render() {
+      const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const s = String(remaining % 60).padStart(2, '0');
+      display.textContent = `${m}:${s}`;
+      display.classList.toggle('timer-warning', remaining > 0 && remaining <= 30);
+      display.classList.toggle('timer-done', remaining === 0);
+      startBtn.disabled = intervalId !== null || remaining === 0;
+      stopBtn.disabled = intervalId === null;
+    }
+
+    function tick() {
+      remaining -= 1;
+      if (remaining <= 0) {
+        remaining = 0;
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      render();
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (intervalId || remaining === 0) return;
+      intervalId = setInterval(tick, 1000);
+      render();
+    });
+
+    stopBtn.addEventListener('click', () => {
+      clearInterval(intervalId);
+      intervalId = null;
+      render();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      clearInterval(intervalId);
+      intervalId = null;
+      remaining = duration;
+      render();
+    });
+
+    render();
+  });
+
+  // Mirrors js/data.js MATCH_HISTORY and js/poisson-distribution.js's formula,
+  // kept in sync manually since this deck is a standalone file.
+  const MATCH_HISTORY = [
+    { home: 1, away: 2 }, { home: 4, away: 1 }, { home: 1, away: 2 },
+    { home: 1, away: 3 }, { home: 2, away: 4 }, { home: 0, away: 1 },
+    { home: 2, away: 0 }, { home: 1, away: 0 }, { home: 0, away: 0 },
+    { home: 3, away: 1 },
+  ];
+  const GOAL_VALUES = [0, 1, 2, 3, 4, 5, 6];
+
+  function factorial(n) {
+    let result = 1;
+    for (let i = 2; i <= n; i++) result *= i;
+    return result;
+  }
+
+  function poissonProbability(lambda, k) {
+    return (Math.exp(-lambda) * Math.pow(lambda, k)) / factorial(k);
+  }
+
+  (function renderComparisonTable() {
+    const body = document.getElementById('comparisonTableBody');
+    if (!body) return;
+    const homeGoals = MATCH_HISTORY.map((m) => m.home);
+    const lambdaHome = homeGoals.reduce((sum, g) => sum + g, 0) / homeGoals.length;
+    document.getElementById('comparisonPoissonHeader').textContent = `Poisson (λ = ${lambdaHome.toFixed(2)})`;
+
+    GOAL_VALUES.forEach((k) => {
+      const historyProb = homeGoals.filter((g) => g === k).length / homeGoals.length;
+      const poissonProb = poissonProbability(lambdaHome, k);
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${k}</td><td>${(historyProb * 100).toFixed(1)}%</td><td>${(poissonProb * 100).toFixed(1)}%</td>`;
+      body.appendChild(row);
+    });
+  })();
+
+  showSlide(0);
+</script>
+</body>
+</html>
