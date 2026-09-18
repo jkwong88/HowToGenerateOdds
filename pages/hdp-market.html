@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3.6 HDP - Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -18,11 +19,11 @@
       <option value="-0.75">Home -0.75</option>
       <option value="-0.5">Home -0.5</option>
       <option value="-0.25">Home -0.25</option>
-      <option value="0" selected>Home 0</option>
+      <option value="0">Home 0</option>
       <option value="0.25">Home +0.25</option>
       <option value="0.5">Home +0.5</option>
       <option value="0.75">Home +0.75</option>
-      <option value="1">Home +1</option>
+      <option value="1" selected>Home +1</option>
     </select>
   </h1>
 
@@ -36,20 +37,15 @@
         <tbody id="hdp-matrix-body"></tbody>
       </table>
 
-      <p class="step-note" id="step-note-1"></p>
-      <p class="step-note" id="step-note-2"></p>
-      <p class="step-note" id="step-note-3"></p>
+      <p class="step-note active" id="hdp-guide"></p>
 
       <div class="controls">
-        <span class="part-section" id="hdp-step-1">
-          <button id="complete-away">Away Covers</button>
-        </span>
-        <span class="part-section locked" id="hdp-step-2">
-          <button id="complete-middle">Push</button>
-        </span>
-        <span class="part-section locked" id="hdp-step-3">
-          <button id="complete-home">Home Covers</button>
-        </span>
+        <div class="category-picker" id="hdp-category-picker"></div>
+        <span class="picker-hint">You can switch categories and repaint any cell at any time.</span>
+      </div>
+
+      <div class="controls">
+        <button id="check-hdp">Check Classification</button>
         <button id="reset-hdp">Reset</button>
         <button id="fill-hdp">Show Answers</button>
       </div>
@@ -58,6 +54,18 @@
     <div class="panel part-section locked" id="odds-section">
       <div class="lock-notice">Complete the scoreline classification to unlock the odds table.</div>
       <h2>HDP Fair Odds</h2>
+
+      <div class="flow">
+        <div class="flow-step">Score Matrix</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Raw Outcome Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Exclude Push / Split Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Settlement-Adjusted Fair Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Odds</div>
+      </div>
 
       <table id="true-prob-table">
         <thead>
@@ -72,7 +80,7 @@
         <thead>
           <tr>
             <th>Selection</th>
-            <th>Fair Probability</th>
+            <th>Settlement-Adjusted Fair Probability</th>
             <th>Euro Odds</th>
             <th>HK Odds</th>
             <th>Malay Odds</th>

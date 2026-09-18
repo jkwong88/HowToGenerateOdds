@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3.2 Odd / Even - Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -22,19 +23,15 @@
         <tbody id="oe-matrix-body"></tbody>
       </table>
 
-      <p class="step-note" id="step-note-1">Step 1: Select every scoreline where Home + Away is <strong>odd</strong>, then click Odd.</p>
-      <p class="step-note" id="step-note-2">Step 2: Select every remaining scoreline where Home + Away is <strong>even</strong>, then click Even.</p>
+      <p class="step-note active">Select a category, then click matrix cells to classify them.</p>
 
       <div class="controls">
-        <span class="part-section" id="oe-step-1">
-          <button id="check-odd">Odd</button>
-        </span>
-        <span class="part-section locked" id="oe-step-2">
-          <button id="check-even">Even</button>
-        </span>
-        <span class="part-section locked" id="oe-step-3">
-          <button id="check-oe">Check</button>
-        </span>
+        <div class="category-picker" id="oe-category-picker"></div>
+        <span class="picker-hint">You can switch categories and repaint any cell at any time.</span>
+      </div>
+
+      <div class="controls">
+        <button id="check-oe">Check Classification</button>
         <button id="reset-oe">Reset</button>
         <button id="fill-oe">Show Answers</button>
       </div>

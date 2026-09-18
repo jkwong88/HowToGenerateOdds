@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3.3 1X2 & Double Chance</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -22,20 +23,15 @@
         <tbody id="wl-matrix-body"></tbody>
       </table>
 
-      <p class="step-note" id="step-note-1">Step 1: Select every scoreline where Home &gt; Away, then click Home.</p>
-      <p class="step-note" id="step-note-2">Step 2: Select every scoreline where Home = Away, then click Draw.</p>
-      <p class="step-note" id="step-note-3">Step 3: Select every remaining scoreline (Home &lt; Away), then click Away.</p>
+      <p class="step-note active">Select a category, then click matrix cells to classify them.</p>
 
       <div class="controls">
-        <span class="part-section" id="wl-step-1">
-          <button id="complete-home">Home</button>
-        </span>
-        <span class="part-section locked" id="wl-step-2">
-          <button id="complete-draw">Draw</button>
-        </span>
-        <span class="part-section locked" id="wl-step-3">
-          <button id="complete-away">Away</button>
-        </span>
+        <div class="category-picker" id="wl-category-picker"></div>
+        <span class="picker-hint">You can switch categories and repaint any cell at any time.</span>
+      </div>
+
+      <div class="controls">
+        <button id="check-wl">Check Classification</button>
         <button id="reset-wl">Reset</button>
         <button id="fill-wl">Show Answers</button>
       </div>

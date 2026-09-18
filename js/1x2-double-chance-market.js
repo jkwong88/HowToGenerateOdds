@@ -5,65 +5,34 @@ const CATEGORY_LABELS = { home: "Home", draw: "Draw", away: "Away" };
 const DC_KEYS = ["1X", "12", "X2"];
 const DC_COMBOS = { "1X": ["home", "draw"], "12": ["home", "away"], X2: ["draw", "away"] };
 
-let wlPhaseIndex = 0;
-
 function classify1X2(home, away) {
   if (home > away) return "home";
   if (home < away) return "away";
   return "draw";
 }
 
-function updateStepHighlight() {
-  const step2Locked = document.getElementById("wl-step-2").classList.contains("locked");
-  const step3Locked = document.getElementById("wl-step-3").classList.contains("locked");
-  const oddsLocked = document.getElementById("odds-section").classList.contains("locked");
-
-  document.getElementById("step-note-1").classList.toggle("active", step2Locked);
-  document.getElementById("step-note-2").classList.toggle("active", !step2Locked && step3Locked);
-  document.getElementById("step-note-3").classList.toggle("active", !step3Locked && oddsLocked);
-}
-
-// "Home" and "Draw" just move to the next step - neither checks anything.
-function completeHome() {
-  wlPhaseIndex = 1;
-  unlockSection("wl-step-2");
-  updateStepHighlight();
-}
-
-function completeDraw() {
-  wlPhaseIndex = 2;
-  unlockSection("wl-step-3");
-  updateStepHighlight();
-}
-
-// "Away" is the only place the whole grid actually gets verified.
+// "Check Classification" is the only place the whole grid actually gets
+// verified - painting itself is free and reversible via the category
+// picker, so there's no longer a phase to advance through.
 function checkAllCells() {
   const allCorrect = matrix.checkAll(classify1X2);
   if (allCorrect) unlockSection("odds-section");
-  updateStepHighlight();
   return allCorrect;
 }
 
-// Show Answers skips the manual Step 1/Step 2 clicks that would otherwise
-// unlock these sections, so it has to unlock them itself - otherwise the
-// grid ends up fully filled and checked while the step buttons stay locked
-// and the instructions still point at Step 1.
 function fillAllCells() {
   matrix.fillAll(classify1X2);
-  wlPhaseIndex = 2;
-  unlockSection("wl-step-2");
-  unlockSection("wl-step-3");
   checkAllCells();
 }
 
 function checkOddsTable() {
-  const passed = checkSimpleOddsTable(CATEGORIES, wlStats, false);
+  const passed = checkSimpleOddsTable(CATEGORIES, wlStats, "given");
   if (passed) unlockSection("part2");
   return passed;
 }
 
 function fillOddsTable() {
-  fillSimpleOddsTable(CATEGORIES, wlStats, false);
+  fillSimpleOddsTable(CATEGORIES, wlStats, "given");
   checkOddsTable();
 }
 
@@ -126,30 +95,36 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
+  resetSimpleOddsTable(CATEGORIES, "given");
   resetDCDisplay();
   matrix.reset();
+  picker.reset();
 
-  wlPhaseIndex = 0;
-  lockSection("wl-step-2");
-  lockSection("wl-step-3");
   lockSection("odds-section");
   lockSection("part2");
-  updateStepHighlight();
 }
 
 const expected = computeGoalStats();
 const matrix = createMatrixClassifier({ idPrefix: "wl", expected, categoryClass: CATEGORY_CLASS });
 const wlStats = matrix.computeStats(classify1X2, CATEGORIES);
 const dcStats = computeDCStats(wlStats);
+const CATEGORY_DESCRIPTIONS = { home: "Home &gt; Away", draw: "Home = Away", away: "Home &lt; Away" };
+const picker = createCategoryPicker({
+  containerId: "wl-category-picker",
+  categories: CATEGORIES,
+  categoryClass: CATEGORY_CLASS,
+  labels: CATEGORY_LABELS,
+  descriptions: CATEGORY_DESCRIPTIONS,
+});
 
-matrix.wireClicks(() => CATEGORY_CLASS[CATEGORIES[wlPhaseIndex]]);
+matrix.wireClicks(() => CATEGORY_CLASS[picker.getActive()]);
 buildSimpleOddsTable({
   bodyId: "odds-table-body",
   categories: CATEGORIES,
   labels: CATEGORY_LABELS,
   formulaFor: (key) =>
     key === "home" ? "SUM(cells where Home &gt; Away)" : key === "away" ? "SUM(cells where Home &lt; Away)" : "SUM(cells where Home = Away)",
-  includeHkMalay: false,
+  euroMode: "given",
 });
 buildDCTable();
 CATEGORIES.forEach((cat) => attachDimComplement(`prob-${cat}`, cat, () => wlStats, () => CATEGORIES));
@@ -160,15 +135,10 @@ document.querySelectorAll("input.answer").forEach((input) => {
   attachRefHighlight(input);
 });
 
-lockSection("wl-step-2");
-lockSection("wl-step-3");
 lockSection("odds-section");
 lockSection("part2");
-updateStepHighlight();
 
-document.getElementById("complete-home").addEventListener("click", completeHome);
-document.getElementById("complete-draw").addEventListener("click", completeDraw);
-document.getElementById("complete-away").addEventListener("click", checkAllCells);
+document.getElementById("check-wl").addEventListener("click", checkAllCells);
 document.getElementById("reset-wl").addEventListener("click", resetAll);
 document.getElementById("fill-wl").addEventListener("click", fillAllCells);
 document.getElementById("check-odds-table").addEventListener("click", checkOddsTable);

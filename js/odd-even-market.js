@@ -1,6 +1,7 @@
 const CATEGORIES = ["odd", "even"];
 const CATEGORY_CLASS = { odd: "marked-odd", even: "marked-even" };
 const CATEGORY_LABELS = { odd: "Odd", even: "Even" };
+const CATEGORY_DESCRIPTIONS = { odd: "Home + Away is odd", even: "Home + Away is even" };
 
 function isOddCell(home, away) {
   return (home + away) % 2 === 1;
@@ -10,47 +11,17 @@ function classifyOE(home, away) {
   return isOddCell(home, away) ? "odd" : "even";
 }
 
-let oePhase = 1;
-
-function updateStepHighlight() {
-  const step2Locked = document.getElementById("oe-step-2").classList.contains("locked");
-  const step3Locked = document.getElementById("oe-step-3").classList.contains("locked");
-
-  document.getElementById("step-note-1").classList.toggle("active", step2Locked);
-  document.getElementById("step-note-2").classList.toggle("active", !step2Locked && step3Locked);
-}
-
-// Step 1's "Odd" and step 2's "Even" just move to the
-// next step - neither checks anything.
-function completeStep1() {
-  oePhase = 2;
-  unlockSection("oe-step-2");
-  updateStepHighlight();
-}
-
-function completeStep2() {
-  unlockSection("oe-step-3");
-  updateStepHighlight();
-}
-
-// Step 3's "Check" is the only place the whole grid (both odd and even
-// selections) actually gets verified.
+// "Check" is the only place the whole grid (both odd and even selections)
+// actually gets verified - painting itself is free and reversible via the
+// category picker, so there's no longer a phase to advance through.
 function checkAllCells() {
   const allCorrect = matrix.checkAll(classifyOE);
   if (allCorrect) unlockSection("odds-section");
-  updateStepHighlight();
   return allCorrect;
 }
 
-// Show Answers skips the manual Step 1/Step 2 clicks that would otherwise
-// unlock these sections, so it has to unlock them itself - otherwise the
-// grid ends up fully filled and checked while the step buttons stay locked
-// and the instructions still point at Step 1.
 function fillAllCells() {
   matrix.fillAll(classifyOE);
-  oePhase = 2;
-  unlockSection("oe-step-2");
-  unlockSection("oe-step-3");
   checkAllCells();
 }
 
@@ -60,19 +31,22 @@ function resetAll() {
     syncEmptyTooltip(input);
   });
   matrix.reset();
-
-  oePhase = 1;
-  lockSection("oe-step-2");
-  lockSection("oe-step-3");
+  picker.reset();
   lockSection("odds-section");
-  updateStepHighlight();
 }
 
 const expected = computeGoalStats();
 const matrix = createMatrixClassifier({ idPrefix: "oe", expected, categoryClass: CATEGORY_CLASS });
 const oeStats = matrix.computeStats(classifyOE, CATEGORIES);
+const picker = createCategoryPicker({
+  containerId: "oe-category-picker",
+  categories: CATEGORIES,
+  categoryClass: CATEGORY_CLASS,
+  labels: CATEGORY_LABELS,
+  descriptions: CATEGORY_DESCRIPTIONS,
+});
 
-matrix.wireClicks(() => CATEGORY_CLASS[oePhase === 1 ? "odd" : "even"]);
+matrix.wireClicks(() => CATEGORY_CLASS[picker.getActive()]);
 buildSimpleOddsTable({
   bodyId: "odds-table-body",
   categories: CATEGORIES,
@@ -88,13 +62,8 @@ document.querySelectorAll("input.answer").forEach((input) => {
   attachRefHighlight(input);
 });
 
-lockSection("oe-step-2");
-lockSection("oe-step-3");
 lockSection("odds-section");
-updateStepHighlight();
 
-document.getElementById("check-odd").addEventListener("click", completeStep1);
-document.getElementById("check-even").addEventListener("click", completeStep2);
 document.getElementById("check-oe").addEventListener("click", checkAllCells);
 document.getElementById("reset-oe").addEventListener("click", resetAll);
 document.getElementById("fill-oe").addEventListener("click", fillAllCells);

@@ -1,9 +1,12 @@
 const CATEGORY_CLASS = { b01: "marked-under", b23: "marked-middle", b46: "marked-over", b7p: "marked-odd" };
 const CATEGORIES = ["b01", "b23", "b46", "b7p"];
 const CATEGORY_LABELS = { b01: "0–1", b23: "2–3", b46: "4–6", b7p: "7+" };
-const STEP_IDS = { b01: "tg-step-1", b23: "tg-step-2", b46: "tg-step-3", b7p: "tg-step-4" };
-
-let tgPhaseIndex = 0;
+const CATEGORY_DESCRIPTIONS = {
+  b01: "Home + Away &le; 1",
+  b23: "2 &le; Home + Away &le; 3",
+  b46: "4 &le; Home + Away &le; 6",
+  b7p: "Home + Away &ge; 7",
+};
 
 function classifyTotalGoal(home, away) {
   const total = home + away;
@@ -13,57 +16,17 @@ function classifyTotalGoal(home, away) {
   return "b7p";
 }
 
-function updateStepHighlight() {
-  const locked = {};
-  CATEGORIES.forEach((cat) => {
-    locked[cat] = document.getElementById(STEP_IDS[cat]).classList.contains("locked");
-  });
-  const oddsLocked = document.getElementById("odds-section").classList.contains("locked");
-
-  document.getElementById("step-note-1").classList.toggle("active", locked.b23);
-  document.getElementById("step-note-2").classList.toggle("active", !locked.b23 && locked.b46);
-  document.getElementById("step-note-3").classList.toggle("active", !locked.b46 && locked.b7p);
-  document.getElementById("step-note-4").classList.toggle("active", !locked.b7p && oddsLocked);
-}
-
-// The first three steps just move to the next step - none of them check
-// anything. The last step ("7+") is the only place the whole grid
-// actually gets verified.
-function completeB01() {
-  tgPhaseIndex = 1;
-  unlockSection("tg-step-2");
-  updateStepHighlight();
-}
-
-function completeB23() {
-  tgPhaseIndex = 2;
-  unlockSection("tg-step-3");
-  updateStepHighlight();
-}
-
-function completeB46() {
-  tgPhaseIndex = 3;
-  unlockSection("tg-step-4");
-  updateStepHighlight();
-}
-
+// "Check Classification" is the only place the whole grid actually gets
+// verified - painting itself is free and reversible via the category
+// picker, so there's no longer a phase to advance through.
 function checkAllCells() {
   const allCorrect = matrix.checkAll(classifyTotalGoal);
   if (allCorrect) unlockSection("odds-section");
-  updateStepHighlight();
   return allCorrect;
 }
 
-// Show Answers skips the manual Step 1/2/3 clicks that would otherwise
-// unlock these sections, so it has to unlock them itself - otherwise the
-// grid ends up fully filled and checked while the step buttons stay locked
-// and the instructions still point at Step 1.
 function fillAllCells() {
   matrix.fillAll(classifyTotalGoal);
-  tgPhaseIndex = 3;
-  unlockSection("tg-step-2");
-  unlockSection("tg-step-3");
-  unlockSection("tg-step-4");
   checkAllCells();
 }
 
@@ -72,21 +35,24 @@ function resetAll() {
     input.value = "";
     syncEmptyTooltip(input);
   });
+  resetSimpleOddsTable(CATEGORIES, "given");
   matrix.reset();
-
-  tgPhaseIndex = 0;
-  lockSection("tg-step-2");
-  lockSection("tg-step-3");
-  lockSection("tg-step-4");
+  picker.reset();
   lockSection("odds-section");
-  updateStepHighlight();
 }
 
 const expected = computeGoalStats();
 const matrix = createMatrixClassifier({ idPrefix: "tg", expected, categoryClass: CATEGORY_CLASS });
 const tgStats = matrix.computeStats(classifyTotalGoal, CATEGORIES);
+const picker = createCategoryPicker({
+  containerId: "tg-category-picker",
+  categories: CATEGORIES,
+  categoryClass: CATEGORY_CLASS,
+  labels: CATEGORY_LABELS,
+  descriptions: CATEGORY_DESCRIPTIONS,
+});
 
-matrix.wireClicks(() => CATEGORY_CLASS[CATEGORIES[tgPhaseIndex]]);
+matrix.wireClicks(() => CATEGORY_CLASS[picker.getActive()]);
 buildSimpleOddsTable({
   bodyId: "odds-table-body",
   categories: CATEGORIES,
@@ -98,7 +64,7 @@ buildSimpleOddsTable({
       b46: "SUM(cells where 4 &le; Home+Away &le; 6)",
       b7p: "SUM(cells where Home+Away &ge; 7)",
     }[key]),
-  includeHkMalay: false,
+  euroMode: "given",
 });
 CATEGORIES.forEach((cat) => attachDimComplement(`prob-${cat}`, cat, () => tgStats, () => CATEGORIES));
 
@@ -108,18 +74,11 @@ document.querySelectorAll("input.answer").forEach((input) => {
   attachRefHighlight(input);
 });
 
-lockSection("tg-step-2");
-lockSection("tg-step-3");
-lockSection("tg-step-4");
 lockSection("odds-section");
-updateStepHighlight();
 
-document.getElementById("complete-b01").addEventListener("click", completeB01);
-document.getElementById("complete-b23").addEventListener("click", completeB23);
-document.getElementById("complete-b46").addEventListener("click", completeB46);
-document.getElementById("complete-b7p").addEventListener("click", checkAllCells);
+document.getElementById("check-tg").addEventListener("click", checkAllCells);
 document.getElementById("reset-tg").addEventListener("click", resetAll);
 document.getElementById("fill-tg").addEventListener("click", fillAllCells);
-document.getElementById("check-odds-table").addEventListener("click", () => checkSimpleOddsTable(CATEGORIES, tgStats, false));
-document.getElementById("fill-odds-table").addEventListener("click", () => fillSimpleOddsTable(CATEGORIES, tgStats, false));
+document.getElementById("check-odds-table").addEventListener("click", () => checkSimpleOddsTable(CATEGORIES, tgStats, "given"));
+document.getElementById("fill-odds-table").addEventListener("click", () => fillSimpleOddsTable(CATEGORIES, tgStats, "given"));
 document.getElementById("reset-btn").addEventListener("click", resetAll);

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3.4 Total Goals - Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -22,24 +23,15 @@
         <tbody id="tg-matrix-body"></tbody>
       </table>
 
-      <p class="step-note" id="step-note-1">Step 1: click every cell where Home + Away is <strong>0&ndash;1</strong>, then click 0&ndash;1.</p>
-      <p class="step-note" id="step-note-2">Step 2: click every cell where Home + Away is <strong>2&ndash;3</strong>, then click 2&ndash;3.</p>
-      <p class="step-note" id="step-note-3">Step 3: click every cell where Home + Away is <strong>4&ndash;6</strong>, then click 4&ndash;6.</p>
-      <p class="step-note" id="step-note-4">Step 4: click every remaining cell (Home + Away is <strong>7+</strong>), then click 7+.</p>
+      <p class="step-note active">Select a category, then click matrix cells to classify them by total goals (Home + Away).</p>
 
       <div class="controls">
-        <span class="part-section" id="tg-step-1">
-          <button id="complete-b01">0&ndash;1</button>
-        </span>
-        <span class="part-section locked" id="tg-step-2">
-          <button id="complete-b23">2&ndash;3</button>
-        </span>
-        <span class="part-section locked" id="tg-step-3">
-          <button id="complete-b46">4&ndash;6</button>
-        </span>
-        <span class="part-section locked" id="tg-step-4">
-          <button id="complete-b7p">7+</button>
-        </span>
+        <div class="category-picker" id="tg-category-picker"></div>
+        <span class="picker-hint">You can switch categories and repaint any cell at any time.</span>
+      </div>
+
+      <div class="controls">
+        <button id="check-tg">Check Classification</button>
         <button id="reset-tg">Reset</button>
         <button id="fill-tg">Show Answers</button>
       </div>

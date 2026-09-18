@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3.5 Over / Under - Market</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -12,7 +13,7 @@
     <main class="exercise-content">
   <h1>
     3.5 Over / Under
-    <label for="ou-point-select" class="point-label">Point:</label>
+    <label for="ou-point-select" class="point-label">Line:</label>
     <select id="ou-point-select" class="point-select">
       <option value="2">2</option>
       <option value="2.25">2.25</option>
@@ -31,20 +32,15 @@
         <tbody id="ou-matrix-body"></tbody>
       </table>
 
-      <p class="step-note" id="step-note-1"></p>
-      <p class="step-note" id="step-note-2"></p>
-      <p class="step-note" id="step-note-3"></p>
+      <p class="step-note active" id="ou-guide"></p>
 
       <div class="controls">
-        <span class="part-section" id="ou-step-1">
-          <button id="complete-under">Under</button>
-        </span>
-        <span class="part-section locked" id="ou-step-2">
-          <button id="complete-middle">Push</button>
-        </span>
-        <span class="part-section locked" id="ou-step-3">
-          <button id="complete-over">Over</button>
-        </span>
+        <div class="category-picker" id="ou-category-picker"></div>
+        <span class="picker-hint">You can switch categories and repaint any cell at any time.</span>
+      </div>
+
+      <div class="controls">
+        <button id="check-ou">Check Classification</button>
         <button id="reset-ou">Reset</button>
         <button id="fill-ou">Show Answers</button>
       </div>
@@ -53,6 +49,18 @@
     <div class="panel part-section locked" id="odds-section">
       <div class="lock-notice">Complete the scoreline classification to unlock the odds table.</div>
       <h2>Over / Under Fair Odds</h2>
+
+      <div class="flow">
+        <div class="flow-step">Score Matrix</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Raw Outcome Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Exclude Push / Split Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Settlement-Adjusted Fair Probability</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Odds</div>
+      </div>
 
       <table id="true-prob-table">
         <thead>
@@ -67,7 +75,7 @@
         <thead>
           <tr>
             <th>Selection</th>
-            <th>Fair Probability</th>
+            <th>Settlement-Adjusted Fair Probability</th>
             <th>Euro Odds</th>
             <th>HK Odds</th>
             <th>Malay Odds</th>
