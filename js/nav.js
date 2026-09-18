@@ -39,7 +39,7 @@ const PAGE_SECTIONS = [
       { number: "4.2", file: "adding-a-spread.html", title: "Adding a Pricing Spread", type: "exercise" },
     ],
   },
-  { number: "5", file: "poisson-distribution.html", title: "Relationship between Poisson and Probability", type: "explanation" },
+  { number: "5", file: "poisson-distribution.html", title: "From Historical Probability to Poisson", type: "explanation" },
 ];
 
 // Flattened list of linkable pages, in display order, used for prev/next

@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>5. Relationship between Poisson and Probability</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. From Historical Probability to Poisson</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -10,7 +11,7 @@
     <aside class="exercise-index" id="exercise-index-root"></aside>
 
     <main class="exercise-content">
-  <h1>5. Relationship between Poisson and Probability</h1>
+  <h1>5. From Historical Probability to Poisson</h1>
   <p>Probability tells us how likely an outcome is. Poisson is one method used to estimate goal probabilities from an expected scoring rate. It does not replace the score-matrix and odds calculations from sections 2&ndash;4 &mdash; it only changes how the Home/Away goal probabilities that feed into them are produced.</p>
 
   <div class="stack">
@@ -54,7 +55,7 @@
 
       <p><strong>Poisson method</strong></p>
       <div class="flow">
-        <div class="flow-step">Expected Goals &lambda;</div>
+        <div class="flow-step">Mean Scoring Rate &lambda;</div>
         <span class="flow-arrow">&rarr;</span>
         <div class="flow-step">Poisson Distribution</div>
         <span class="flow-arrow">&rarr;</span>
@@ -65,18 +66,19 @@
     </div>
 
     <div class="panel">
-      <h2>5.4 &lambda; &mdash; Expected Goals</h2>
+      <h2>5.4 &lambda; &mdash; Expected Goal Count / Mean Scoring Rate</h2>
       <p>From the same 10 matches: Home scored <span id="lambda-home-total"></span> goals total, so <code>&lambda; Home = <span id="lambda-home-total-2"></span> / 10 = <span id="lambda-home"></span></code>. Away scored <span id="lambda-away-total"></span> goals total, so <code>&lambda; Away = <span id="lambda-away-total-2"></span> / 10 = <span id="lambda-away"></span></code>.</p>
-      <p>&lambda; represents the expected average number of goals. Poisson then converts it into a full formula:</p>
+      <p>&lambda; (the mean scoring rate) represents the expected average number of goals per match. This isn't the same concept as football's own "Expected Goals (xG)" metric, which scores individual shot quality within a single match &mdash; here, &lambda; is a single season-level average feeding a probability model. Poisson then converts it into a full formula:</p>
       <p><code>P(X = k) = e<sup>&minus;&lambda;</sup> &times; &lambda;<sup>k</sup> / k!</code></p>
       <ul>
         <li><code>P(X = k)</code> &mdash; probability of exactly k goals</li>
         <li><code>k</code> &mdash; number of goals</li>
-        <li><code>&lambda;</code> &mdash; expected goals</li>
+        <li><code>&lambda;</code> &mdash; mean scoring rate (expected goal count)</li>
         <li><code>e</code> &mdash; a mathematical constant (&asymp; 2.71828)</li>
         <li><code>k!</code> &mdash; factorial (k &times; (k&minus;1) &times; &hellip; &times; 1)</li>
       </ul>
-      <p>This course doesn't derive or prove that formula &mdash; it's about opening odds, not probability theory.</p>
+      <p>This model makes two simplifying assumptions: &lambda; is treated as a <strong>fixed scoring rate</strong> that doesn't change during the match or by opponent, and <strong>Home and Away goals are modeled independently</strong> of each other &mdash; the same independence assumption Section 2 already makes for the score matrix.</p>
+      <p>This course doesn't derive or prove the Poisson formula itself &mdash; it's about opening odds, not probability theory.</p>
     </div>
 
     <div class="panel">
@@ -113,7 +115,7 @@
 
       <p><strong>With Poisson</strong></p>
       <div class="flow">
-        <div class="flow-step">Expected Goals &lambda;H, &lambda;A</div>
+        <div class="flow-step">Mean Scoring Rate &lambda;H, &lambda;A</div>
         <span class="flow-arrow">&rarr;</span>
         <div class="flow-step">Poisson</div>
         <span class="flow-arrow">&rarr;</span>
@@ -161,7 +163,7 @@
       <div class="flow">
         <div class="flow-step">Team Strength, Opponent Strength, Home Advantage, Other Information</div>
         <span class="flow-arrow">&rarr;</span>
-        <div class="flow-step">Expected Goals &lambda;</div>
+        <div class="flow-step">Mean Scoring Rate &lambda;</div>
         <span class="flow-arrow">&rarr;</span>
         <div class="flow-step">Poisson</div>
         <span class="flow-arrow">&rarr;</span>
