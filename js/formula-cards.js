@@ -21,9 +21,11 @@ const FORMULA_CARDS = {
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
   "over-under-market.html": [
-    { label: "Category Probability", formula: "Σ P(scoreline) in Under / Push / Over" },
-    { label: "Selection Probability", formula: "Category Probability ÷ (1 − Settlement Weight × Middle Probability)" },
-    { label: "Euro Odds", formula: "1 / Probability" },
+    { label: "Raw Outcome Probability", formula: "Σ P(scoreline) in Under / Push (or Split Settlement) / Over" },
+    { label: "Half Line, e.g. 2.5", formula: "No middle category — Settlement-Adjusted Fair Probability = Raw Outcome Probability" },
+    { label: "Integer Line, e.g. 2.0", formula: "Settlement-Adjusted Fair Probability = Raw Outcome Probability ÷ (1 − Push Probability) — Push is excluded entirely" },
+    { label: "Quarter Line, e.g. 2.25 / 2.75", formula: "One side = Raw Outcome Probability ÷ (1 − 0.5 × Split Probability); Other side = 1 − that side" },
+    { label: "Euro Odds", formula: "1 / Settlement-Adjusted Fair Probability" },
     { label: "HK Odds", formula: "Euro − 1" },
     { label: "Malay Odds", formula: "HK if HK ≤ 1, else −1 / HK" },
   ],
@@ -37,24 +39,25 @@ const FORMULA_CARDS = {
     { label: "Euro Odds", formula: "1 / Probability" },
   ],
   "hdp-market.html": [
-    { label: "Category Probability", formula: "Σ P(scoreline) in Away Covers / Push / Home Covers, classified by Home − Away" },
-    { label: "Selection Probability", formula: "Same as 3.5 Over / Under, applied to Home − Away instead of Home + Away" },
+    { label: "Raw Outcome Probability", formula: "Σ P(scoreline) in Away Covers / Push (or Split Settlement) / Home Covers, classified by Home − Away" },
+    { label: "Settlement-Adjusted Fair Probability", formula: "Same three cases (Half / Integer / Quarter Line) as 3.5 Over / Under, applied to Home − Away instead of Home + Away" },
     { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
   ],
   "opening-over-under-market.html": [
-    { label: "Selection Probability", formula: "Same as 3.5 Over / Under or 3.6 HDP, swept over the selected market's range" },
-    { label: "Main Market", formula: "Line(s) where the two fair probabilities are closest to 50% each" },
+    { label: "Settlement-Adjusted Fair Probability", formula: "Same settlement-adjusted math as 3.5 Over / Under or 3.6 HDP, swept over the selected market's range" },
+    { label: "Candidate Main Line", formula: "This course's rule: line(s) where the two fair probabilities are closest to 50% each" },
     { label: "Euro / HK / Malay", formula: "Same odds-conversion chain as 3.5 Over / Under" },
   ],
   "adding-a-spread.html": [
-    { label: "Spread Malay Odds", formula: "Fair Malay − Spread / 2 (per side)" },
+    { label: "Spread Malay Odds", formula: "Fair Malay − Spread / 2 (per side); if |result| > 1, re-express as −1 / result (valid Malay notation)" },
     { label: "HK Odds", formula: "Malay if Malay ≥ 0, else −1 / Malay" },
     { label: "Euro Odds", formula: "HK + 1" },
-    { label: "Probability", formula: "1 / Euro" },
+    { label: "Implied Probability", formula: "1 / Euro — no longer a fair probability once the spread is applied" },
+    { label: "Overround", formula: "Σ Implied Probability (Over + Under) − 100%" },
   ],
   "poisson-distribution.html": [
     { label: "Historical Probability", formula: "Count(k goals) / N matches" },
-    { label: "Expected Goals (λ)", formula: "Total goals / N matches" },
+    { label: "Expected Goal Count / Mean Scoring Rate (λ)", formula: "Total goals / N matches" },
     { label: "Poisson PMF", formula: "P(X = k) = e⁻λ × λᵏ / k!" },
     { label: "Joint Score Probability", formula: "P(Home = h, Away = a) = P(Home = h) × P(Away = a)" },
   ],
@@ -70,9 +73,24 @@ function renderFormulaCard() {
     .join("");
 
   root.innerHTML = `
-    <h2>Formulas</h2>
-    <dl id="formula-card-list">${items}</dl>
+    <details class="collapsible-panel">
+      <summary>Formulas</summary>
+      <dl id="formula-card-list">${items}</dl>
+    </details>
   `;
+
+  // A closed <details>'s content is hidden by the browser's own UA
+  // stylesheet with `!important`, which no CSS in this file can override -
+  // so forcing the panel open at wider viewports is done here, by setting
+  // `open` directly, not through CSS alone (see style.css's comment above
+  // its `.formula-card .collapsible-panel summary` rule).
+  const details = root.querySelector(".collapsible-panel");
+  const mql = window.matchMedia("(min-width: 1600px)");
+  const syncOpen = () => {
+    details.open = mql.matches;
+  };
+  syncOpen();
+  mql.addEventListener("change", syncOpen);
 }
 
 renderFormulaCard();

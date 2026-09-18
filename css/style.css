@@ -1,3 +1,11 @@
+/* Reserves the vertical scrollbar's width unconditionally, so navigating
+   between a short page (no scrollbar) and a tall one (scrollbar visible) -
+   e.g. section 5 vs. 3.3 - doesn't shift the centered content sideways by
+   the scrollbar's width. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
@@ -97,6 +105,44 @@ body {
   width: 280px;
   min-width: 0;
   box-sizing: border-box;
+}
+
+/* Navigation and Formula Card both collapse into a native <details> at
+   narrower widths (see the breakpoints below) instead of a custom JS
+   toggle - keyboard/screen-reader behavior comes for free, and there's no
+   open/closed state to keep in sync with CSS. */
+.collapsible-panel {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.collapsible-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1a1a1a;
+  background: #eef0f7;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  list-style: none;
+}
+
+.collapsible-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-panel summary::before {
+  content: "\25b8  ";
+}
+
+.collapsible-panel[open] summary::before {
+  content: "\25be  ";
+}
+
+.collapsible-panel summary:focus-visible {
+  outline: 3px solid #1f4f8f;
+  outline-offset: 2px;
 }
 
 .formula-card dl {
@@ -305,6 +351,11 @@ td.given-value {
   border-color: #2c3e6b;
 }
 
+.oe-cell:focus-visible {
+  outline: 3px solid #1f4f8f;
+  outline-offset: 1px;
+}
+
 .oe-cell:disabled {
   cursor: default;
 }
@@ -359,12 +410,41 @@ td.given-value {
   color: #7048e8;
 }
 
+/* Correct/wrong feedback is never color-only: a small checkmark/cross
+   badge (::before, so it never collides with the hover-tooltip ::after
+   used on formula-input cells) backs up the background color. */
+td.cell-correct,
+td.cell-wrong {
+  position: relative;
+}
+
+td.cell-correct::before,
+td.cell-wrong::before {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
 td.cell-correct {
   background: #d9f2d9;
 }
 
+td.cell-correct::before {
+  content: "\2713";
+  color: #2b8a3e;
+}
+
 td.cell-wrong {
   background: #ffa8a8;
+}
+
+td.cell-wrong::before {
+  content: "\2717";
+  color: #a61e1e;
 }
 
 tr.selected-correct td {
@@ -386,6 +466,96 @@ tr.selected-wrong td {
   font-weight: 600;
 }
 
+.category-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.picker-hint {
+  color: #8a8a95;
+  font-size: 12px;
+}
+
+/* Unselected is always plain grey, regardless of category - only the
+   selected button takes on that category's color (rules below) - so at a
+   glance the one active category is unambiguous instead of every button
+   competing for attention with its own color. */
+.cat-btn {
+  background: #fff;
+  border: 2px solid #c7c7cf;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a8a95;
+  cursor: pointer;
+}
+
+.cat-btn:hover {
+  border-color: #2c3e6b;
+  color: #2c3e6b;
+}
+
+.cat-btn:focus-visible {
+  outline: 3px solid #1f4f8f;
+  outline-offset: 2px;
+}
+
+.cat-btn[aria-pressed="true"] {
+  color: #fff;
+}
+
+.cat-btn[aria-pressed="true"]:hover {
+  color: #fff;
+}
+
+/* Two-line card variant (label + defining rule, e.g. "Home" / "Home > Away")
+   used where a picker button also doubles as a legend entry - see
+   createCategoryPicker's `descriptions` option. */
+.cat-btn-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 14px;
+}
+
+.cat-btn-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cat-btn-desc {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.cat-btn.marked-odd[aria-pressed="true"] {
+  background: #e8590c;
+  border-color: #b34700;
+}
+
+.cat-btn.marked-even[aria-pressed="true"] {
+  background: #7048e8;
+  border-color: #5f3dc4;
+}
+
+.cat-btn.marked-under[aria-pressed="true"] {
+  background: #1c7ed6;
+  border-color: #1864ab;
+}
+
+.cat-btn.marked-middle[aria-pressed="true"] {
+  background: #f59f00;
+  border-color: #e67700;
+}
+
+.cat-btn.marked-over[aria-pressed="true"] {
+  background: #7048e8;
+  border-color: #5f3dc4;
+}
+
 input.answer {
   width: 48px;
   text-align: center;
@@ -393,6 +563,11 @@ input.answer {
   border-radius: 3px;
   padding: 3px 2px;
   font-size: 13px;
+}
+
+input.answer:focus-visible {
+  outline: 3px solid #1f4f8f;
+  outline-offset: 1px;
 }
 
 input.answer.correct {
@@ -415,11 +590,43 @@ input.answer.incorrect {
   border-color: #e05353;
 }
 
+/* Correct/incorrect feedback on an input isn't color-only either - a small
+   badge on the cell (::before, so it never collides with the tooltip
+   ::after on the same cell) backs it up with a non-color signal. */
+td:has(> input.answer.correct),
+td:has(> input.answer.incorrect) {
+  position: relative;
+}
+
+td:has(> input.answer.correct)::before,
+td:has(> input.answer.incorrect)::before {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+td:has(> input.answer.correct)::before {
+  content: "\2713";
+  color: #2b8a3e;
+}
+
+td:has(> input.answer.incorrect)::before {
+  content: "\2717";
+  color: #a61e1e;
+}
+
 td.has-tooltip {
   position: relative;
 }
 
-td.has-tooltip:hover::after {
+/* :focus-within (not just :hover) so tabbing into an empty input shows its
+   formula hint too, not only pointing at it with a mouse. */
+td.has-tooltip:hover::after,
+td.has-tooltip:focus-within::after {
   content: attr(data-tooltip);
   position: absolute;
   left: 100%;
@@ -598,4 +805,38 @@ span.part-section {
 
 .two-col > div {
   flex: 1 1 260px;
+}
+
+/* Responsive layout - desktop/laptop only, no mobile support needed.
+   Desktop default above is a fixed 3-column row (Navigation 200px |
+   Exercise 950px | Formula Card 280px) that needs ~1560px of viewport
+   width including gaps/padding - too wide for a 1366px laptop. Below
+   1600px the Formula Card collapses into a <details> the student can open
+   on demand; Navigation always stays visible regardless of width. */
+@media (max-width: 1599px) {
+  .app-shell {
+    flex-wrap: wrap;
+  }
+
+  .exercise-content {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .formula-card {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+/* Only the toggle affordance is CSS-controlled here - a closed <details>'s
+   content is hidden by the UA stylesheet with `display: none !important`,
+   which no author !important can outrank, so actually forcing the panel
+   open at this width is done in JS (see formula-cards.js), which sets the
+   `open` property directly instead of fighting the cascade. */
+@media (min-width: 1600px) {
+  .formula-card .collapsible-panel summary {
+    display: none;
+  }
 }
